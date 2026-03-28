@@ -102,14 +102,20 @@ LOG_FILE         = _out("meft_v35_bidask.log")
 RUN_HISTORY_FILE = os.path.join(LOGS_DIR, "run_history.json")   # persistent across runs
 
 # ┌─────────────────────────────────────────────────────────────────────┐
+# │  STRATEGY: Multi-Entry Directional Spreads (MEDS)                   │
+# │  Signal   : Prior-day VIX change → PUT (VIX fell) / CALL (VIX rose)│
+# │  Execution: SPXW 0DTE credit spreads, entry every 20min 9:35–12:45 │
+# ├─────────────────────────────────────────────────────────────────────┤
 # │  CONFIRMED BASELINE  (2022-01-03 → 2026-03-25)  run 2026-03-27     │
-# │  Total P&L    : $462,444   Win rate : 93.0%                         │
-# │  Max drawdown : -$9,922    Sharpe   : 10.83   Calmar  : 46.6        │
-# │  Avg mo P&L   : $9,067     Trades   : 6,751   Days    : 958 / 1103  │
+# │  Total P&L    : $607,034   Win rate : 93.1%                         │
+# │  Max drawdown : -$9,922    Sharpe   : 12.35   Calmar  : 61.2        │
+# │  Trades       : 7,014      Days     : 957 / 1103                    │
 # │  Key settings : WIDTH=20, QTY=2, MIN_CREDIT=0.55, MIN_OTM=30        │
 # │                 DIRECTION=vix_change, ENTRY 9:35–12:45 every 20min  │
 # │                 DYN_SL: VIX<13 | (13–13.5) | (25–30) → SL=-$500    │
+# │                 MTM interval: 1min on danger days, 5min otherwise    │
 # │                 FOMC/TW/CPI/NFP all traded (filters removed)         │
+# │                 DAILY_TP=None (TP sweep: removing $750 cap +$140k)   │
 # └─────────────────────────────────────────────────────────────────────┘
 WIDTH          = 20.0
 QTY            = 2
@@ -353,6 +359,47 @@ def _build_calendar_event_dates() -> "dict[str, set[str]]":
 ENABLE_VIX_REGIME  = False  # reduce contract size when VIX is elevated
 HIGH_VIX_THRESHOLD = 30.0   # VIX level above which we cut size
 HIGH_VIX_QTY       = 1      # reduced contracts during high-VIX regime
+# Low-VIX / mid-VIX half-size: reduce qty on the two worst-performing VIX zones.
+# SWEEP RESULT (2026-03-27): half-size on VIX<13 and VIX 25-30 lifts win rate
+# (67.5%→76.0% and 65.0%→74.3%) and improves Sharpe (12.35→12.81), but costs
+# -$3,902 in total PnL ($607k→$603k) because winning trades in those zones also
+# collect half credit. MaxDD unchanged at -$9,922. Not worth it — keep False.
+ENABLE_LOW_VIX_HALF_SIZE = False
+LOW_VIX_THRESHOLD        = 13.0         # reduce qty when VIX < this
+MID_VIX_BAND             = (25.0, 30.0) # reduce qty when VIX is in this range
+LOW_VIX_QTY              = 1            # half of baseline QTY=2
+
+# ── Kelly Zone Sizing ──
+# Scale contract qty by VIX zone according to Kelly criterion.
+# Zones: list of (vix_lo, vix_hi, qty) — checked in order; first match wins.
+# Overrides QTY and ENABLE_LOW_VIX_HALF_SIZE when enabled.
+#
+# FULL MARATHON BACKTEST RESULTS (2026-03-28):
+#   Scenario               P&L         MaxDD    Sharpe  Calmar
+#   Baseline (qty=2 flat) $607,034   -$9,922    12.54   61.2
+#   Half-Kelly            $600,495   -$9,922    13.11   60.5  ← danger zones 2→1; net -$6.5k vs baseline
+#   Conservative (max=3)  $865,667  -$14,883    13.00   58.2  ← CSV estimate only
+#   Full Kelly (max=4)   $1,168,607 -$19,844    13.18   58.9  ← verified full marathon
+#
+# WHY IT WORKS: strategy edge varies by VIX regime (64% WR danger zones vs 99%
+# sweet spot). Flat qty=2 over-bets bad zones, under-bets good ones. Kelly
+# corrects this — P&L nearly doubles (+92%), Sharpe +0.64, Calmar unchanged.
+# Improvement is consistent across all years (2022–2026).
+#
+# BUYING POWER CONSTRAINT — LOCKED until BP reaches ~$80k (2026-03-28):
+#   Full Kelly peak BP: ~$77,720  (10 positions × qty=4 × ~$1,943/contract)
+#   Current account BP: ~$40,000  → max sustainable qty = 2.07 → qty=2
+#   Baseline already uses 97% of available BP ($38,860 peak day).
+#   Enable Full Kelly when account BP reaches ~$80,000+.
+ENABLE_KELLY_SIZING = False
+KELLY_ZONE_QTY = [           # (vix_lo_inclusive, vix_hi_exclusive, qty)
+    (0.0,  13.0, 1),         # VIX <13:    Kelly 13% — danger zone, min size
+    (13.0, 15.0, 3),         # VIX 13–15:  Kelly 70% — recovering zone
+    (15.0, 20.0, 4),         # VIX 15–20:  Kelly 87% — sweet spot
+    (20.0, 25.0, 4),         # VIX 20–25:  Kelly 93% — sweet spot
+    (25.0, 30.0, 1),         # VIX 25–30:  Kelly 13% — danger zone, min size
+    (30.0, 999.0, 4),        # VIX >30:    Kelly 83% — crisis vol, high edge
+]
 
 # ── VIX Day Filter ──
 # Set to a float to skip trading days outside this VIX range. None = no filter.
@@ -379,12 +426,17 @@ DAY_FILTER_STOCH_MIN    = None   # prior day Stoch %K(14) >= X (avoid oversold m
 DAY_FILTER_GAP_MAX      = None   # today's abs(gap%) <= X (avoid large gap opens; e.g. 0.5 = 0.5%)
 DAY_FILTER_ABOVE_SMA5          = None   # True = only trade when prior close > SMA5
 DAY_FILTER_ABOVE_SMA200        = None   # True = only trade when prior close > SMA200
+DAY_FILTER_ADX_MIN             = None   # prior day ADX(14) >= X (only trade trending days; e.g. 25)
+DAY_FILTER_RANGE_MAX           = None   # prior day (H-L)/prevC <= X% (skip high-range days; e.g. 1.5)
+DAY_FILTER_EXP_MOVE_MAX        = None   # today VIX-implied 1-day move <= X% (skip high-vol days; e.g. 1.5)
 DAY_FILTER_SKIP_VIX_RISE_DECEL = False  # True = skip days where VIX rising but decelerating
                                         # SWEEP RESULT: improves Sharpe 10.60→13.17 but costs ~$13k P&L.
                                         # Rise+decel days still profitable (92%+ WR, $312/day avg).
                                         # Inconsistent year-to-year — likely overfitting. Keep False.
 
-DAILY_TP       = 750.0
+DAILY_TP       = None  # SWEEP RESULT: None wins. $750 cap was cutting winners short.
+                       # Full-run sweep: None=$607k, $900=$512k, $800=$487k, $750=$466k baseline.
+                       # Same MaxDD (-$9,922) and better Sharpe (12.35 vs 11.40). Keep None.
 DAILY_SL       = None
 
 # ── Dynamic Stop Loss ──
@@ -401,6 +453,15 @@ DYNAMIC_SL_VIX_MID   = (13.0, 13.5) # apply SL when VIX is in this range (low-VI
                                      # Prior setting (13.0, 17.0) was too wide — applying SL on VIX 15–17
                                      # days (which have 84.5% WR) cost ~$98k unnecessarily.
                                      # Tightening to just the 13–13.5 danger band unlocked that P&L.
+SKIP_VIX_RANGE       = None          # (lo, hi) → skip day entirely when VIX is in this range.
+                                     # TESTED: (25.0, 30.0) — full marathon backtest result:
+                                     #   P&L: $607,034 → $597,112  (-$9,922, -1.6%)
+                                     #   Max DD: unchanged at -$9,922  (worst DD comes from elsewhere)
+                                     #   Sharpe: 12.54 → 14.37  (+1.83, cosmetic — fewer noisy days)
+                                     #   Win Rate: 93.1% → 96.4%
+                                     # DECISION: keep None. The SL already limits the zone to near
+                                     # break-even. Skipping costs real P&L with no drawdown benefit.
+                                     # Revisit only if live SL execution is slipping through -$500.
 
 # ── Month + Direction Stop Loss ──
 # Applies a stop loss on specific calendar months where PUT or CALL spreads
@@ -422,7 +483,8 @@ ENTRY_END      = time(12, 45)  # 5-min interval boosts P&L to ~$143k but doubles
 ENTRY_INTERVAL = 20            # More frequent entries = more exposure on bad days. 20min is the
                                # sweet spot balancing opportunity capture vs risk concentration.
 MAX_TRADES_DAY = 10
-PNL_SAMPLE_INTERVAL = 5  # fetch MTM quotes every N minutes (reduces API calls ~5x vs every 1-min bar)
+PNL_SAMPLE_INTERVAL = 5          # fetch MTM quotes every N minutes on normal days
+DANGER_PNL_SAMPLE_INTERVAL = 1  # tighter MTM check interval on dynamic SL days (catches -$500 threshold faster)
 
 EMA_FAST       = 10
 EMA_SLOW       = 30
@@ -452,6 +514,11 @@ SWEEP_SAVE_FILE = _out("meft_v35_bidask_sl_sweep.csv")
 # ── Daily Profit Target Sweep ──
 # Sweeps the intraday profit target (closes all positions when day P&L >= level).
 # None = no daily profit target (let positions run to expiration).
+# NOTE: Pool-based sweep is unreliable for TP (shows wrong sign on all results due to
+# EMA seeding issue). Use run_tp_sweep.sh for sequential full-run testing instead.
+# SWEEP RESULT (2026-03-27, full marathon runs via run_tp_sweep.sh):
+#   None=$607k, $900=$512k, $800=$487k, $750=$466k, $700=$442k, $650=$416k, $600=$393k
+#   Higher TP always wins. None best — same MaxDD (-$9,922), Sharpe 12.35 vs 11.40.
 RUN_DAILY_TP_SWEEP    = False
 SWEEP_DAILY_TP_LEVELS = [500.0, 550.0, 600.0, 650.0, 700.0, 750.0, 800.0, 900.0, 1100.0, None]  # None = no daily TP
 DAILY_TP_SWEEP_FILE   = _out("metf_v35_bidask_daily_tp_sweep.csv")
@@ -475,7 +542,7 @@ MAX_BP_SWEEP_FILE    = _out("metf_v35_bidask_max_bp_sweep.csv")
 # ── Daily Bar Indicator Filter Sweep ──
 # Tests each indicator independently across threshold levels.
 # Each row = one (indicator, threshold) combination with full backtest metrics.
-RUN_DAY_FILTER_SWEEP  = False
+RUN_DAY_FILTER_SWEEP  = True
 SWEEP_DAY_FILTERS = {
     "vix_max":          [12, 13, 14, 14.5, 15, 16, 18, 20, None],  # today's VIX <= X (None=no filter)
     "vix_min":          [12, 13, 14, 14.5, 15, 16, 18, 20],        # today's VIX >= X (None=no filter)
@@ -659,12 +726,66 @@ RUN_MASTER_SWEEP = False
 RUN_CALENDAR_SWEEP  = False
 CALENDAR_SWEEP_FILE = _out("metf_v35_bidask_calendar_sweep.csv")
 
+# ── CALL-Side SL Sweep ──
+# Tests a dedicated stop-loss applied only on CALL spread days (VIX rose → sell calls).
+# PUT days continue to use _get_effective_sl() (dynamic VIX-based SL) unchanged.
+# Motivation: all max drawdown in the baseline comes from CALL spreads (-$9,922 CALL vs -$5,982 PUT).
+RUN_CALL_SL_SWEEP   = False
+CALL_SL_SWEEP_FILE  = _out("metf_v35_bidask_call_sl_sweep.csv")
+CALL_SL_SWEEP_LEVELS = [-100, -200, -300, -400, -500, -600, -700, -800, -1000, -1500, None]
+
+# ── VIX Magnitude Filter Sweep ──
+# Skips days where |dVixChgPct| is below a threshold (signal too weak to be directional).
+# Analysis shows 0–1% VIX change days have only 83.5% win rate vs 93%+ for larger moves.
+RUN_VIX_MAG_SWEEP   = False
+VIX_MAG_SWEEP_FILE  = _out("metf_v35_bidask_vix_mag_sweep.csv")
+VIX_MAG_THRESHOLDS  = [0.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0, 2.5, 3.0]  # skip if |dVixChgPct| < threshold
+
+# ── Gap-Down CALL SL Sweep ──
+# Gap-down + CALL days are the weakest combo: $369/day avg vs $530+ for others.
+# Theory: intraday gap-fill rallies can threaten CALL strikes on gap-down days.
+# Tests adding a tighter SL exclusively on days where gap < 0 AND direction is CALL.
+RUN_GAP_CALL_SL_SWEEP   = False
+GAP_CALL_SL_SWEEP_FILE  = _out("metf_v35_bidask_gap_call_sl_sweep.csv")
+GAP_CALL_SL_LEVELS      = [-100, -200, -300, -400, -500, -600, -700, -800, -1000, None]
+
+# ── Gap-Down CALL Day SL (live) ──
+# Apply a tighter SL on days where market gaps down AND direction is CALL.
+# Analysis: gap-down + CALL days avg only $369/day vs $530+ for all other combos.
+ENABLE_GAP_CALL_SL  = False
+GAP_CALL_SL_AMOUNT  = -300.0  # tighter SL applied on gap-down CALL days
+
+# ── VIX Sub-13 Tighter SL Sweep ──
+# Tests applying a tighter SL exclusively on days where VIX < threshold.
+# Motivation: Jun 2024 (VIX 11.95–13.41) had 44.7% WR and drove -$4,660 monthly loss.
+# The existing DYNAMIC_SL_VIX_LOW=13 already applies -$500 SL on VIX<13 days.
+# SWEEP RESULT (2026-03-27, pool-based): Only 4 days had VIX < 12 in full backtest —
+# too few to matter. Widened to VIX < 13 (65 days): pool sweep unreliable (2,797 trades
+# vs 6,954 full run), all levels flat. June 2024 is a regime anomaly, not a structural
+# SL sizing problem. No change warranted — keep existing -$500 dynamic SL.
+RUN_VIX_SUB12_SL_SWEEP   = False
+VIX_SUB12_SL_SWEEP_FILE  = _out("metf_v35_bidask_vix_sub12_sl_sweep.csv")
+VIX_SUB12_SL_LEVELS      = [-100, -150, -200, -250, -300, -350, -400, -500, None]
+VIX_SUB12_THRESHOLD      = 13.0   # apply tighter SL only when VIX < this
+
+# ── VIX Sub-13 Tighter SL (live) ──
+ENABLE_VIX_SUB12_SL  = False
+VIX_SUB12_SL_AMOUNT  = -300.0  # tighter SL on VIX < threshold days
+
 # ── Bias Sweep ──
 # Tests each daily indicator as a direction router: bullish signal → PUT spread,
 # bearish signal → CALL spread.  Compares against always-PUT, always-CALL, and
 # intraday-EMA baselines.
 RUN_BIAS_SWEEP      = False
 BIAS_SWEEP_FILE     = _out("metf_v35_bidask_bias_sweep.csv")
+
+# ── Opening Skew ──
+# At the first entry bar (9:35) each day, fetch PUT and CALL credits at a fixed
+# OTM distance to compute a same-day vol skew ratio (put_credit / call_credit).
+# Ratio > 1 = market pricing more downside risk (put skew); < 1 = call skew.
+# Used as a GEX-proxy to study whether same-day skew improves direction selection.
+COMPUTE_OPENING_SKEW = False  # RESULT: skew ratio not a useful trading filter — see analysis 2026-03-27
+OPENING_SKEW_OTM     = 30   # OTM distance (pts) to measure opening credits
 
 LOG_COLS = [
     "entry_date", "entry_time", "option_type",
@@ -673,6 +794,7 @@ LOG_COLS = [
     "entry_long_bid",  "entry_long_ask",  "entry_long_mid",
     "profit_target", "stop_loss", "ema13", "ema48",
     "qty", "vix_level", "strike_distance",
+    "opening_put_credit", "opening_call_credit", "pc_skew_ratio",
     "profit_date_time", "profit_price",
     "win", "loss", "outcome", "pnl_earned",
     "close_date", "close_time",
@@ -1071,6 +1193,9 @@ def _passes_active_day_filters(date_str: str, vix_level: float | None = None) ->
         ("dGapPercent_max",  DAY_FILTER_GAP_MAX),
         ("above_sma5",       DAY_FILTER_ABOVE_SMA5),
         ("above_sma200",     DAY_FILTER_ABOVE_SMA200),
+        ("dAdx_min",         DAY_FILTER_ADX_MIN),
+        ("dRangePct_max",    DAY_FILTER_RANGE_MAX),
+        ("dExpMovePct_max",  DAY_FILTER_EXP_MOVE_MAX),
     ]
     for fname, threshold in checks:
         if threshold is None:
@@ -1420,6 +1545,11 @@ async def _fetch_day_data(session, date_str: str, seed_bars: int | None = None) 
     if VIX_MAX_FILTER is not None and vix_level is not None and vix_level > VIX_MAX_FILTER:
         logger.info(f"VIX={vix_level:.2f} > {VIX_MAX_FILTER} (VIX_MAX_FILTER) — skipping day")
         return None
+    if SKIP_VIX_RANGE is not None and vix_level is not None:
+        lo, hi = SKIP_VIX_RANGE
+        if lo <= vix_level <= hi:
+            logger.info(f"VIX={vix_level:.2f} in SKIP_VIX_RANGE {SKIP_VIX_RANGE} — skipping day")
+            return None
 
     # ── Daily indicator filters ──
     if _DAILY_INDICATORS and not _passes_active_day_filters(date_str, vix_level):
@@ -1433,9 +1563,25 @@ async def _fetch_day_data(session, date_str: str, seed_bars: int | None = None) 
 
     # ── VIX regime: determine effective contract qty ──
     in_high_vix_regime = ENABLE_VIX_REGIME and vix_level is not None and vix_level >= HIGH_VIX_THRESHOLD
-    trade_qty = HIGH_VIX_QTY if in_high_vix_regime else QTY
-    if in_high_vix_regime:
+    in_low_vix_half = (
+        ENABLE_LOW_VIX_HALF_SIZE and vix_level is not None and
+        (vix_level < LOW_VIX_THRESHOLD or MID_VIX_BAND[0] <= vix_level <= MID_VIX_BAND[1])
+    )
+    if ENABLE_KELLY_SIZING and vix_level is not None:
+        kelly_qty = next(
+            (qty for lo, hi, qty in KELLY_ZONE_QTY if lo <= vix_level < hi),
+            QTY
+        )
+        trade_qty = kelly_qty
+        logger.info(f"VIX={vix_level:.2f} — Kelly sizing → qty={kelly_qty}")
+    elif in_high_vix_regime:
+        trade_qty = HIGH_VIX_QTY
         logger.info(f"VIX={vix_level:.2f} >= {HIGH_VIX_THRESHOLD} (HIGH_VIX_THRESHOLD) — reducing size to {HIGH_VIX_QTY} contracts")
+    elif in_low_vix_half:
+        trade_qty = LOW_VIX_QTY
+        logger.info(f"VIX={vix_level:.2f} in bad zone (<{LOW_VIX_THRESHOLD} or {MID_VIX_BAND}) — reducing size to {LOW_VIX_QTY} contracts")
+    else:
+        trade_qty = QTY
 
     # ── Process strikes ──
     if not all_strikes:
@@ -1542,6 +1688,10 @@ async def _simulate_day(
     daily_trades     = 0
     current_day_pnl  = 0.0
     peak_day_pnl     = 0.0  # highest portfolio P&L seen this day (for trailing stop)
+    # Opening skew — computed once at the first entry bar, stamped on all trades
+    _skew_put   = None  # credit for PUT spread at OPENING_SKEW_OTM distance
+    _skew_call  = None  # credit for CALL spread at OPENING_SKEW_OTM distance
+    _skew_ratio = None  # put_credit / call_credit
     # NOTE: `offset` is intentionally named to match the original variable so that
     # the inner strike-search loop `for offset in range(200, 0, -5)` replicates the
     # original shadowing behaviour exactly.
@@ -1732,6 +1882,31 @@ async def _simulate_day(
             sides_to_enter = [(opt_type, right)]
         elapsed   = (dt.hour - 9) * 60 + (dt.minute - 45)
 
+        # ── Opening skew: compute once at first entry bar ──
+        if COMPUTE_OPENING_SKEW and _skew_put is None and daily_trades == 0:
+            try:
+                otm = OPENING_SKEW_OTM
+                sw  = int(WIDTH)
+                p_short = int(round((curr_price - otm) / 5.0) * 5)
+                p_long  = p_short - sw
+                c_short = int(round((curr_price + otm) / 5.0) * 5)
+                c_long  = c_short + sw
+                p_quotes, c_quotes = await asyncio.gather(
+                    fetch_quotes_for_strikes_cached(session, date_str, expiry, "P", [p_short, p_long], bar_time),
+                    fetch_quotes_for_strikes_cached(session, date_str, expiry, "C", [c_short, c_long], bar_time),
+                )
+                psq = p_quotes.get(p_short); plq = p_quotes.get(p_long)
+                csq = c_quotes.get(c_short); clq = c_quotes.get(c_long)
+                if psq and plq:
+                    _skew_put = round(psq["bid"] - plq["ask"], 4)
+                if csq and clq:
+                    _skew_call = round(csq["bid"] - clq["ask"], 4)
+                if _skew_put is not None and _skew_call is not None and _skew_call > 0:
+                    _skew_ratio = round(_skew_put / _skew_call, 4)
+                logger.debug(f"[{bar_label}] Opening skew @ {otm}pt OTM — PUT={_skew_put} CALL={_skew_call} ratio={_skew_ratio}")
+            except Exception as e:
+                logger.debug(f"[{bar_label}] Opening skew compute failed: {e}")
+
         for opt_type, right in sides_to_enter:
             logger.info(f"[{bar_label}] Entry attempt | spot={curr_price:.2f} EMA13={e13:.2f} EMA48={e48:.2f} | {opt_type}")
 
@@ -1847,6 +2022,9 @@ async def _simulate_day(
                 "ema13": round(e13, 2), "ema48": round(e48, 2),
                 "qty": entry_qty, "vix_level": round(vix_level, 2) if vix_level is not None else "",
                 "strike_distance": strike_dist,
+                "opening_put_credit":  _skew_put   if _skew_put  is not None else "",
+                "opening_call_credit": _skew_call  if _skew_call is not None else "",
+                "pc_skew_ratio":       _skew_ratio if _skew_ratio is not None else "",
                 "pnl_earned": 0.0, "peak_pnl": 0.0, "last_short_ask": short_q["ask"], "last_long_bid": long_q["bid"],
                 "stale_bars": 0,
                 "outcome": "", "profit_price": None,
@@ -1884,6 +2062,24 @@ def _get_effective_sl(day_data: dict, date_str: str) -> "float | None":
             apply = (rule == "BOTH") or (rule == "CALL" and day_is_call)
             if apply:
                 effective_sl = MONTH_DIR_SL_AMOUNT
+
+    if ENABLE_GAP_CALL_SL and effective_sl is None:
+        direction = _get_baseline_mode(date_str)
+        if direction == "always_call":
+            ind = _DAILY_INDICATORS.get(date_str) or {}
+            gap_pct = ind.get("dGapPercent")
+            if gap_pct is not None and gap_pct < 0:
+                effective_sl = GAP_CALL_SL_AMOUNT
+
+    if ENABLE_VIX_SUB12_SL and day_data.get("vix_level") is not None:
+        vix = day_data["vix_level"]
+        if vix < VIX_SUB12_THRESHOLD:
+            candidate = VIX_SUB12_SL_AMOUNT
+            if effective_sl is None:
+                effective_sl = candidate
+            else:
+                effective_sl = max(effective_sl, candidate)  # use tighter (less negative)
+
     return effective_sl
 
 
@@ -1897,6 +2093,7 @@ async def process_day(session, date_str: str) -> tuple:
         return [], 0.0
 
     effective_sl = _get_effective_sl(day_data, date_str)
+    in_danger = False
     if ENABLE_DYNAMIC_SL and day_data.get("vix_level") is not None:
         vix = day_data["vix_level"]
         in_danger = (
@@ -1905,13 +2102,14 @@ async def process_day(session, date_str: str) -> tuple:
             (DYNAMIC_SL_VIX_MID[0] <= vix <= DYNAMIC_SL_VIX_MID[1])
         )
         if in_danger:
-            logger.info(f"Dynamic SL active: VIX={vix:.2f} in danger zone → SL=${DYNAMIC_SL_AMOUNT:.0f}")
+            logger.info(f"Dynamic SL active: VIX={vix:.2f} in danger zone → SL=${DYNAMIC_SL_AMOUNT:.0f}, MTM interval={DANGER_PNL_SAMPLE_INTERVAL}min")
     if ENABLE_MONTH_DIR_SL and effective_sl == MONTH_DIR_SL_AMOUNT:
         month = int(date_str[4:6])
         rule  = MONTH_DIR_SL_RULES.get(month, "")
         direction = _get_baseline_mode(date_str)
         logger.info(f"Month/Dir SL active: month={month} rule={rule} direction={'CALL' if direction == 'always_call' else 'PUT'} → SL=${MONTH_DIR_SL_AMOUNT:.0f}")
 
+    sample_interval = DANGER_PNL_SAMPLE_INTERVAL if in_danger else PNL_SAMPLE_INTERVAL
     baseline_mode = _get_baseline_mode(date_str)
     trades, day_pnl = await _simulate_day(
         session, day_data, effective_sl,
@@ -1920,6 +2118,7 @@ async def process_day(session, date_str: str) -> tuple:
         baseline_mode=baseline_mode,
         min_otm_distance=MIN_OTM_DISTANCE,
         max_credit=MAX_NET_CREDIT,
+        pnl_sample_interval=sample_interval,
     )
     for pos in trades:
         append_trade(pos)
@@ -2247,6 +2446,8 @@ def _save_run_summary(all_trades: list, date_list) -> None:
         "direction":     DIRECTION_MODE,
         "entry_window":  f"{ENTRY_START.strftime('%H:%M')}–{ENTRY_END.strftime('%H:%M')} every {ENTRY_INTERVAL}min",
         "dyn_sl":        f"VIX<{DYNAMIC_SL_VIX_LOW} | {DYNAMIC_SL_VIX_MID} | {DYNAMIC_SL_VIX_HIGH}" if ENABLE_DYNAMIC_SL else "off",
+        "skip_vix_range": str(SKIP_VIX_RANGE) if SKIP_VIX_RANGE is not None else "off",
+        "kelly_sizing":   f"on — {KELLY_ZONE_QTY}" if ENABLE_KELLY_SIZING else "off",
         "cal_filter":    f"{sorted(CALENDAR_FILTER_EVENTS)}" if ENABLE_CALENDAR_FILTER else "off",
         # results
         "total_pnl":     round(total_pnl, 2),
@@ -3366,6 +3567,9 @@ async def run_touch_sweep():
 # ─────────────────────────────────────────────
 #  DAILY BAR INDICATOR FILTER SWEEP RUNNER
 # ─────────────────────────────────────────────
+_DAY_FILTER_CHECKPOINT = os.path.join(LOGS_DIR, "metf_v35_bidask_day_filter_sweep_checkpoint.csv")
+
+
 async def run_day_filter_sweep():
     """Test each daily indicator as an independent day-selection filter.
 
@@ -3373,6 +3577,10 @@ async def run_day_filter_sweep():
     For each (indicator, threshold) combo the same day pool is re-filtered and
     re-simulated. Results sorted by Calmar descending within each indicator group.
     """
+    # ── Suppress DEBUG during sweep to avoid log bloat and I/O pressure ──
+    _saved_log_level = logger.level
+    logger.setLevel(logging.INFO)
+
     global _DAILY_INDICATORS
     if not _DAILY_INDICATORS:
         logger.info("Building daily indicator table from local parquets…")
@@ -3386,6 +3594,16 @@ async def run_day_filter_sweep():
     logger.info(f"Filters   : {list(SWEEP_DAY_FILTERS.keys())}")
     logger.info(f"Output    : {DAY_FILTER_SWEEP_FILE}")
     logger.info("=" * 70)
+
+    # ── Resume: load already-completed combos from checkpoint ──
+    _completed: set[tuple] = set()
+    _checkpoint_rows: list[dict] = []
+    if os.path.exists(_DAY_FILTER_CHECKPOINT):
+        with open(_DAY_FILTER_CHECKPOINT, newline="") as _f:
+            for _row in csv.DictReader(_f):
+                _completed.add((_row["filter_name"], _row["threshold"]))
+                _checkpoint_rows.append(_row)
+        logger.info(f"Resuming — loaded {len(_checkpoint_rows)} completed combos from checkpoint.")
 
     # ── Step 1: Pre-fetch all days with VIX filter OFF so vix_max can be swept ──
     # We temporarily disable the global VIX filters so every trading day enters
@@ -3433,29 +3651,47 @@ async def run_day_filter_sweep():
         ]
         rows = []
 
-        # Baseline row
-        bm = compute_metrics(baseline_trades)
-        bpf = f"{bm['profit_factor']:.2f}" if bm['profit_factor'] != float("inf") else "inf"
-        bcalmar = bm["total_pnl"] / abs(bm["max_drawdown"]) if bm["max_drawdown"] != 0 else float("inf")
-        rows.append({
-            "filter_name":       "BASELINE (no filter)",
-            "threshold":         "—",
-            "days_traded":       len(day_pool),
-            "days_filtered_out": 0,
-            "num_trades":        bm["num_trades"],
-            "win_rate_pct":      f"{bm['win_rate']:.1f}",
-            "total_pnl":         f"{bm['total_pnl']:.2f}",
-            "avg_win":           f"{bm['avg_win']:.2f}",
-            "avg_loss":          f"{bm['avg_loss']:.2f}",
-            "profit_factor":     bpf,
-            "max_drawdown":      f"{bm['max_drawdown']:.2f}",
-            "calmar":            f"{bcalmar:.2f}",
-            "_calmar_num":       bcalmar,
-            "_filter_sort":      "000_BASELINE",
-        })
+        # Open checkpoint file for appending (write header only if starting fresh)
+        _ckpt_is_new = not os.path.exists(_DAY_FILTER_CHECKPOINT)
+        _ckpt_f = open(_DAY_FILTER_CHECKPOINT, "a", newline="")
+        _ckpt_w = csv.DictWriter(_ckpt_f, fieldnames=cols)
+        if _ckpt_is_new:
+            _ckpt_w.writeheader()
+
+        # Baseline row (skip if already in checkpoint)
+        if ("BASELINE (no filter)", "—") not in _completed:
+            bm = compute_metrics(baseline_trades)
+            bpf = f"{bm['profit_factor']:.2f}" if bm['profit_factor'] != float("inf") else "inf"
+            bcalmar = bm["total_pnl"] / abs(bm["max_drawdown"]) if bm["max_drawdown"] != 0 else float("inf")
+            _baseline_row = {
+                "filter_name":       "BASELINE (no filter)",
+                "threshold":         "—",
+                "days_traded":       len(day_pool),
+                "days_filtered_out": 0,
+                "num_trades":        bm["num_trades"],
+                "win_rate_pct":      f"{bm['win_rate']:.1f}",
+                "total_pnl":         f"{bm['total_pnl']:.2f}",
+                "avg_win":           f"{bm['avg_win']:.2f}",
+                "avg_loss":          f"{bm['avg_loss']:.2f}",
+                "profit_factor":     bpf,
+                "max_drawdown":      f"{bm['max_drawdown']:.2f}",
+                "calmar":            f"{bcalmar:.2f}",
+                "_calmar_num":       bcalmar,
+                "_filter_sort":      "000_BASELINE",
+            }
+            rows.append(_baseline_row)
+            _ckpt_w.writerow({k: _baseline_row[k] for k in cols})
+            _ckpt_f.flush()
 
         for filter_name, thresholds in SWEEP_DAY_FILTERS.items():
             for threshold in thresholds:
+                if (filter_name, str(threshold)) in _completed:
+                    logger.info(
+                        f"  {filter_name:<22} threshold={str(threshold):<8} "
+                        f"[skipped — already in checkpoint]"
+                    )
+                    continue
+
                 filtered_trades = []
                 days_in = 0
                 days_out = 0
@@ -3489,7 +3725,7 @@ async def run_day_filter_sweep():
                 m   = compute_metrics(filtered_trades)
                 pf  = f"{m['profit_factor']:.2f}" if m['profit_factor'] != float("inf") else "inf"
                 cal = m["total_pnl"] / abs(m["max_drawdown"]) if m["max_drawdown"] != 0 else float("inf")
-                rows.append({
+                _row = {
                     "filter_name":       filter_name,
                     "threshold":         str(threshold),
                     "days_traded":       days_in,
@@ -3504,21 +3740,48 @@ async def run_day_filter_sweep():
                     "calmar":            f"{cal:.2f}",
                     "_calmar_num":       cal,
                     "_filter_sort":      filter_name,
-                })
+                }
+                rows.append(_row)
+                _ckpt_w.writerow({k: _row[k] for k in cols})
+                _ckpt_f.flush()
                 logger.info(
                     f"  {filter_name:<22} threshold={str(threshold):<8} "
                     f"days={days_in:>3} | trades={m['num_trades']:>5} | "
                     f"pnl=${m['total_pnl']:>10,.2f} | calmar={cal:>7.2f}"
                 )
 
-    # ── Save CSV ──
+        _ckpt_f.close()
+
+    # ── Merge checkpoint rows (from prior runs) with newly computed rows ──
+    # Rebuild _calmar_num / _filter_sort for checkpoint rows so the summary works.
+    for _cr in _checkpoint_rows:
+        try:
+            _cn = float(_cr["calmar"]) if _cr["calmar"] not in ("inf", "-inf") else float(_cr["calmar"].replace("inf", "inf"))
+        except (ValueError, KeyError):
+            _cn = 0.0
+        _cr["_calmar_num"] = _cn
+        _cr["_filter_sort"] = _cr["filter_name"] if _cr["filter_name"] != "BASELINE (no filter)" else "000_BASELINE"
+    all_rows = _checkpoint_rows + rows
+
+    cols = [
+        "filter_name", "threshold", "days_traded", "days_filtered_out",
+        "num_trades", "win_rate_pct", "total_pnl",
+        "avg_win", "avg_loss", "profit_factor", "max_drawdown", "calmar",
+    ]
+
+    # ── Save final CSV ──
     with open(DAY_FILTER_SWEEP_FILE, "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=cols)
         w.writeheader()
-        for row in rows:
+        for row in all_rows:
             w.writerow({k: row[k] for k in cols})
 
+    # ── Delete checkpoint — clean finish ──
+    if os.path.exists(_DAY_FILTER_CHECKPOINT):
+        os.remove(_DAY_FILTER_CHECKPOINT)
+
     logger.info(f"\nDay filter sweep complete — saved to {DAY_FILTER_SWEEP_FILE}")
+    logger.setLevel(_saved_log_level)
 
     # ── Print grouped summary (best threshold per indicator by Calmar) ──
     hdr = (
@@ -3534,7 +3797,7 @@ async def run_day_filter_sweep():
 
     # Group by filter, pick best Calmar per group
     best: dict[str, dict] = {}
-    for row in rows:
+    for row in all_rows:
         fn = row["_filter_sort"]
         if fn not in best or row["_calmar_num"] > best[fn]["_calmar_num"]:
             best[fn] = row
@@ -3745,6 +4008,510 @@ async def run_calendar_event_sweep():
             f"${float(row['max_drawdown']):>9,.2f} | {row['calmar']:>8} | {row['sharpe']:>7}"
         )
     logger.info(sep)
+
+
+# ─────────────────────────────────────────────
+#  VIX MAGNITUDE FILTER SWEEP RUNNER
+# ─────────────────────────────────────────────
+async def run_vix_mag_sweep():
+    """Sweep minimum |dVixChgPct| required to trade a day.
+
+    Days where the overnight VIX change is smaller than the threshold are skipped
+    entirely — the directional signal is too weak. Baseline = threshold 0.0 (trade all days).
+    """
+    logger.info("=" * 70)
+    logger.info("MEDS: VIX MAGNITUDE FILTER SWEEP")
+    logger.info(f"Thresholds : {VIX_MAG_THRESHOLDS}")
+    logger.info(f"Output     : {VIX_MAG_SWEEP_FILE}")
+    logger.info("=" * 70)
+
+    # ── Pre-fetch all qualifying days ──
+    date_list = pd.date_range(PILOT_YEAR_START, PILOT_YEAR_END, freq="B")
+    day_pool: dict[str, dict] = {}
+    async with _get_session() as session:
+        for d in date_list:
+            d_str = d.strftime("%Y%m%d")
+            if d_str in MARKET_HOLIDAYS:
+                continue
+            if ENABLE_ECON_FILTER and d_str in ECON_DATES:
+                continue
+            day_data = await _fetch_day_data(session, d_str)
+            if day_data is not None:
+                day_pool[d_str] = day_data
+    logger.info(f"Pre-fetched {len(day_pool)} qualifying days.")
+
+    cols = ["min_vix_chg_pct", "days_traded", "days_skipped", "num_trades",
+            "win_rate_pct", "total_pnl", "pnl_delta", "max_drawdown",
+            "dd_delta", "calmar", "sharpe", "sortino"]
+    rows = []
+    base_pnl = None
+    base_dd  = None
+
+    async with _get_session() as session:
+        for threshold in VIX_MAG_THRESHOLDS:
+            all_trades: list = []
+            skipped = 0
+            for d_str, day_data in day_pool.items():
+                ind = _DAILY_INDICATORS.get(d_str) or {}
+                chg = ind.get("dVixChgPct")
+                if chg is not None and abs(chg) < threshold:
+                    skipped += 1
+                    continue
+                effective_sl = _get_effective_sl(day_data, d_str)
+                sample_interval = DANGER_PNL_SAMPLE_INTERVAL if effective_sl is not None else PNL_SAMPLE_INTERVAL
+                trades, _ = await _simulate_day(
+                    session, day_data, effective_sl,
+                    baseline_mode=_get_baseline_mode(d_str),
+                    pos_trail_activation=POS_TRAIL_ACTIVATION,
+                    pos_trail_pullback=POS_TRAIL_PULLBACK,
+                    min_otm_distance=MIN_OTM_DISTANCE,
+                    max_credit=MAX_NET_CREDIT,
+                    pnl_sample_interval=sample_interval,
+                )
+                all_trades.extend(trades)
+
+            m      = compute_metrics(all_trades)
+            pnl    = m["total_pnl"]
+            dd     = m["max_drawdown"]
+            calmar = pnl / abs(dd) if dd != 0 else float("inf")
+
+            if base_pnl is None:
+                base_pnl  = pnl
+                base_dd   = dd
+                pnl_delta = "—"
+                dd_delta  = "—"
+            else:
+                pnl_delta = f"{pnl - base_pnl:+.2f}"
+                dd_delta  = f"{dd - base_dd:+.2f}"
+
+            rows.append({
+                "min_vix_chg_pct": f"{threshold:.2f}",
+                "days_traded":     len(day_pool) - skipped,
+                "days_skipped":    skipped,
+                "num_trades":      m["num_trades"],
+                "win_rate_pct":    f"{m['win_rate']:.1f}",
+                "total_pnl":       f"{pnl:.2f}",
+                "pnl_delta":       pnl_delta,
+                "max_drawdown":    f"{dd:.2f}",
+                "dd_delta":        dd_delta,
+                "calmar":          f"{calmar:.2f}",
+                "sharpe":          f"{m['sharpe']:.2f}",
+                "sortino":         f"{m['sortino']:.2f}",
+            })
+            logger.info(
+                f"  threshold={threshold:.2f}% | skipped={skipped:>3} | "
+                f"pnl=${pnl:>10,.2f} ({pnl_delta}) | dd=${dd:>9,.2f} ({dd_delta}) | "
+                f"calmar={calmar:.2f} | sharpe={m['sharpe']:.2f}"
+            )
+
+    # Save CSV
+    with open(VIX_MAG_SWEEP_FILE, "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=cols)
+        w.writeheader()
+        w.writerows(rows)
+
+    # Print summary table
+    sep = "─" * 105
+    logger.info("")
+    logger.info("═" * 105)
+    logger.info("  VIX MAGNITUDE FILTER SWEEP RESULTS")
+    logger.info("═" * 105)
+    logger.info(f"  {'MIN|dVIX%|':>10} | {'TRADED':>6} | {'SKIPPED':>7} | {'TRADES':>7} | "
+                f"{'WIN%':>5} | {'TOTAL_PNL':>12} | {'PNL_DELTA':>10} | "
+                f"{'MAX_DD':>10} | {'CALMAR':>8} | {'SHARPE':>7}")
+    logger.info(sep)
+    for row in rows:
+        logger.info(
+            f"  {row['min_vix_chg_pct']:>10} | {row['days_traded']:>6} | {row['days_skipped']:>7} | "
+            f"{row['num_trades']:>7} | {row['win_rate_pct']:>4}% | "
+            f"${float(row['total_pnl']):>11,.2f} | {row['pnl_delta']:>10} | "
+            f"${float(row['max_drawdown']):>9,.2f} | {row['calmar']:>8} | {row['sharpe']:>7}"
+        )
+    logger.info("═" * 105)
+    logger.info(f"  Full results: {VIX_MAG_SWEEP_FILE}")
+
+
+# ─────────────────────────────────────────────
+#  GAP-DOWN CALL SL SWEEP RUNNER
+# ─────────────────────────────────────────────
+async def run_gap_call_sl_sweep():
+    """Sweep SL levels applied only on gap-down CALL days.
+
+    Gap-down + CALL days are the weakest combo ($369/day, 89.7% WR vs 93%+ baseline).
+    Theory: intraday gap-fill rallies threaten CALL strikes on bearish opens.
+    All other days use standard _get_effective_sl() unchanged.
+    """
+    logger.info("=" * 70)
+    logger.info("MEDS: GAP-DOWN CALL SL SWEEP")
+    logger.info(f"Levels  : {GAP_CALL_SL_LEVELS}")
+    logger.info(f"Output  : {GAP_CALL_SL_SWEEP_FILE}")
+    logger.info("=" * 70)
+
+    # ── Pre-fetch all days ──
+    date_list = pd.date_range(PILOT_YEAR_START, PILOT_YEAR_END, freq="B")
+    day_pool: dict[str, dict] = {}
+    async with _get_session() as session:
+        for d in date_list:
+            d_str = d.strftime("%Y%m%d")
+            if d_str in MARKET_HOLIDAYS:
+                continue
+            if ENABLE_ECON_FILTER and d_str in ECON_DATES:
+                continue
+            day_data = await _fetch_day_data(session, d_str)
+            if day_data is not None:
+                day_pool[d_str] = day_data
+    logger.info(f"Pre-fetched {len(day_pool)} qualifying days.")
+
+    # Count gap-down CALL days for reference
+    gap_down_call_days = sum(
+        1 for d_str in day_pool
+        if (_DAILY_INDICATORS.get(d_str) or {}).get("dGapPercent", 0) < 0
+        and _get_baseline_mode(d_str) == "always_call"
+    )
+    logger.info(f"Gap-down CALL days in pool: {gap_down_call_days}")
+
+    cols = ["gap_call_sl", "gap_down_call_days", "num_trades", "win_rate_pct",
+            "total_pnl", "pnl_delta", "max_drawdown", "dd_delta", "calmar", "sharpe"]
+    rows = []
+    base_pnl = None
+    base_dd  = None
+
+    async with _get_session() as session:
+        for sl_level in GAP_CALL_SL_LEVELS:
+            label = "none" if sl_level is None else str(sl_level)
+            all_trades: list = []
+
+            for d_str, day_data in day_pool.items():
+                ind       = _DAILY_INDICATORS.get(d_str) or {}
+                gap_pct   = ind.get("dGapPercent", 0) or 0
+                direction = _get_baseline_mode(d_str)
+                is_gap_down_call = (gap_pct < 0) and (direction == "always_call")
+
+                if is_gap_down_call and sl_level is not None:
+                    # Use test SL; still respect existing dynamic SL if it's tighter
+                    dyn_sl = _get_effective_sl(day_data, d_str)
+                    effective_sl = sl_level if dyn_sl is None else max(sl_level, dyn_sl)
+                else:
+                    effective_sl = _get_effective_sl(day_data, d_str)
+
+                in_danger = effective_sl is not None
+                sample_interval = DANGER_PNL_SAMPLE_INTERVAL if in_danger else PNL_SAMPLE_INTERVAL
+                trades, _ = await _simulate_day(
+                    session, day_data, effective_sl,
+                    baseline_mode=direction,
+                    pos_trail_activation=POS_TRAIL_ACTIVATION,
+                    pos_trail_pullback=POS_TRAIL_PULLBACK,
+                    min_otm_distance=MIN_OTM_DISTANCE,
+                    max_credit=MAX_NET_CREDIT,
+                    pnl_sample_interval=sample_interval,
+                )
+                all_trades.extend(trades)
+
+            m      = compute_metrics(all_trades)
+            pnl    = m["total_pnl"]
+            dd     = m["max_drawdown"]
+            calmar = pnl / abs(dd) if dd != 0 else float("inf")
+
+            if base_pnl is None:
+                base_pnl  = pnl
+                base_dd   = dd
+                pnl_delta = "—"
+                dd_delta  = "—"
+            else:
+                pnl_delta = f"{pnl - base_pnl:+.2f}"
+                dd_delta  = f"{dd - base_dd:+.2f}"
+
+            rows.append({
+                "gap_call_sl":        label,
+                "gap_down_call_days": gap_down_call_days,
+                "num_trades":         m["num_trades"],
+                "win_rate_pct":       f"{m['win_rate']:.1f}",
+                "total_pnl":          f"{pnl:.2f}",
+                "pnl_delta":          pnl_delta,
+                "max_drawdown":       f"{dd:.2f}",
+                "dd_delta":           dd_delta,
+                "calmar":             f"{calmar:.2f}",
+                "sharpe":             f"{m['sharpe']:.2f}",
+            })
+            logger.info(
+                f"  gap_call_sl={label:>6} | trades={m['num_trades']:>5} | "
+                f"pnl=${pnl:>10,.2f} ({pnl_delta}) | dd=${dd:>9,.2f} ({dd_delta}) | "
+                f"calmar={calmar:.2f} | sharpe={m['sharpe']:.2f}"
+            )
+
+    with open(GAP_CALL_SL_SWEEP_FILE, "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=cols)
+        w.writeheader()
+        w.writerows(rows)
+
+    sep = "─" * 105
+    logger.info("")
+    logger.info("═" * 105)
+    logger.info("  GAP-DOWN CALL SL SWEEP RESULTS")
+    logger.info("═" * 105)
+    logger.info(f"  {'SL':>8} | {'TRADES':>7} | {'WIN%':>5} | {'TOTAL_PNL':>12} | "
+                f"{'PNL_DELTA':>10} | {'MAX_DD':>10} | {'DD_DELTA':>10} | {'CALMAR':>8} | {'SHARPE':>7}")
+    logger.info(sep)
+    for row in rows:
+        logger.info(
+            f"  {row['gap_call_sl']:>8} | {row['num_trades']:>7} | {row['win_rate_pct']:>4}% | "
+            f"${float(row['total_pnl']):>11,.2f} | {row['pnl_delta']:>10} | "
+            f"${float(row['max_drawdown']):>9,.2f} | {row['dd_delta']:>10} | "
+            f"{row['calmar']:>8} | {row['sharpe']:>7}"
+        )
+    logger.info("═" * 105)
+    logger.info(f"  Full results: {GAP_CALL_SL_SWEEP_FILE}")
+
+
+# ─────────────────────────────────────────────
+#  VIX SUB-12 TIGHTER SL SWEEP RUNNER
+# ─────────────────────────────────────────────
+async def run_vix_sub12_sl_sweep():
+    """Sweep tighter SL levels applied exclusively on days where VIX < 12.
+
+    Jun 2024 (VIX 11.95–12.03) saw 4 straight 0% win-rate days driving most of
+    the month's -$4,660 loss. The existing dyn SL (-$500) kicked in but wasn't
+    tight enough. Tests whether a tighter per-trade SL on extreme low-VIX days
+    improves risk-adjusted returns without hurting the wider backtest.
+    All other days use standard _get_effective_sl() unchanged.
+    """
+    logger.info("=" * 70)
+    logger.info("MEDS: VIX SUB-12 TIGHTER SL SWEEP")
+    logger.info(f"VIX threshold : VIX < {VIX_SUB12_THRESHOLD}")
+    logger.info(f"Levels        : {VIX_SUB12_SL_LEVELS}")
+    logger.info(f"Output        : {VIX_SUB12_SL_SWEEP_FILE}")
+    logger.info("=" * 70)
+
+    # ── Pre-fetch all days ──
+    date_list = pd.date_range(PILOT_YEAR_START, PILOT_YEAR_END, freq="B")
+    day_pool: dict[str, dict] = {}
+    async with _get_session() as session:
+        for d in date_list:
+            d_str = d.strftime("%Y%m%d")
+            if d_str in MARKET_HOLIDAYS:
+                continue
+            if ENABLE_ECON_FILTER and d_str in ECON_DATES:
+                continue
+            day_data = await _fetch_day_data(session, d_str)
+            if day_data is not None:
+                day_pool[d_str] = day_data
+    logger.info(f"Pre-fetched {len(day_pool)} qualifying days.")
+
+    vix_sub12_days = sum(
+        1 for d_str, dd in day_pool.items()
+        if (dd.get("vix_level") or 99) < VIX_SUB12_THRESHOLD
+    )
+    logger.info(f"VIX < {VIX_SUB12_THRESHOLD} days in pool: {vix_sub12_days}")
+
+    cols = ["vix_sub12_sl", "vix_sub12_days", "num_trades", "win_rate_pct",
+            "total_pnl", "pnl_delta", "max_drawdown", "dd_delta", "calmar", "sharpe"]
+    rows = []
+    base_pnl = None
+    base_dd  = None
+
+    async with _get_session() as session:
+        for sl_level in VIX_SUB12_SL_LEVELS:
+            label = "none" if sl_level is None else str(sl_level)
+            all_trades: list = []
+
+            for d_str, day_data in day_pool.items():
+                vix = day_data.get("vix_level") or 99
+                is_sub12 = vix < VIX_SUB12_THRESHOLD
+
+                if is_sub12 and sl_level is not None:
+                    dyn_sl = _get_effective_sl(day_data, d_str)
+                    # use whichever is tighter (less negative = closer to zero = triggers sooner)
+                    effective_sl = max(sl_level, dyn_sl) if dyn_sl is not None else sl_level
+                else:
+                    effective_sl = _get_effective_sl(day_data, d_str)
+
+                in_danger = effective_sl is not None
+                sample_interval = DANGER_PNL_SAMPLE_INTERVAL if in_danger else PNL_SAMPLE_INTERVAL
+                direction = _get_baseline_mode(d_str)
+                trades, _ = await _simulate_day(
+                    session, day_data, effective_sl,
+                    baseline_mode=direction,
+                    pos_trail_activation=POS_TRAIL_ACTIVATION,
+                    pos_trail_pullback=POS_TRAIL_PULLBACK,
+                    min_otm_distance=MIN_OTM_DISTANCE,
+                    max_credit=MAX_NET_CREDIT,
+                    pnl_sample_interval=sample_interval,
+                )
+                all_trades.extend(trades)
+
+            m      = compute_metrics(all_trades)
+            pnl    = m["total_pnl"]
+            dd     = m["max_drawdown"]
+            calmar = pnl / abs(dd) if dd != 0 else float("inf")
+
+            if base_pnl is None:
+                base_pnl  = pnl
+                base_dd   = dd
+                pnl_delta = "—"
+                dd_delta  = "—"
+            else:
+                pnl_delta = f"{pnl - base_pnl:+.2f}"
+                dd_delta  = f"{dd - base_dd:+.2f}"
+
+            rows.append({
+                "vix_sub12_sl":   label,
+                "vix_sub12_days": vix_sub12_days,
+                "num_trades":     m["num_trades"],
+                "win_rate_pct":   f"{m['win_rate']:.1f}",
+                "total_pnl":      f"{pnl:.2f}",
+                "pnl_delta":      pnl_delta,
+                "max_drawdown":   f"{dd:.2f}",
+                "dd_delta":       dd_delta,
+                "calmar":         f"{calmar:.2f}",
+                "sharpe":         f"{m['sharpe']:.2f}",
+            })
+            logger.info(
+                f"  vix_sub12_sl={label:>6} | trades={m['num_trades']:>5} | "
+                f"pnl=${pnl:>10,.2f} ({pnl_delta}) | dd=${dd:>9,.2f} ({dd_delta}) | "
+                f"calmar={calmar:.2f} | sharpe={m['sharpe']:.2f}"
+            )
+
+    with open(VIX_SUB12_SL_SWEEP_FILE, "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=cols)
+        w.writeheader()
+        w.writerows(rows)
+
+    sep = "─" * 105
+    logger.info("")
+    logger.info("═" * 105)
+    logger.info("  VIX SUB-12 SL SWEEP RESULTS")
+    logger.info("═" * 105)
+    logger.info(f"  {'SL':>8} | {'TRADES':>7} | {'WIN%':>5} | {'TOTAL_PNL':>12} | "
+                f"{'PNL_DELTA':>10} | {'MAX_DD':>10} | {'DD_DELTA':>10} | {'CALMAR':>8} | {'SHARPE':>7}")
+    logger.info(sep)
+    for row in rows:
+        logger.info(
+            f"  {row['vix_sub12_sl']:>8} | {row['num_trades']:>7} | {row['win_rate_pct']:>4}% | "
+            f"${float(row['total_pnl']):>11,.2f} | {row['pnl_delta']:>10} | "
+            f"${float(row['max_drawdown']):>9,.2f} | {row['dd_delta']:>10} | "
+            f"{row['calmar']:>8} | {row['sharpe']:>7}"
+        )
+    logger.info("═" * 105)
+    logger.info(f"  Full results: {VIX_SUB12_SL_SWEEP_FILE}")
+
+
+# ─────────────────────────────────────────────
+#  CALL-SIDE SL SWEEP RUNNER
+# ─────────────────────────────────────────────
+async def run_call_sl_sweep():
+    """Sweep stop-loss levels applied exclusively on CALL spread days.
+
+    PUT days continue to use _get_effective_sl() (dynamic VIX-based SL) unchanged.
+    For each CALL_SL level, the full date range is re-simulated from pre-fetched data.
+    A tighter CALL SL reduces drawdown but may also cut profitable CALL days early.
+    """
+    logger.info("=" * 70)
+    logger.info("MEDS: CALL-SIDE SL SWEEP")
+    logger.info(f"Levels  : {CALL_SL_SWEEP_LEVELS}")
+    logger.info(f"Output  : {CALL_SL_SWEEP_FILE}")
+    logger.info("=" * 70)
+
+    # ── Pre-fetch all days once ──
+    date_list = pd.date_range(PILOT_YEAR_START, PILOT_YEAR_END, freq="B")
+    day_pool: dict[str, dict] = {}
+    async with _get_session() as session:
+        for d in date_list:
+            d_str = d.strftime("%Y%m%d")
+            if d_str in MARKET_HOLIDAYS:
+                continue
+            if ENABLE_ECON_FILTER and d_str in ECON_DATES:
+                continue
+            day_data = await _fetch_day_data(session, d_str)
+            if day_data is not None:
+                day_pool[d_str] = day_data
+    logger.info(f"Pre-fetched {len(day_pool)} qualifying days.")
+
+    cols = ["call_sl_level", "num_trades", "win_rate_pct", "total_pnl",
+            "pnl_delta", "max_drawdown", "dd_delta", "calmar", "sharpe", "sortino"]
+    rows = []
+    base_pnl = None
+    base_dd  = None
+
+    async with _get_session() as session:
+        for call_sl in CALL_SL_SWEEP_LEVELS:
+            label = "none" if call_sl is None else str(call_sl)
+
+            all_trades: list = []
+            for d_str, day_data in day_pool.items():
+                direction = _get_baseline_mode(d_str)
+                if direction == "always_call":
+                    # Apply the test CALL SL level directly on CALL days
+                    effective_sl = call_sl
+                else:
+                    # PUT days: use standard dynamic SL logic unchanged
+                    effective_sl = _get_effective_sl(day_data, d_str)
+
+                trades, _ = await _simulate_day(
+                    session, day_data, effective_sl,
+                    baseline_mode=direction,
+                    pos_trail_activation=POS_TRAIL_ACTIVATION,
+                    pos_trail_pullback=POS_TRAIL_PULLBACK,
+                    min_otm_distance=MIN_OTM_DISTANCE,
+                    max_credit=MAX_NET_CREDIT,
+                )
+                all_trades.extend(trades)
+
+            m        = compute_metrics(all_trades)
+            pnl      = m["total_pnl"]
+            dd       = m["max_drawdown"]
+            calmar   = pnl / abs(dd) if dd != 0 else float("inf")
+
+            if base_pnl is None:
+                base_pnl = pnl
+                base_dd  = dd
+                pnl_delta = "—"
+                dd_delta  = "—"
+            else:
+                pnl_delta = f"{pnl - base_pnl:+.2f}"
+                dd_delta  = f"{dd - base_dd:+.2f}"
+
+            rows.append({
+                "call_sl_level": label,
+                "num_trades":    m["num_trades"],
+                "win_rate_pct":  f"{m['win_rate']:.1f}",
+                "total_pnl":     f"{pnl:.2f}",
+                "pnl_delta":     pnl_delta,
+                "max_drawdown":  f"{dd:.2f}",
+                "dd_delta":      dd_delta,
+                "calmar":        f"{calmar:.2f}",
+                "sharpe":        f"{m['sharpe']:.2f}",
+                "sortino":       f"{m['sortino']:.2f}",
+            })
+            logger.info(
+                f"  call_sl={label:>6} | trades={m['num_trades']:>5} | "
+                f"pnl=${pnl:>10,.2f} ({pnl_delta}) | dd=${dd:>9,.2f} ({dd_delta}) | "
+                f"calmar={calmar:.2f} | sharpe={m['sharpe']:.2f}"
+            )
+
+    # Save CSV
+    with open(CALL_SL_SWEEP_FILE, "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=cols)
+        w.writeheader()
+        w.writerows(rows)
+
+    # Print summary table
+    sep = "─" * 100
+    logger.info("")
+    logger.info("═" * 100)
+    logger.info("  CALL-SIDE SL SWEEP RESULTS")
+    logger.info("═" * 100)
+    logger.info(f"  {'CALL_SL':>8} | {'TRADES':>7} | {'WIN%':>5} | {'TOTAL_PNL':>12} | "
+                f"{'PNL_DELTA':>10} | {'MAX_DD':>10} | {'DD_DELTA':>10} | {'CALMAR':>8} | {'SHARPE':>7}")
+    logger.info(sep)
+    for row in rows:
+        logger.info(
+            f"  {row['call_sl_level']:>8} | {row['num_trades']:>7} | {row['win_rate_pct']:>4}% | "
+            f"${float(row['total_pnl']):>11,.2f} | {row['pnl_delta']:>10} | "
+            f"${float(row['max_drawdown']):>9,.2f} | {row['dd_delta']:>10} | "
+            f"{row['calmar']:>8} | {row['sharpe']:>7}"
+        )
+    logger.info("═" * 100)
+    logger.info(f"  Full results: {CALL_SL_SWEEP_FILE}")
 
 
 # ─────────────────────────────────────────────
@@ -5577,6 +6344,10 @@ if __name__ == "__main__":
     _parser.add_argument("--out",             default=None, help="Override output trade CSV path")
     _parser.add_argument("--sl-vix-mid-low",   default=None, type=float, help="Override DYNAMIC_SL_VIX_MID lower bound")
     _parser.add_argument("--sl-vix-mid-high",  default=None, type=float, help="Override DYNAMIC_SL_VIX_MID upper bound")
+    _parser.add_argument("--skip-vix-lo",      default=None, type=float, help="Skip day entirely when VIX >= this value (lower bound of SKIP_VIX_RANGE)")
+    _parser.add_argument("--skip-vix-hi",      default=None, type=float, help="Skip day entirely when VIX <= this value (upper bound of SKIP_VIX_RANGE)")
+    _parser.add_argument("--marathon",         action="store_true",      help="Force a single marathon backtest run, skipping all RUN_* sweeps")
+    _parser.add_argument("--kelly",            action="store_true",      help="Enable Kelly zone sizing (ENABLE_KELLY_SIZING=True)")
     _parser.add_argument("--min-otm-distance", default=None, type=float, help="Override MIN_OTM_DISTANCE (pts)")
     _parser.add_argument("--max-credit",       default=None, type=float, help="Override MAX_NET_CREDIT cap")
     _args = _parser.parse_args()
@@ -5585,6 +6356,10 @@ if __name__ == "__main__":
     if _args.out:             SAVE_FILE           = _args.out
     if _args.sl_vix_mid_low is not None and _args.sl_vix_mid_high is not None:
         DYNAMIC_SL_VIX_MID = (_args.sl_vix_mid_low, _args.sl_vix_mid_high)
+    if _args.skip_vix_lo is not None and _args.skip_vix_hi is not None:
+        SKIP_VIX_RANGE = (_args.skip_vix_lo, _args.skip_vix_hi)
+    if _args.kelly:
+        ENABLE_KELLY_SIZING = True
     if _args.min_otm_distance is not None:
         MIN_OTM_DISTANCE = _args.min_otm_distance
     if _args.max_credit is not None:
@@ -5614,7 +6389,9 @@ if __name__ == "__main__":
     if _any_filter_active:
         _DAILY_INDICATORS.update(_build_daily_indicators())
 
-    if RUN_MAX_BP_SWEEP:
+    if _args.marathon:
+        asyncio.run(run())
+    elif RUN_MAX_BP_SWEEP:
         asyncio.run(run_max_bp_sweep())
     elif RUN_TOUCH_SWEEP:
         asyncio.run(run_touch_sweep())
@@ -5644,6 +6421,14 @@ if __name__ == "__main__":
         asyncio.run(run_max_credit_sweep())
     elif RUN_CALENDAR_SWEEP:
         asyncio.run(run_calendar_event_sweep())
+    elif RUN_CALL_SL_SWEEP:
+        asyncio.run(run_call_sl_sweep())
+    elif RUN_VIX_MAG_SWEEP:
+        asyncio.run(run_vix_mag_sweep())
+    elif RUN_GAP_CALL_SL_SWEEP:
+        asyncio.run(run_gap_call_sl_sweep())
+    elif RUN_VIX_SUB12_SL_SWEEP:
+        asyncio.run(run_vix_sub12_sl_sweep())
     elif RUN_SPREAD_WIDTH_SWEEP:
         asyncio.run(run_spread_width_sweep())
     elif RUN_TRAILING_STOP_SWEEP:
