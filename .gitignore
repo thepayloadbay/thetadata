@@ -1,0 +1,30 @@
+# Data & logs — too large/ephemeral for version control
+data/
+logs/
+__pycache__/
+*.pyc
+*.pyo
+
+# Credentials & secrets
+creds.txt
+config.toml
+.env
+
+# Virtual environment
+.venv/
+
+# Java / ThetaTerminal binary
+*.jar
+
+# macOS
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE
+.idea/
+.vscode/
+
+# Local Claude memory (personal, not shared)
+.claude/
