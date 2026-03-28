@@ -453,6 +453,32 @@ DYNAMIC_SL_VIX_MID   = (13.0, 13.5) # apply SL when VIX is in this range (low-VI
                                      # Prior setting (13.0, 17.0) was too wide — applying SL on VIX 15–17
                                      # days (which have 84.5% WR) cost ~$98k unnecessarily.
                                      # Tightening to just the 13–13.5 danger band unlocked that P&L.
+# ── Intraday Bayesian Entry Gate ──
+# Stops opening new entries when current_day_pnl (live MTM on all open positions) falls
+# below this threshold.
+#
+# TESTED 2026-03-28 — NEGATIVE RESULT. All thresholds cost P&L vs baseline.
+#
+#   Threshold |  Trades | P&L        | Max DD   | Notes
+#   -------   |  ------   | ----       | ------   | -----
+#   Baseline  |   7,014   | $607,034   | -$9,922  | (no gate)
+#   $0        |   1,314   | $95,694    | -$3,992  | fires after every 1st entry — useless
+#   -$150     |   5,925   | $493,880   | -$9,922  | -$113k vs baseline
+#   -$300     |   6,313   | $527,578   | -$9,922  | -$79k vs baseline
+#   -$400     |   6,469   | $543,234   | -$9,922  | -$64k vs baseline
+#
+# ROOT CAUSE: Each open position immediately shows ~-$29 MTM from bid-ask spread.
+# With 5-6 simultaneous positions, the cumulative initial paper loss is -$150 to -$200,
+# making the signal indistinguishable from a real directional loss across any tested
+# threshold. The CSV pre-analysis was misleading — it used final P&L (perfectly correlated
+# with day outcome) rather than intraday MTM (which reflects B/A noise on win days too).
+# The dynamic SL at -$500 already handles the true loss scenario; the gap between the
+# noise floor and -$500 cannot be reliably exploited with this approach.
+#
+# DECISION: keep None. Do not enable unless a per-position MTM CHANGE signal (relative
+# to entry mark, not absolute) is developed to isolate directional loss from B/A spread.
+INTRADAY_ENTRY_GATE  = None          # keep disabled — see above
+
 SKIP_VIX_RANGE       = None          # (lo, hi) → skip day entirely when VIX is in this range.
                                      # TESTED: (25.0, 30.0) — full marathon backtest result:
                                      #   P&L: $607,034 → $597,112  (-$9,922, -1.6%)
@@ -488,6 +514,28 @@ DANGER_PNL_SAMPLE_INTERVAL = 1  # tighter MTM check interval on dynamic SL days 
 
 EMA_FAST       = 10
 EMA_SLOW       = 30
+
+# ── Premium Buyback Exit ──
+# Close a position early when its remaining close cost (buy-back price) falls to or below
+# this threshold. Frees up buying power to potentially open additional entries within the
+# entry window. e.g. 0.10 = close when the spread can be bought back for $0.10 or less
+# (i.e. you've captured ~87%+ of a $0.75 credit).
+# Set to None to disable (hold all positions to EOD, SL, or TP as normal).
+#
+# TESTED 2026-03-28 — NEGATIVE RESULT.
+#   Threshold |  Trades | P&L        | Max DD   | Buyback closes
+#   --------- |  ------   | ----       | ------   | -----
+#   Baseline  |   7,014   | $607,034   | -$9,922  | 0
+#   $0.10     |   7,013   | $543,158   | -$9,922  | 6,397  (-$64k)
+#   $0.05     |   7,014   | $604,054   | -$9,922  | 6,349  (-$3k, breakeven)
+#
+# ROOT CAUSE: The buyback exit frees up BP but almost never enables a new entry —
+# trades count is 7,013 vs 7,014 baseline. Most positions reach $0.10 AFTER the
+# entry window closes (12:45), so the freed BP has nowhere to deploy. The early close
+# just forfeits the remaining premium plus commission. The "recycle BP" thesis fails
+# for 0DTE because there is no next-day deployment; capital resets at EOD regardless.
+# The $0.05 level is nearly free (-$3k) but equally useless.
+PREMIUM_BUYBACK_EXIT = None   # keep disabled — see above
 
 # ── Touch Exit ──
 # Close a position when the underlying price is within TOUCH_EXIT_DOLLARS (or TOUCH_EXIT_PCT%)
@@ -1817,6 +1865,35 @@ async def _simulate_day(
                 if touch_to_close:
                     current_day_pnl = sum(p["pnl_earned"] for p in active_positions)
 
+            # ── Per-position Premium Buyback Exit ──
+            # Close when remaining close cost <= PREMIUM_BUYBACK_EXIT threshold.
+            if PREMIUM_BUYBACK_EXIT is not None and active_positions:
+                buyback_to_close = []
+                for pos in active_positions:
+                    close_cost = pos["last_short_ask"] - pos["last_long_bid"]
+                    if close_cost <= PREMIUM_BUYBACK_EXIT:
+                        buyback_to_close.append(pos)
+                for pos in buyback_to_close:
+                    active_positions.remove(pos)
+                    commission_per_pos = 2 * 2 * pos["qty"] * COMMISSION
+                    pos["pnl_earned"] -= commission_per_pos
+                    pos.update({
+                        "outcome": "BUYBACK_EXIT",
+                        "profit_price": curr_price,
+                        "win":  1 if pos["pnl_earned"] > 0 else 0,
+                        "loss": 1 if pos["pnl_earned"] <= 0 else 0,
+                        "close_date": date_str, "close_time": bar_time,
+                        "profit_date_time": f"{date_str} {bar_time}",
+                    })
+                    day_trades_log.append(pos)
+                    logger.debug(
+                        f"[{bar_label}] BUYBACK_EXIT: {pos['option_type']} "
+                        f"{pos['short_strike']}/{pos['long_strike']} | "
+                        f"close_cost={close_cost:.3f} | P&L=${pos['pnl_earned']:.2f}"
+                    )
+                if buyback_to_close:
+                    current_day_pnl = sum(p["pnl_earned"] for p in active_positions)
+
             dd = current_day_pnl - peak_day_pnl
             logger.debug(f"[{bar_label}] MTM: {len(active_positions)} open positions | day P&L=${current_day_pnl:.2f} | peak=${peak_day_pnl:.2f} | dd=${dd:.2f}")
 
@@ -1860,7 +1937,8 @@ async def _simulate_day(
         _entry_interval = entry_interval if entry_interval is not None else ENTRY_INTERVAL
         in_window   = _entry_start <= curr_time <= _entry_end
         on_interval = (dt.minute % _entry_interval == 0)
-        can_enter   = in_window and on_interval and not stopped_today and daily_trades < MAX_TRADES_DAY and not econ_skip_entries
+        bayesian_gate_ok = (INTRADAY_ENTRY_GATE is None or current_day_pnl >= INTRADAY_ENTRY_GATE)
+        can_enter   = in_window and on_interval and not stopped_today and daily_trades < MAX_TRADES_DAY and not econ_skip_entries and bayesian_gate_ok
 
         if not can_enter:
             continue
@@ -2447,6 +2525,8 @@ def _save_run_summary(all_trades: list, date_list) -> None:
         "entry_window":  f"{ENTRY_START.strftime('%H:%M')}–{ENTRY_END.strftime('%H:%M')} every {ENTRY_INTERVAL}min",
         "dyn_sl":        f"VIX<{DYNAMIC_SL_VIX_LOW} | {DYNAMIC_SL_VIX_MID} | {DYNAMIC_SL_VIX_HIGH}" if ENABLE_DYNAMIC_SL else "off",
         "skip_vix_range": str(SKIP_VIX_RANGE) if SKIP_VIX_RANGE is not None else "off",
+        "entry_gate":     f"${INTRADAY_ENTRY_GATE}" if INTRADAY_ENTRY_GATE is not None else "off",
+        "buyback_exit":   f"${PREMIUM_BUYBACK_EXIT}" if PREMIUM_BUYBACK_EXIT is not None else "off",
         "kelly_sizing":   f"on — {KELLY_ZONE_QTY}" if ENABLE_KELLY_SIZING else "off",
         "cal_filter":    f"{sorted(CALENDAR_FILTER_EVENTS)}" if ENABLE_CALENDAR_FILTER else "off",
         # results
@@ -3175,7 +3255,7 @@ async def run_daily_tp_sweep():
             for tp in SWEEP_DAILY_TP_LEVELS:
                 trades, day_pnl = await _simulate_day(
                     session, day_data, DAILY_SL,
-                    baseline_mode="always_put",
+                    baseline_mode=DIRECTION_MODE,
                     spread_width=WIDTH,
                     min_credit=MIN_NET_CREDIT,
                     entry_start=ENTRY_START,
@@ -3273,7 +3353,7 @@ async def run_pnl_sample_sweep():
             for iv in SWEEP_PNL_SAMPLE_INTERVALS:
                 trades, day_pnl = await _simulate_day(
                     session, day_data, DAILY_SL,
-                    baseline_mode="always_put",
+                    baseline_mode=DIRECTION_MODE,
                     spread_width=WIDTH,
                     min_credit=MIN_NET_CREDIT,
                     entry_start=ENTRY_START,
@@ -3373,7 +3453,7 @@ async def run_max_bp_sweep():
             for bp in SWEEP_MAX_BP_LEVELS:
                 trades, day_pnl = await _simulate_day(
                     session, day_data, DAILY_SL,
-                    baseline_mode="always_put",
+                    baseline_mode=DIRECTION_MODE,
                     spread_width=WIDTH,
                     min_credit=MIN_NET_CREDIT,
                     entry_start=ENTRY_START,
@@ -3498,7 +3578,7 @@ async def run_touch_sweep():
 
                 trades, _ = await _simulate_day(
                     session, day_data, DAILY_SL,
-                    baseline_mode="always_put",
+                    baseline_mode=DIRECTION_MODE,
                     spread_width=WIDTH,
                     min_credit=MIN_NET_CREDIT,
                     entry_start=ENTRY_START,
@@ -3634,7 +3714,7 @@ async def run_day_filter_sweep():
         for d_str, day_data in day_pool.items():
             trades, _ = await _simulate_day(
                 session, day_data, DAILY_SL,
-                baseline_mode="always_put",
+                baseline_mode=DIRECTION_MODE,
                 spread_width=WIDTH,
                 min_credit=MIN_NET_CREDIT,
                 entry_start=ENTRY_START,
@@ -3707,7 +3787,7 @@ async def run_day_filter_sweep():
                     days_in += 1
                     trades, _ = await _simulate_day(
                         session, day_data, DAILY_SL,
-                        baseline_mode="always_put",
+                        baseline_mode=DIRECTION_MODE,
                         spread_width=WIDTH,
                         min_credit=MIN_NET_CREDIT,
                         entry_start=ENTRY_START,
@@ -6346,6 +6426,8 @@ if __name__ == "__main__":
     _parser.add_argument("--sl-vix-mid-high",  default=None, type=float, help="Override DYNAMIC_SL_VIX_MID upper bound")
     _parser.add_argument("--skip-vix-lo",      default=None, type=float, help="Skip day entirely when VIX >= this value (lower bound of SKIP_VIX_RANGE)")
     _parser.add_argument("--skip-vix-hi",      default=None, type=float, help="Skip day entirely when VIX <= this value (upper bound of SKIP_VIX_RANGE)")
+    _parser.add_argument("--entry-gate",        default=None, type=float, help="Set INTRADAY_ENTRY_GATE threshold (e.g. 0 = stop new entries when open positions show any loss)")
+    _parser.add_argument("--buyback-exit",      default=None, type=float, help="Close position early when remaining premium <= this value (e.g. 0.10)")
     _parser.add_argument("--marathon",         action="store_true",      help="Force a single marathon backtest run, skipping all RUN_* sweeps")
     _parser.add_argument("--kelly",            action="store_true",      help="Enable Kelly zone sizing (ENABLE_KELLY_SIZING=True)")
     _parser.add_argument("--min-otm-distance", default=None, type=float, help="Override MIN_OTM_DISTANCE (pts)")
@@ -6360,6 +6442,10 @@ if __name__ == "__main__":
         SKIP_VIX_RANGE = (_args.skip_vix_lo, _args.skip_vix_hi)
     if _args.kelly:
         ENABLE_KELLY_SIZING = True
+    if _args.entry_gate is not None:
+        INTRADAY_ENTRY_GATE = _args.entry_gate
+    if _args.buyback_exit is not None:
+        PREMIUM_BUYBACK_EXIT = _args.buyback_exit
     if _args.min_otm_distance is not None:
         MIN_OTM_DISTANCE = _args.min_otm_distance
     if _args.max_credit is not None:

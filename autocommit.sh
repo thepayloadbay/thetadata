@@ -5,8 +5,9 @@
 PROJ="/Users/jeerapongwongchote/Documents/thetadata"
 cd "$PROJ" || exit 1
 
-# Only track source files — data, logs, CSVs are excluded by .gitignore
-git add download_data.py watchdog.sh continue_2026.sh DOWNLOAD_STATUS.md metf_v35_bidask.py .gitignore
+# Stage all tracked changes + any new .py, .sh, .md files (data/logs excluded by .gitignore)
+git add -u
+git add *.py *.sh *.md 2>/dev/null || true
 
 # Check if there's anything staged
 if git diff --cached --quiet; then
