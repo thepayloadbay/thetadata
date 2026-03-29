@@ -1003,7 +1003,7 @@ PRESSURE_VIX_SWEEP_THRESHOLDS = [None, 20.0, 22.0, 25.0, 27.0, 28.0, 30.0]  # No
 # -- Calendar Risk SL Sweep --
 # Tests each recurring-date SL category independently to identify which ones
 # are net positive (save more than they cost on winning days).
-RUN_CALENDAR_RISK_SL_SWEEP   = False
+RUN_CALENDAR_RISK_SL_SWEEP   = True
 CALENDAR_RISK_SL_SWEEP_FILE  = _out("meds_calendar_risk_sl_sweep.csv")
 CALENDAR_RISK_SL_SWEEP_LEVELS = [-100, -200, -300, -400, -500, None]
 
