@@ -188,8 +188,10 @@ ECON_DATES = {
     "20260904","20261002","20261106","20261204",
 }
 
+# ── Pressure Filter ──
+# Stops from opening anymore positions if dist < threshold
 ENABLE_PRESSURE_FILTER = True
-PRESSURE_DISTANCE_THRESHOLD = 15.0 # Stop entering if price is within 15pts of any short strike
+PRESSURE_DISTANCE_THRESHOLD = 25.0 # Stop entering if price is within X pts of any short strike
 
 # ── Calendar Event Date Sets ──
 # Used by run_calendar_event_sweep() to test each event type independently.
@@ -2029,19 +2031,24 @@ async def _simulate_day(
         on_interval = (dt.minute % _entry_interval == 0)
         bayesian_gate_ok = (INTRADAY_ENTRY_GATE is None or current_day_pnl >= INTRADAY_ENTRY_GATE)
 
-        if PRESSURE_DISTANCE_THRESHOLD == True:
-            is_under_pressure = False
+        # PESSURE FILTER ---
+        is_under_pressure = False
+        if ENABLE_PRESSURE_FILTER == True:
             for pos in active_positions:
                 s_strike = pos['short_strike']
                 # Calculate distance: Positive means OTM, Negative means ITM
                 dist = (curr_price - s_strike) if pos['option_type'] == 'PUT' else (s_strike - curr_price)
                 
                 # If any position is within 15 points of the short strike, block new entries
-                if dist < 15.0:
+                if dist < PRESSURE_DISTANCE_THRESHOLD:
                     is_under_pressure = True
                     break
-        else:
-            is_under_pressure = False
+
+        # LOSS COUNT FILTER ---
+        losses_today = sum(1 for p in day_trades_log if p['pnl_earned'] < 0)
+        if losses_today >= 2:
+            # If we've already taken 2 losses, the market regime is likely unfavorable
+            continue
 
         can_enter = in_window and on_interval and not stopped_today and daily_trades < MAX_TRADES_DAY and not econ_skip_entries and bayesian_gate_ok and not is_under_pressure
         # can_enter   = in_window and on_interval and not stopped_today and daily_trades < MAX_TRADES_DAY and not econ_skip_entries and bayesian_gate_ok
