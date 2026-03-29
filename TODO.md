@@ -384,20 +384,134 @@ Kelly actually improves Sharpe (14.75 vs 14.16) by concentrating size in best VI
 
 ---
 
-### [11] IV Skew / Put-Call Risk Reversal — Directional Confluence Signal
+### [11] IV Skew / Put-Call Risk Reversal — Directional Confluence Signal ✗ TESTED NEGATIVE AS FILTER (2026-03-29)
 
-Compute daily SPX 25-delta put IV minus 25-delta call IV at session open. Extreme put skew = market over-hedged downside → contrarian signal, favorable for PUT spreads. Extreme call skew = market fearful of upside.
+Proxy skew = mid(25-delta PUT) − mid(25-delta CALL) at 9:35 AM (IV unavailable in data; price-based proxy used instead). 967 days of data (2022–2025).
 
-**What to test:** If CALL skew > 2 vol points (calls priced richer than puts), skip the CALL spread entry that day. Requires SPX options chain at 9:35 AM; CBOE SKEW index is a daily proxy.
+**Result: signal exists but not actionable as a skip/reduce filter.**
 
-**Paper:** Rehman & Vilkov (2012) on risk-neutral skewness. ScienceDirect — "The SKEW Index: Extracting what has been left" (2020): implied skewness predicts market downturns and serves as a crisis indicator.
+| Skew Quintile | Avg P&L | Win Rate |
+|---|---|---|
+| Q1 (call skew, lowest) | $459 | 83.8% |
+| Q3 | $679 | 88.8% |
+| Q5 (put skew, highest) | $733 | 89.2% |
+
+Monotonic gradient ($459→$733) confirms put skew = favorable, call skew = weaker. But skipping CALL days on negative-skew costs -$12k (26 days, mostly still profitable). The signal again suggests *increasing* size on high-skew days — only useful when Kelly sizing is unlocked (~$80k account).
+
+**Interesting directional finding:** PUT days with positive skew avg $705 vs $392 on negative-skew days. Sample too small (66 negative-skew days) to rely on. Revisit with more data.
+
+**Paper:** Rehman & Vilkov (2012) on risk-neutral skewness. ScienceDirect — "The SKEW Index: Extracting what has been left" (2020).
 
 ---
 
-### [12] Realized GARCH — Better Overnight Vol Forecast as Entry Gate
+### [12] Realized GARCH — Better Overnight Vol Forecast as Entry Gate ✗ TESTED NEGATIVE (2026-03-29)
 
-Unlike GARCH(1,1) which uses only daily close-to-close returns, Realized GARCH ingests overnight realized volatility as a direct measurement equation input — exactly the window used by the VIX-change signal. Outperforms standard GARCH for 1-day-ahead SPX option pricing errors both in-sample and out-of-sample.
+Extends GARCH by including overnight RV (proxied by first 30-min SPX vol + open jump). Walk-forward OLS fit on rolling 252-day windows.
 
-**What to test:** Fit on rolling 252-day windows. Use conditional variance forecast as a regime gate: skip or halve size when forecast variance is in the top quintile of its own history, regardless of VIX direction.
+**Result: same pattern as HAR-RV.** Higher vol forecast = better trading days, not worse.
 
-**Paper:** Hansen, Huang & Shek (2012), *Journal of Applied Econometrics* 27(6), 877–906. Option pricing extension: Huang (2017), *Journal of Futures Markets*.
+| Realized GARCH Quintile | Days | Avg P&L | Win Rate |
+|---|---|---|---|
+| Q1 (low forecast) | 134 | $353 | 87.3% |
+| Q3 | 134 | $647 | 92.5% |
+| Q4 | 134 | $753 | 94.8% |
+| Q5 (high forecast) | 134 | $760 | 86.6% |
+
+Half-sizing top 20% costs -$44k. The Q1→Q5 gradient ($353→$760) reinforces that high-vol forecast days are the strategy's best days. Adding overnight vol input over HAR-RV adds no new insight. Revisit as a size-*increase* signal when Kelly sizing is unlocked.
+
+**Paper:** Hansen, Huang & Shek (2012), *Journal of Applied Econometrics* 27(6), 877–906.
+
+---
+
+### [13] VIX Futures Backwardation — Crash Warning Signal
+*(Journal of Portfolio Management — "VIX Term Structure and Future Stock Returns")*
+
+**Concept:** VIX futures normally trade in contango (longer-dated > spot). When the curve flips to backwardation (spot VIX > near-term futures), the market is pricing in an immediate, high-probability crash — "smart money" is paying up for near-term protection.
+
+**Relationship to [5]:** [5] tested VIX9D/VIX as a term structure proxy and found it negative (0.455 correlation with VIX level, no independent signal). **True VIX futures backwardation is a different and stronger signal** — VIX9D is a 9-day implied vol index, not a traded futures contract. The futures basis (cash vs front-month futures) has a distinct economic meaning: it represents the actual cost of rolling hedges and the market's directional bet on near-term volatility.
+
+**Data needed:** VIX futures front-month close (VX1) — available from CBOE or Quandl/FRED. Free download.
+
+**What to test:** On days where spot VIX > VX1 (backwardation), compare P&L vs contango days. Also test as a skip/reduce filter specifically in the VIX 15–25 zone where the dynamic SL doesn't already fire.
+
+**Feasibility:** High — one CSV download from CBOE. Worth testing given it's mechanistically different from [5].
+
+---
+
+### [14] Variance Risk Premium Revisit — JF Formulation
+*(Journal of Finance — "The Variance Risk Premium and the Predictability of Stock Returns")*
+
+**Concept:** VRP = implied variance (VIX²) − realized variance. When VRP narrows or flips negative (realized vol exceeds implied), "insurance" is underpriced relative to actual risk — historically precedes vol spikes.
+
+**Relationship to [7]:** **Already fully tested in [7] — negative.** The gradient existed (Q1: $553 → Q5: $726/day) but both E[P&L] and CVaR scale linearly with qty, so no sizing improvement is possible without increasing BP. Negative VRP days (realized > implied) actually averaged $781/day with 86.7% WR — better than positive VRP days.
+
+**Verdict: do not retest.** The JF paper's predictability finding applies to equity index returns, not to short-premium 0DTE P&L. The strategy's edge comes from theta decay and OTM distance, not from implied vol being expensive.
+
+---
+
+### [15] True IV Skew — Volatility Smile Slope
+*(Quantitative Finance — "Extracting Risk-Neutral Probability Density Functions")*
+
+**Concept:** When puts become exponentially more expensive than calls (steepening skew), "smart money" is buying crash protection en masse. A steepening slope signals tail-risk accumulation before a spike.
+
+**Relationship to [11]:** [11] tested a **price-based proxy** (mid(25-delta PUT) − mid(25-delta CALL)) since the IV column in the option greeks data is all zeros. The proxy showed a meaningful monotonic gradient ($459→$733 Q1→Q5) but was not actionable as a filter due to small sample size on negative-skew days.
+
+**What's needed for true IV skew:** Either (a) compute IV from first principles using Black-Scholes with the bid/ask mid price and current SPX spot — all inputs are available (strike, expiry, rate, spot, option price); or (b) obtain a pre-computed IV feed.
+
+**Feasibility:** Medium — computing IV from bid/ask mid + BSM is straightforward. The delta column already provides an approximation, but the exact 25-delta strikes shift daily. Worth implementing if the price-proxy gradient ($274/day Q1→Q5) strengthens with true IV. Priority: test after VIX futures backwardation [13].
+
+---
+
+## Statistical Validation ✓ COMPLETED (2026-03-29)
+
+### Completed Tests
+
+**t-test:** t=27.50, p=6.5e-123. Edge is not random. Trivially significant — not worth re-running.
+
+**Bootstrap confidence intervals (10,000 resamples):**
+| Metric | Observed | 95% CI |
+|---|---|---|
+| Sharpe | 14.16 | [11.79 – 17.12] |
+| Win Rate | 87.1% | [84.8% – 89.2%] |
+| Max Drawdown | -$6,894 | [-$9,488 – -$3,370] |
+
+**Permutation test:** Sharpe and total P&L are order-invariant (shuffling trade dates doesn't change them — credit spread P&L accrues at expiry regardless of sequence). Max DD IS sequence-dependent: observed -$6,894 is near the permutation mean of -$6,555 (p=0.19 — not unusually lucky or unlucky). A proper permutation test for this strategy should shuffle the VIX direction signal, not trade dates.
+
+**Walk-forward / year-by-year:**
+| Year | P&L | Sharpe | WR | Max DD |
+|---|---|---|---|---|
+| 2022 | $140,470 | 13.92 | 78.0% | -$3,936 |
+| 2023 | $123,666 | 11.83 | 91.6% | -$6,118 |
+| 2024 | $123,828 | 13.51 | 84.6% | -$6,894 |
+| 2025 | $175,400 | 18.15 | 93.6% | -$3,370 |
+| 2026 YTD | $33,424 | 13.47 | 87.3% | -$2,940 |
+
+Every year profitable. Sharpe never below 11.83. Strongest evidence of robustness.
+
+**Monte Carlo (10,000 paths, 957 days each with replacement):**
+- P(lose money over full period): **0.00%**
+- P(Max DD > $10,000): **1.7%**
+- P(Max DD > $15,000): **0.0%**
+- P(Max DD > $20,000): **0.0%**
+- DAILY_SL = -20,000 is effectively unreachable under resampled normal conditions.
+
+### Direction Signal Permutation Test ✓ COMPLETED (2026-03-29)
+
+**Question:** Does the VIX direction signal (PUT vs CALL) add real value, or does the strategy win purely from theta decay regardless of direction?
+
+**Method:** Using 950 trading days from the trade log (561 PUT days, 389 CALL days), compared per-day P&L distributions between PUT-assigned and CALL-assigned days. Permutation null: any random assignment of 561/389 days to PUT/CALL should give similar P&L totals.
+
+**Results:**
+| Metric | Value |
+|---|---|
+| Observed total P&L | $596,788 |
+| Estimated P&L if signal FLIPPED | $577,598 |
+| Signal advantage vs contrarian | +$19,190 |
+| PUT days avg P&L/day | $674 (561 days, median $974) |
+| CALL days avg P&L/day | $562 (389 days, median $706) |
+| Trade-level WR: PUT days | 89.5% |
+| Trade-level WR: CALL days | 89.6% |
+| t-test (PUT vs CALL day quality) | t=2.41, p=0.016 |
+| Permutation p-value (split significance) | p=0.007 |
+
+**Conclusion:** The strategy is primarily a **theta decay engine** — both PUT and CALL days are highly profitable with nearly identical 89.5–89.6% win rates. The VIX direction signal adds ~$19k of incremental value (statistically significant, p=0.016), but the dominant driver is theta. The larger PUT day P&L ($674 vs $562) reflects the well-known **volatility risk premium**: PUT sellers consistently capture a structural premium. The VIX signal correctly assigns PUT on 59% of days (when VIX fell = calmer next day = PUT spread safer). Flipping the signal only costs ~$19k over 4 years — the strategy would remain highly profitable even with inverted direction logic.
