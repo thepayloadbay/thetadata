@@ -532,12 +532,16 @@ DAILY_SL       = -20000   # Black swan protection. -20000 never fired in 4yr bac
 # All other VIX levels use no stop loss (DAILY_SL = None).
 
 # ENABLE_DYNAMIC_SL = False = $621,380.00 PNL, but AVG loss is -$815.15
+# DYNAMIC_SL_AMOUNT = -800 = $596,788.00 PNL 
+# DYNAMIC_SL_AMOUNT = -700 = $596,788.00 PNL 
+# DYNAMIC_SL_AMOUNT = -600 = $596,788.00 PNL 
 # DYNAMIC_SL_AMOUNT = -500 = $596,788.00 PNL 
+# DYNAMIC_SL_AMOUNT = -400 = $585,114.00 PNL 
+# DYNAMIC_SL_AMOUNT = -300 = $586,256.00 PNL -$189 avg loss
 # DYNAMIC_SL_AMOUNT = -200 = $570,204.00 PNL 
 
-
 ENABLE_DYNAMIC_SL    = True
-DYNAMIC_SL_AMOUNT    = -400.0        # stop loss applied on danger-zone days
+DYNAMIC_SL_AMOUNT    = -700.0        # stop loss applied on danger-zone days
 DYNAMIC_SL_VIX_LOW   = 13.0         # apply SL when VIX < this
 DYNAMIC_SL_VIX_HIGH  = (25.0, 30.0) # apply SL when VIX is in this range (inclusive)
 DYNAMIC_SL_VIX_MID   = (13.0, 13.5) # apply SL when VIX is in this range (low-VIX CALL blowup zone)
