@@ -113,6 +113,7 @@ All max drawdown comes from the CALL side.
 
 - **Net unusual premiums** — large institutional options sweeps/block prints as a pre-entry signal. Requires separate options flow data source. Most plausible remaining confluence candidate given VIX change is already the direction signal.
 - **Black swan / tail-risk protection** — ✓ IMPLEMENTED 2026-03-28. See research log below.
+- If 2 or loss days in a row, stop for the week? what does statistics say
 
 ### Intraday Trend Reversal Detection (VIX 15–20 loss day problem)
 

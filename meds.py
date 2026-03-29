@@ -959,7 +959,9 @@ CALENDAR_RISK_SL_SWEEP_LEVELS = [-100, -200, -300, -400, -500, None]
 
 # ENABLE_CPI_SL = $571,200.00 PNL
 # ENABLE_PCE_SL = $585,056.00 PNL
-
+# ENABLE_EOQ_SL = $596,788.00 PNL
+# ENABLE_PRE_TW_SL = $590,974.00 PNL
+# ENABLE_POST_HOL_SL = $593,580.00 PNL
 
 ENABLE_CPI_SL        = False
 CPI_SL_AMOUNT        = -300.0   # tighter SL on CPI release days
@@ -970,10 +972,10 @@ PCE_SL_AMOUNT        = -300.0   # tighter SL on PCE release days
 ENABLE_EOQ_SL        = True
 EOQ_SL_AMOUNT        = -300.0   # tighter SL on last trading day of each quarter
 
-ENABLE_PRE_TW_SL     = False
+ENABLE_PRE_TW_SL     = True
 PRE_TW_SL_AMOUNT     = -300.0   # tighter SL on the trading day before Triple Witching
 
-ENABLE_POST_HOL_SL   = False
+ENABLE_POST_HOL_SL   = True
 POST_HOL_SL_AMOUNT   = -300.0   # tighter SL on first trading day after each market holiday
 
 # ── Bias Sweep ──
