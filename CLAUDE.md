@@ -53,7 +53,7 @@ Backtest and optimize a **Multi-Entry Directional Spreads (MEDS)** strategy trad
 | `ENTRY_START/END` | `9:35–12:45` | Sweep-validated window |
 | `ENTRY_INTERVAL` | `20 min` | Sweet spot; 5-min boosts P&L but doubles drawdown to -$66k |
 | `COMMISSION` | `$0.50/contract/leg` | TradeStation rate |
-| `ENABLE_DYNAMIC_SL` | `True`, `-$500` | Triggers in VIX danger zones; adds ~$3,800 vs no SL |
+| `ENABLE_DYNAMIC_SL` | `True`, `-$800` | Triggers in VIX danger zones; -$800 is optimal ($607,424 PnL vs -$500 at $596,788) |
 | `ENABLE_EOM_SL` | `True`, `-$200` | EOM-only SL on last trading day of each month; costs -$202 P&L but cuts max DD from -$9,922 → -$6,894 (31%), Sharpe 12.35 → 13.99, Calmar 61.2 → 88.0 |
 | `DAILY_TP` | `None` | Removing $750 cap added +$140k with same max DD |
 | `ENABLE_ECON_FILTER` | `False` | CPI costs $29,790, NFP costs $36,214 to skip |

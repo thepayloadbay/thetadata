@@ -113,12 +113,12 @@ All max drawdown comes from the CALL side.
 
 - **Net unusual premiums** — large institutional options sweeps/block prints as a pre-entry signal. Requires separate options flow data source. Most plausible remaining confluence candidate given VIX change is already the direction signal.
 - **Black swan / tail-risk protection** — ✓ IMPLEMENTED 2026-03-28. See research log below.
-- If 2 or loss days in a row, stop for the week? what does statistics say
-- add seasonality data to the performance report by day and by month
-- add pnl for econ dates
-- is there a pattern where if monday is a loss, tuesday could be a loss, 
-- is there ap attern where if a tuesday is a loss, wednesday is a loss? check statistics. is there a statistical model?
-- add stats for pnl by entry times
+- ✗ **Stop after 2 consecutive loss days in a week** — TESTED NEGATIVE (2026-03-29). 14 of 220 weeks (6.4%) had 2+ consecutive loss days. Rule only ever triggers on the 4 three-consecutive-loss weeks. Net impact: saves $2,448 on 4 loss days but misses $6,830 on 7 win days = **-$4,382 net**. Market tends to recover after two loss days — stopping locks in the loss and misses the bounce. Clusters: 7 weeks in VIX 25–30 (2022 high-vol regime), 5 weeks in VIX 11–13 (Jun–Jul 2024 low-vol regime). Same structural gaps as 0-win day analysis — no new protection angle here.
+- ✓ **Seasonality data in report** — IMPLEMENTED. `print_seasonality_analysis()` added: P&L by day-of-week and by month in both terminal and RESULTS.md.
+- ✓ **P&L for econ dates** — IMPLEMENTED. `print_econ_date_analysis()` added: 13 event types (Normal, CPI, PPI, PCE, NFP, FOMC, Triple Witch, Monthly OPEX, EOM, EOQ, Pre-TW, Post-Holiday, Full Moon) in both terminal and RESULTS.md.
+- ✓ **P&L by entry time** — IMPLEMENTED. `print_entry_time_analysis()` added: P&L, max DD, W/L, WR% per entry time slot in both terminal and RESULTS.md.
+- **Consecutive day loss patterns** — is there a pattern where Monday loss → Tuesday loss, Tuesday loss → Wednesday loss, etc.? Run statistics and check if a sequential model exists. (Untested)
+- **Daily circuit breaker: 2 intraday STOP_LOSSes → halt remaining entries** — SIMULATED POSITIVE (2026-03-29). After 2 confirmed STOP_LOSS closes on the same day, block all further entries that day. Result on full 4yr trade log: **+$54,842** ($607,424 → $662,266). Fires on 87 days (7.9%). Blocks 264 losing vs 3 winning entries (98.9% accuracy). Works because confirmed STOP_LOSS = market has broken against the direction signal with no noise floor (unlike Bayesian gate which used noisy unrealized MTM). Biggest gains in VIX 25–30 (42 days, $33k saved) — dynamic SL closes existing positions but doesn't block NEW entries; this does. **Needs full marathon backtest to confirm.** "24-hour" variant (also skip next day) doesn't work — next day after trigger has 74.4% WR and $408 avg P&L, skipping costs -$35,108. Config: `STOP_LOSS_CIRCUIT_BREAKER = True`. Not yet implemented.
 
 ### Intraday Trend Reversal Detection (VIX 15–20 loss day problem)
 
@@ -201,6 +201,38 @@ The baseline Calmar of 88.0 and DD of -$6,894 are already exceptional for a $40k
 - **Live fill improvement**: bid→mid fills on live trading could recover $80–100k P&L (backtest uses worst-case bid fills throughout)
 - **Kelly sizing**: enable `ENABLE_KELLY_SIZING = True` once account reaches ~$80k — projected +$560k P&L over 4 years (+92%)
 - **New signal research**: net unusual options flow / institutional sweeps as next confluence candidate
+
+---
+
+## Low-VIX Trending Regime — Structural Gap (2026-03-29)
+
+**Finding:** 87% of all loss days when VIX <13 are complete 0-win wipeouts (13 of 15 days). 23 zero-win days cluster in VIX <15, costing $-16,626 over 4 years. This is the clearest structural gap in the strategy — not covered by dynamic SL (which only activates at VIX <13.0, 13.0–13.5, and 25–30) or VIX_MAX_FILTER (which only skips VIX >35).
+
+**Deep-dive: June–July 2024 cluster** — 11 complete 0-win days, $-9,638 total in 6 weeks. Root cause: SPX VIX stuck at 11–13 while making directional moves of 0.5–1%+/day (~27–54 pts). MIN_OTM_DISTANCE=30 was barely outside 1 standard deviation, making every meaningful daily trend hit the short strikes.
+
+**Two failure modes identified:**
+
+1. **Full-day trending (6–10 entries, all losing)** — Jun 6, 7, 21, 26, 27; Jul 15, 16: market trended all day in one direction against the VIX signal. Low VIX = strikes only 30–44 pts OTM = vulnerable to even modest 0.5% SPX moves.
+
+2. **Fast early move, entries choked off (1–3 entries)** — Jun 10, 11, 13, 24, 28; Jul 1: market blew through short strikes in first 40 minutes, then entries stopped. Cause: after fast low-VIX move, 0DTE options become too cheap to meet MIN_NET_CREDIT=0.55, so remaining entry slots get no qualifying fills. Damage front-loaded to first 1–3 trades.
+
+   Worst single example: **Jun 24, 2024** — 1 CALL entry at 9:40, short strike 5495 (30pt OTM), VIX=13.41. SPX spiked intraday above 5495, triggered STOP_LOSS, then closed at 5487.96. One position lost $974.
+
+**Pattern in the whipsaw:** Jun 3–13 shows 5 consecutive alternating win/loss days: Mon CALL +$706, Tue CALL -$1010, Wed PUT +$1100, Thu PUT -$876, Fri PUT -$890. The VIX signal was consistently pointing the wrong way during a low-VIX trending SPX regime.
+
+**Recovery after regime ended:** VIX popped back to 14.5+ on Jul 17; all remaining 11 days in the period were 100% win-rate totaling +$9,358.
+
+**Why nothing protects against this:**
+- Dynamic SL doesn't activate (VIX 11–14 is outside the trigger ranges except VIX <13.0 / 13.0–13.5)
+- Raising MIN_OTM_DISTANCE when VIX <15 would push strikes further out but at low VIX the options at +40pts OTM may not meet MIN_NET_CREDIT=0.55 — causing no trades rather than safer trades
+- `ENABLE_OTM_DISTANCE_VIX_RANGE` config exists but targets VIX 15–20 zone
+
+**Potential mitigations (untested):**
+- A low-VIX dynamic SL: activate SL=-$800 on days where VIX is in 13.5–15.0 range (currently unprotected gap between the two existing trigger ranges)
+- Skip trading when VIX <12.0 (only ~20 days in 4yr backtest) — would preserve all $-7k+ loss days but needs marathon verification for P&L cost
+- Raise MIN_NET_CREDIT to 0.65–0.70 on low-VIX days — naturally chokes off entries when spreads are too cheap (may already be partially doing this given the "1–3 trade" mode above)
+
+**Bottom line:** $16k cost over 4 years is manageable (2.6% of total P&L). Low priority vs Kelly sizing unlock. Worth revisiting once account grows and DD budget loosens.
 
 ---
 

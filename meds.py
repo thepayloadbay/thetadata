@@ -115,7 +115,7 @@ RUN_HISTORY_FILE = os.path.join(LOGS_DIR, "run_history.json")   # persistent acr
 # │  Trades       : 7,014      Days     : 957 / 1103                    │
 # │  Key settings : WIDTH=20, QTY=2, MIN_CREDIT=0.55, MIN_OTM=30        │
 # │                 DIRECTION=vix_change, ENTRY 9:35–12:45 every 20min  │
-# │                 DYN_SL: VIX<13 | (13–13.5) | (25–30) → SL=-$500    │
+# │                 DYN_SL: VIX<13 | (13–13.5) | (25–30) → SL=-$800    │
 # │                 MTM interval: 1min on danger days, 5min otherwise    │
 # │                 FOMC/TW/CPI/NFP all traded (filters removed)         │
 # │                 DAILY_TP=None (TP sweep: removing $750 cap +$140k)   │
@@ -585,6 +585,16 @@ INTRADAY_ENTRY_GATE  = None          # keep disabled — see above
 # None = disabled (baseline).
 ENABLE_PER_POS_SL  = False
 PER_POS_SL_AMOUNT  = -400.0   # close position if MTM loss exceeds this (e.g. -400 = -$400)
+
+# ── Intraday Stop-Loss Circuit Breaker ──
+# After N confirmed STOP_LOSS closes on the same day, block all further entries.
+# Simulation on full 4yr trade log: STOP_LOSS_CB_COUNT=2 → +$54,842 P&L improvement
+# ($607,424 → $662,266). Fires on 87 days; blocks 264 losing vs 3 winning entries
+# (98.9% accuracy). Works because confirmed intraday stops = market has broken against
+# the direction signal. Different from Bayesian gate (unrealized MTM, noisy) — this
+# uses closed trade outcomes. NOTE: needs full marathon backtest to verify.
+ENABLE_STOP_LOSS_CB  = False   # True = enable circuit breaker
+STOP_LOSS_CB_COUNT   = 2       # number of intraday STOP_LOSS closes that triggers halt
 
 SKIP_VIX_RANGE       = None          # (lo, hi) → skip day entirely when VIX is in this range.
                                      # TESTED: (25.0, 30.0) — full marathon backtest result:
@@ -1993,6 +2003,7 @@ async def _simulate_day(
     stopped_today    = False
     daily_trades     = 0
     current_day_pnl  = 0.0
+    intraday_sl_count = 0   # counts confirmed STOP_LOSS closes today (circuit breaker)
     peak_day_pnl     = 0.0  # highest portfolio P&L seen this day (for trailing stop)
     # Opening skew — computed once at the first entry bar, stamped on all trades
     _skew_put   = None  # credit for PUT spread at OPENING_SKEW_OTM distance
