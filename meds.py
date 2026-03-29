@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """MEDS strategy — entry point.
 
-Config, engine, and reporting live in meds_core.py.
+Config and engine live in meds_core.py.
+Reporting/analysis lives in meds_reporting.py.
 Sweep runners live in meds_sweeps.py.
 This file contains run(), CLI parsing, and the dispatch table.
 """
@@ -16,7 +17,7 @@ import sys
 import pandas as pd
 
 # ---------------------------------------------------------------------------
-#  Import everything from meds_core (config + engine + reporting + metrics).
+#  Import everything from meds_core (config + engine + metrics).
 #  CLI-mutable vars are accessed via _mc.VAR to pick up runtime overrides.
 # ---------------------------------------------------------------------------
 import meds_core as _mc
@@ -25,7 +26,6 @@ from meds_core import (
     _build_calendar_event_dates,
     _build_daily_indicators,
     _DAILY_INDICATORS,
-    _display_run_history,
     _EOM_DATES,
     _CPI_DATES,
     _PCE_DATES,
@@ -33,8 +33,11 @@ from meds_core import (
     _PRE_TW_DATES,
     _POST_HOL_DATES,
     _get_session,
-    _save_run_summary,
 )
+
+# Reporting functions (extracted to meds_reporting.py)
+from meds_reporting import *
+from meds_reporting import _display_run_history, _save_run_summary
 
 # Module-level state (populated in __main__)
 _CALENDAR_SKIP_DATES: set[str] = set()

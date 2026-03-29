@@ -30,6 +30,9 @@ from meds_core import (
     _sl_label,
 )
 
+# Reporting functions (extracted from meds_core)
+from meds_reporting import print_vix_analysis, print_strike_distance_analysis, print_put_call_analysis
+
 # CLI-mutable vars: always read from _mc at call time
 # _mc.PILOT_YEAR_START, _mc.PILOT_YEAR_END
 
