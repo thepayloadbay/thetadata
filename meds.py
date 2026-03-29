@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """MEDS strategy — entry point.
 
-Config and engine live in meds_core.py.
+Config constants live in meds_config.py.
+Engine (simulation, data, indicators) lives in meds_engine.py.
 Reporting/analysis lives in meds_reporting.py.
 Sweep runners live in meds_sweeps.py.
+meds_core.py is a thin re-exporter for backwards compatibility.
 This file contains run(), CLI parsing, and the dispatch table.
 """
 from __future__ import annotations
@@ -17,13 +19,15 @@ import sys
 import pandas as pd
 
 # ---------------------------------------------------------------------------
-#  Import everything from meds_core (config + engine + metrics).
-#  CLI-mutable vars are accessed via _mc.VAR to pick up runtime overrides.
+#  Config constants + engine functions.
+#  CLI-mutable vars are accessed via _cfg.VAR to pick up runtime overrides.
 # ---------------------------------------------------------------------------
-import meds_core as _mc
-from meds_core import *
-from meds_core import (
-    _build_calendar_event_dates,
+import meds_config as _cfg
+from meds_config import *
+from meds_config import _build_calendar_event_dates
+
+from meds_engine import *
+from meds_engine import (
     _build_daily_indicators,
     _DAILY_INDICATORS,
     _EOM_DATES,
@@ -51,7 +55,7 @@ def load_existing_trades() -> tuple[list, str | None]:
     last_processed_date_str is the max entry_date found (YYYYMMDD), or None."""
     trades = []
     try:
-        with open(_mc.SAVE_FILE, "r", newline="") as f:
+        with open(_cfg.SAVE_FILE, "r", newline="") as f:
             for row in csv.DictReader(f):
                 row["pnl_earned"] = float(row["pnl_earned"]) if row.get("pnl_earned") else 0.0
                 row["win"]        = int(row["win"])  if row.get("win")  else 0
@@ -83,12 +87,12 @@ def is_portfolio_under_pressure(active_positions, current_spot, threshold_pct=0.
     return False
 
 async def run():
-    date_list = pd.date_range(_mc.PILOT_YEAR_START, _mc.PILOT_YEAR_END, freq='B')
+    date_list = pd.date_range(_cfg.PILOT_YEAR_START, _cfg.PILOT_YEAR_END, freq='B')
 
     # -- Resume or new run? --
     resume_from = None
-    if os.path.exists(_mc.SAVE_FILE):
-        print(f"\nFound existing log: {_mc.SAVE_FILE}")
+    if os.path.exists(_cfg.SAVE_FILE):
+        print(f"\nFound existing log: {_cfg.SAVE_FILE}")
         if sys.stdin.isatty():
             choice = input("Resume where you left off? [y/n]: ").strip().lower()
         else:
@@ -115,8 +119,8 @@ async def run():
 
     logger.info("=" * 60)
     logger.info("MEFT v35: BID/ASK DRIVEN MARATHON")
-    logger.info(f"Trades  -> {_mc.SAVE_FILE}")
-    logger.info(f"Log     -> {_mc.LOG_FILE}")
+    logger.info(f"Trades  -> {_cfg.SAVE_FILE}")
+    logger.info(f"Log     -> {_cfg.LOG_FILE}")
     logger.info("=" * 60)
     print_settings_summary()
 
@@ -148,9 +152,9 @@ async def run():
         logger.warning("No trades recorded.")
         return
 
-    logger.info(f"DONE -- {len(all_trades)} trades logged to {_mc.SAVE_FILE}")
+    logger.info(f"DONE -- {len(all_trades)} trades logged to {_cfg.SAVE_FILE}")
     _snapshot = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tradelogs_meds.csv")
-    shutil.copy2(_mc.SAVE_FILE, _snapshot)
+    shutil.copy2(_cfg.SAVE_FILE, _snapshot)
     logger.info(f"Trade log snapshot -> {_snapshot}")
     print_performance_report(all_trades, date_list)
     append_results_md(all_trades, date_list)
@@ -188,23 +192,23 @@ if __name__ == "__main__":
     _args = _parser.parse_args()
 
     # -- Apply CLI overrides to meds_core (before importing sweeps) --
-    if _args.start:           _mc.PILOT_YEAR_START    = _args.start
-    if _args.end:             _mc.PILOT_YEAR_END      = _args.end
-    if _args.out:             _mc.SAVE_FILE           = _args.out
+    if _args.start:           _cfg.PILOT_YEAR_START    = _args.start
+    if _args.end:             _cfg.PILOT_YEAR_END      = _args.end
+    if _args.out:             _cfg.SAVE_FILE           = _args.out
     if _args.sl_vix_mid_low is not None and _args.sl_vix_mid_high is not None:
-        _mc.DYNAMIC_SL_VIX_MID = (_args.sl_vix_mid_low, _args.sl_vix_mid_high)
+        _cfg.DYNAMIC_SL_VIX_MID = (_args.sl_vix_mid_low, _args.sl_vix_mid_high)
     if _args.skip_vix_lo is not None and _args.skip_vix_hi is not None:
-        _mc.SKIP_VIX_RANGE = (_args.skip_vix_lo, _args.skip_vix_hi)
+        _cfg.SKIP_VIX_RANGE = (_args.skip_vix_lo, _args.skip_vix_hi)
     if _args.kelly:
-        _mc.ENABLE_KELLY_SIZING = True
+        _cfg.ENABLE_KELLY_SIZING = True
     if _args.entry_gate is not None:
-        _mc.INTRADAY_ENTRY_GATE = _args.entry_gate
+        _cfg.INTRADAY_ENTRY_GATE = _args.entry_gate
     if _args.buyback_exit is not None:
-        _mc.PREMIUM_BUYBACK_EXIT = _args.buyback_exit
+        _cfg.PREMIUM_BUYBACK_EXIT = _args.buyback_exit
     if _args.min_otm_distance is not None:
-        _mc.MIN_OTM_DISTANCE = _args.min_otm_distance
+        _cfg.MIN_OTM_DISTANCE = _args.min_otm_distance
     if _args.max_credit is not None:
-        _mc.MAX_NET_CREDIT = _args.max_credit
+        _cfg.MAX_NET_CREDIT = _args.max_credit
 
     # Build EOM date set (used by EOM SL and EOM SL sweep)
     _cal_event_sets_startup = _build_calendar_event_dates()
