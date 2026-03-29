@@ -940,6 +940,16 @@ RUN_PER_POS_SL_SWEEP    = False
 PER_POS_SL_SWEEP_FILE   = _out("meds_per_pos_sl_sweep.csv")
 PER_POS_SL_SWEEP_LEVELS = [None, -200, -300, -400, -500, -600]  # None = baseline (no per-pos SL)
 
+# ── VIX-Range Entry Cutoff Sweep ──
+# Tests stopping new entries earlier on VIX LO–HI days to avoid late-day reversal losses.
+# None = use global ENTRY_END for all VIX ranges (baseline).
+RUN_VIX_ENTRY_CUTOFF_SWEEP    = False
+VIX_ENTRY_CUTOFF_SWEEP_FILE   = _out("meds_vix_entry_cutoff_sweep.csv")
+VIX_ENTRY_CUTOFF_SWEEP_TIMES  = [time(10, 45), time(11, 5), time(11, 25), time(11, 45),
+                                   time(12, 5), time(12, 25), None]  # None = baseline (12:45)
+VIX_ENTRY_CUTOFF_VIX_LO       = 15.0   # apply cutoff when VIX >= this
+VIX_ENTRY_CUTOFF_VIX_HI       = 20.0   # apply cutoff when VIX <  this
+
 # ── EOM SL (live) ──
 ENABLE_EOM_SL  = True
 EOM_SL_AMOUNT  = -200.0  # tighter SL applied on last trading day of each month
@@ -2528,7 +2538,13 @@ VIX_BUCKETS = [
     ("15–20", 15.0, 20.0),
     ("20–25", 20.0, 25.0),
     ("25–30", 25.0, 30.0),
-    ("30+",   30.0, None),
+    ("30–35", 30.0, 35.0),
+    ("35–40", 35.0, 40.0),
+    ("40–45", 40.0, 45.0),
+    ("45–50", 45.0, 50.0),
+    ("50–55", 50.0, 55.0),
+    ("55–60", 55.0, 60.0),
+    ("60+",   60.0, None),
 ]
 
 
@@ -3229,6 +3245,120 @@ def append_results_md(all_trades: list, date_list) -> None:
         l         = loss_day_losses.get(d2, 0)
         L.append(f"| {date_fmt} | {vix_str} | {loss_day_trades[d2]} | {w}W/{l}L | ${pnl:,.2f} |")
 
+    # Entry time breakdown
+    import datetime as _dt_mod
+    et_buckets: dict = {}
+    for t in all_trades:
+        slot = t.get("entry_time", "")[:5]
+        if slot not in et_buckets:
+            et_buckets[slot] = {"pnl": 0.0, "wins": 0, "losses": 0, "pnls": []}
+        et_buckets[slot]["pnl"] += t["pnl_earned"]
+        et_buckets[slot]["pnls"].append(t["pnl_earned"])
+        et_buckets[slot]["wins" if t.get("win") else "losses"] += 1
+    for b in et_buckets.values():
+        eq = pk = dd = 0.0
+        for p in b["pnls"]:
+            eq += p; pk = max(pk, eq); dd = min(dd, eq - pk)
+        b["max_dd"] = dd
+
+    L += ["", "### Entry Time Breakdown"]
+    L.append("| Time | Trades | W/L | WR% | Total P&L | Max DD |")
+    L.append("|------|-------:|----:|----:|----------:|-------:|")
+    for slot in sorted(et_buckets.keys()):
+        b = et_buckets[slot]
+        total = b["wins"] + b["losses"]
+        wr = b["wins"] / total * 100 if total else 0.0
+        L.append(f"| {slot} | {total} | {b['wins']}W/{b['losses']}L | {wr:.1f}% | ${b['pnl']:,.2f} | ${b['max_dd']:,.2f} |")
+
+    # Seasonality
+    dow_b: dict[int, dict] = {i: {"pnl": 0.0, "wins": 0, "losses": 0} for i in range(5)}
+    mon_b: dict[int, dict] = {i: {"pnl": 0.0, "wins": 0, "losses": 0} for i in range(1, 13)}
+    for t in all_trades:
+        d3 = t.get("entry_date", "")
+        if len(d3) != 8:
+            continue
+        try:
+            dt = _dt_mod.date(int(d3[:4]), int(d3[4:6]), int(d3[6:]))
+        except ValueError:
+            continue
+        pnl3 = t["pnl_earned"]
+        win3 = bool(t.get("win"))
+        dow_b[dt.weekday()]["pnl"] += pnl3
+        mon_b[dt.month]["pnl"]     += pnl3
+        dow_b[dt.weekday()]["wins" if win3 else "losses"] += 1
+        mon_b[dt.month]["wins" if win3 else "losses"]     += 1
+
+    dow_names = ["Mon", "Tue", "Wed", "Thu", "Fri"]
+    mon_names = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+
+    L += ["", "### Seasonality — Day of Week"]
+    L.append("| Day | Trades | WR% | Total P&L | Avg P&L |")
+    L.append("|-----|-------:|----:|----------:|--------:|")
+    for i, name in enumerate(dow_names):
+        b = dow_b[i]
+        total = b["wins"] + b["losses"]
+        wr  = b["wins"] / total * 100 if total else 0.0
+        avg = b["pnl"] / total if total else 0.0
+        L.append(f"| {name} | {total} | {wr:.1f}% | ${b['pnl']:,.2f} | ${avg:,.2f} |")
+
+    L += ["", "### Seasonality — Month"]
+    L.append("| Month | Trades | WR% | Total P&L | Avg P&L |")
+    L.append("|-------|-------:|----:|----------:|--------:|")
+    for i, name in enumerate(mon_names, 1):
+        b = mon_b[i]
+        total = b["wins"] + b["losses"]
+        wr  = b["wins"] / total * 100 if total else 0.0
+        avg = b["pnl"] / total if total else 0.0
+        L.append(f"| {name} | {total} | {wr:.1f}% | ${b['pnl']:,.2f} | ${avg:,.2f} |")
+
+    # Econ date analysis
+    day_pnl_all: dict[str, float] = {}
+    for t in all_trades:
+        d4 = t["entry_date"]
+        day_pnl_all[d4] = day_pnl_all.get(d4, 0.0) + t["pnl_earned"]
+
+    def _econ_stats(date_set):
+        pnls = [day_pnl_all[d] for d in day_pnl_all if d in date_set]
+        if not pnls: return 0, 0.0, 0.0, 0.0, 0.0
+        wins  = sum(1 for p in pnls if p > 0)
+        wr    = wins / len(pnls) * 100
+        avg   = sum(pnls) / len(pnls)
+        total = sum(pnls)
+        eq = pk = dd = 0.0
+        for p in pnls:
+            eq += p; pk = max(pk, eq); dd = min(dd, eq - pk)
+        return len(pnls), wr, avg, total, dd
+
+    nfp_set_md   = {d for d in ECON_DATES if d not in _CPI_DATES and d not in _PCE_DATES}
+    tw_set_md    = {d for d in day_pnl_all if d in TRIPLE_WITCHING_DATES}
+    fomc_set_md  = {d for d in day_pnl_all if d in FOMC_DATES}
+    normal_md    = {d for d in day_pnl_all
+                    if d not in ECON_DATES and d not in tw_set_md and d not in fomc_set_md
+                    and d not in _EOM_DATES and d not in _EOQ_DATES
+                    and d not in _PRE_TW_DATES and d not in _POST_HOL_DATES}
+
+    md_event_types = [
+        ("Normal",       normal_md),
+        ("CPI",          {d for d in day_pnl_all if d in _CPI_DATES}),
+        ("PCE",          {d for d in day_pnl_all if d in _PCE_DATES}),
+        ("NFP",          {d for d in day_pnl_all if d in nfp_set_md}),
+        ("FOMC",         fomc_set_md),
+        ("Triple Witch", tw_set_md),
+        ("EOM",          {d for d in day_pnl_all if d in _EOM_DATES}),
+        ("EOQ",          {d for d in day_pnl_all if d in _EOQ_DATES}),
+        ("Pre-TW",       {d for d in day_pnl_all if d in _PRE_TW_DATES}),
+        ("Post-Holiday", {d for d in day_pnl_all if d in _POST_HOL_DATES}),
+    ]
+
+    L += ["", "### Calendar / Econ Event Analysis"]
+    L.append("| Event | Days | WR% | Avg/Day | Total P&L | Max DD |")
+    L.append("|-------|-----:|----:|--------:|----------:|-------:|")
+    for label, dset in md_event_types:
+        n, wr, avg, total, dd = _econ_stats(dset)
+        if n == 0:
+            continue
+        L.append(f"| {label} | {n} | {wr:.1f}% | ${avg:,.2f} | ${total:,.2f} | ${dd:,.2f} |")
+
     L.append("")
 
     results_path = "RESULTS.md"
@@ -3652,6 +3782,163 @@ def print_large_loss_days(all_trades: list, n: int = 15) -> None:
         w  = day_wins.get(d, 0)
         l  = day_losses.get(d, 0)
         logger.info(f"  {date_fmt:<12} {vix_str:>5}  {day_trades[d]:>6}  {w}W/{l}L{'':<2} {pnl:>12,.2f}")
+    logger.info(sep)
+
+
+# ─────────────────────────────────────────────
+#  ENTRY TIME ANALYSIS
+# ─────────────────────────────────────────────
+def print_entry_time_analysis(all_trades: list) -> None:
+    """Break down P&L, drawdown, and W/L by entry time slot."""
+    from collections import defaultdict
+    buckets: dict[str, dict] = {}
+    for t in all_trades:
+        et = t.get("entry_time", "")[:5]  # "HH:MM"
+        if et not in buckets:
+            buckets[et] = {"pnl": 0.0, "wins": 0, "losses": 0, "pnls": []}
+        buckets[et]["pnl"] += t["pnl_earned"]
+        buckets[et]["pnls"].append(t["pnl_earned"])
+        if t.get("win"):
+            buckets[et]["wins"] += 1
+        else:
+            buckets[et]["losses"] += 1
+
+    # Compute per-slot max drawdown (equity curve within each slot across all days)
+    for slot, b in buckets.items():
+        eq = pk = dd = 0.0
+        for p in b["pnls"]:
+            eq += p
+            pk  = max(pk, eq)
+            dd  = min(dd, eq - pk)
+        b["max_dd"] = dd
+
+    sorted_slots = sorted(buckets.keys())
+    sep = "─" * 62
+    logger.info(sep)
+    logger.info("  ENTRY TIME BREAKDOWN")
+    logger.info(sep)
+    logger.info(f"  {'Time':<7} {'Trades':>7} {'W/L':<9} {'WR%':>5} {'Total P&L':>12} {'Max DD':>10}")
+    logger.info(sep)
+    for slot in sorted_slots:
+        b = buckets[slot]
+        total = b["wins"] + b["losses"]
+        wr = b["wins"] / total * 100 if total else 0.0
+        wl = f"{b['wins']}W/{b['losses']}L"
+        logger.info(f"  {slot:<7} {total:>7} {wl:<9} {wr:>4.1f}% {b['pnl']:>12,.2f} {b['max_dd']:>10,.2f}")
+    logger.info(sep)
+
+
+# ─────────────────────────────────────────────
+#  SEASONALITY ANALYSIS
+# ─────────────────────────────────────────────
+def print_seasonality_analysis(all_trades: list) -> None:
+    """Break down P&L by day-of-week and by month."""
+    from collections import defaultdict
+    import datetime as _dt_mod
+
+    dow_buckets: dict[int, dict] = {i: {"pnl": 0.0, "wins": 0, "losses": 0} for i in range(5)}
+    mon_buckets: dict[int, dict] = {i: {"pnl": 0.0, "wins": 0, "losses": 0} for i in range(1, 13)}
+
+    for t in all_trades:
+        d = t.get("entry_date", "")
+        if len(d) != 8:
+            continue
+        try:
+            dt = _dt_mod.date(int(d[:4]), int(d[4:6]), int(d[6:]))
+        except ValueError:
+            continue
+        dow = dt.weekday()  # 0=Mon … 4=Fri
+        mon = dt.month
+        pnl = t["pnl_earned"]
+        win = bool(t.get("win"))
+        dow_buckets[dow]["pnl"]    += pnl
+        mon_buckets[mon]["pnl"]    += pnl
+        dow_buckets[dow]["wins" if win else "losses"] += 1
+        mon_buckets[mon]["wins" if win else "losses"] += 1
+
+    dow_names = ["Mon", "Tue", "Wed", "Thu", "Fri"]
+    mon_names = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+    sep = "─" * 56
+
+    logger.info(sep)
+    logger.info("  SEASONALITY — DAY OF WEEK")
+    logger.info(sep)
+    logger.info(f"  {'Day':<5} {'Trades':>7} {'WR%':>6} {'Total P&L':>12} {'Avg P&L':>10}")
+    logger.info(sep)
+    for i, name in enumerate(dow_names):
+        b = dow_buckets[i]
+        total = b["wins"] + b["losses"]
+        wr    = b["wins"] / total * 100 if total else 0.0
+        avg   = b["pnl"] / total if total else 0.0
+        logger.info(f"  {name:<5} {total:>7} {wr:>5.1f}% {b['pnl']:>12,.2f} {avg:>10,.2f}")
+    logger.info(sep)
+
+    logger.info(sep)
+    logger.info("  SEASONALITY — MONTH")
+    logger.info(sep)
+    logger.info(f"  {'Month':<5} {'Trades':>7} {'WR%':>6} {'Total P&L':>12} {'Avg P&L':>10}")
+    logger.info(sep)
+    for i, name in enumerate(mon_names, 1):
+        b = mon_buckets[i]
+        total = b["wins"] + b["losses"]
+        wr    = b["wins"] / total * 100 if total else 0.0
+        avg   = b["pnl"] / total if total else 0.0
+        logger.info(f"  {name:<5} {total:>7} {wr:>5.1f}% {b['pnl']:>12,.2f} {avg:>10,.2f}")
+    logger.info(sep)
+
+
+# ─────────────────────────────────────────────
+#  ECON DATE ANALYSIS
+# ─────────────────────────────────────────────
+def print_econ_date_analysis(all_trades: list) -> None:
+    """Break down P&L and drawdown for each calendar/econ event type vs normal days."""
+    day_pnl: dict[str, float] = {}
+    for t in all_trades:
+        d = t["entry_date"]
+        day_pnl[d] = day_pnl.get(d, 0.0) + t["pnl_earned"]
+
+    def _stats(date_set):
+        pnls = [day_pnl[d] for d in day_pnl if d in date_set]
+        if not pnls: return 0, 0.0, 0.0, 0.0, 0.0
+        wins  = sum(1 for p in pnls if p > 0)
+        wr    = wins / len(pnls) * 100
+        avg   = sum(pnls) / len(pnls)
+        total = sum(pnls)
+        eq = pk = dd = 0.0
+        for p in pnls: eq += p; pk = max(pk, eq); dd = min(dd, eq - pk)
+        return len(pnls), wr, avg, total, dd
+
+    ev = _build_calendar_event_dates()
+    all_event_days = set().union(*[v for v in ev.values() if isinstance(v, set)])
+    normal_set = {d for d in day_pnl if d not in all_event_days}
+
+    event_types = [
+        ("Normal",       normal_set),
+        ("CPI",          ev.get("cpi", set())),
+        ("PPI",          ev.get("ppi", set())),
+        ("PCE",          ev.get("pce", set())),
+        ("NFP",          ev.get("nfp", set())),
+        ("FOMC",         ev.get("fomc", set())),
+        ("Triple Witch", ev.get("triple_witching", set())),
+        ("Monthly OPEX", ev.get("monthly_opex", set())),
+        ("EOM",          ev.get("end_of_month", set())),
+        ("EOQ",          ev.get("end_of_quarter", set())),
+        ("Pre-TW",       ev.get("pre_triple_witching", set())),
+        ("Post-Holiday", ev.get("post_major_holiday", set())),
+        ("Full Moon",    ev.get("full_moon", set())),
+    ]
+
+    sep = "─" * 72
+    logger.info(sep)
+    logger.info("  CALENDAR / ECON EVENT ANALYSIS")
+    logger.info(sep)
+    logger.info(f"  {'Event':<14} {'Days':>5} {'WR%':>6} {'Avg/Day':>10} {'Total P&L':>12} {'Max DD':>10}")
+    logger.info(sep)
+    for label, date_set in event_types:
+        n, wr, avg, total, dd = _stats(date_set)
+        if n == 0:
+            continue
+        logger.info(f"  {label:<14} {n:>5} {wr:>5.1f}% {avg:>10,.2f} {total:>12,.2f} {dd:>10,.2f}")
     logger.info(sep)
 
 
@@ -5892,6 +6179,124 @@ async def run_per_pos_sl_sweep():
         )
     logger.info("═" * 100)
     logger.info(f"  Full results: {PER_POS_SL_SWEEP_FILE}")
+
+
+# ─────────────────────────────────────────────
+#  VIX-RANGE ENTRY CUTOFF SWEEP RUNNER
+# ─────────────────────────────────────────────
+async def run_vix_entry_cutoff_sweep():
+    """Sweep earlier entry window cutoffs applied only on VIX LO–HI days (Option 3b).
+
+    On VIX 15–20 days the market often drifts with positions during the morning entry
+    window then reverses in the afternoon. Tests whether stopping new entries earlier
+    on those days reduces late-day losses without hurting the rest of the backtest.
+    Non-VIX-15-20 days always use the global ENTRY_END (12:45).
+    None = use global ENTRY_END for VIX 15-20 days too (baseline).
+    """
+    logger.info("=" * 70)
+    logger.info("MEDS: VIX-RANGE ENTRY CUTOFF SWEEP")
+    logger.info(f"VIX range     : {VIX_ENTRY_CUTOFF_VIX_LO}–{VIX_ENTRY_CUTOFF_VIX_HI}")
+    logger.info(f"Cutoff times  : {[t.strftime('%H:%M') if t else 'None' for t in VIX_ENTRY_CUTOFF_SWEEP_TIMES]}")
+    logger.info(f"Output        : {VIX_ENTRY_CUTOFF_SWEEP_FILE}")
+    logger.info("=" * 70)
+
+    date_list = pd.date_range(PILOT_YEAR_START, PILOT_YEAR_END, freq="B")
+    day_pool: dict[str, dict] = {}
+    async with _get_session() as session:
+        for d in date_list:
+            d_str = d.strftime("%Y%m%d")
+            if d_str in MARKET_HOLIDAYS:
+                continue
+            if ENABLE_ECON_FILTER and d_str in ECON_DATES:
+                continue
+            day_data = await _fetch_day_data(session, d_str)
+            if day_data is not None:
+                day_pool[d_str] = day_data
+    logger.info(f"Pre-fetched {len(day_pool)} qualifying days.")
+
+    cols = ["cutoff_time", "vix_days_affected", "num_trades", "win_rate_pct",
+            "total_pnl", "pnl_delta", "max_drawdown", "dd_delta", "calmar", "sharpe"]
+    rows = []
+    base_pnl = None
+    base_dd  = None
+
+    async with _get_session() as session:
+        for cutoff in VIX_ENTRY_CUTOFF_SWEEP_TIMES:
+            label = cutoff.strftime("%H:%M") if cutoff else "none"
+            all_trades: list = []
+            vix_days_affected = 0
+
+            for d_str, day_data in day_pool.items():
+                vix_level = day_data.get("vix_level")
+                in_vix_range = (
+                    vix_level is not None
+                    and VIX_ENTRY_CUTOFF_VIX_LO <= vix_level < VIX_ENTRY_CUTOFF_VIX_HI
+                )
+                effective_entry_end = cutoff if (cutoff is not None and in_vix_range) else None
+                if in_vix_range and cutoff is not None:
+                    vix_days_affected += 1
+
+                effective_sl = _get_effective_sl(day_data, d_str)
+                in_danger    = effective_sl is not None
+                sample_interval = DANGER_PNL_SAMPLE_INTERVAL if in_danger else PNL_SAMPLE_INTERVAL
+                direction    = _get_baseline_mode(d_str)
+                trades, _ = await _simulate_day(
+                    session, day_data, effective_sl,
+                    baseline_mode=direction,
+                    pnl_sample_interval=sample_interval,
+                    entry_end=effective_entry_end,
+                )
+                all_trades.extend(trades)
+
+            m      = compute_metrics(all_trades)
+            pnl    = m["total_pnl"]
+            dd     = m["max_drawdown"]
+            calmar = pnl / abs(dd) if dd != 0 else float("inf")
+            wr     = m["win_rate"]
+
+            if base_pnl is None:
+                base_pnl  = pnl
+                base_dd   = dd
+                pnl_delta = "—"
+                dd_delta  = "—"
+            else:
+                pnl_delta = f"{pnl - base_pnl:+.2f}"
+                dd_delta  = f"{dd - base_dd:+.2f}"
+
+            rows.append({
+                "cutoff_time":       label,
+                "vix_days_affected": vix_days_affected,
+                "num_trades":        len(all_trades),
+                "win_rate_pct":      f"{wr:.1f}",
+                "total_pnl":         f"{pnl:.2f}",
+                "pnl_delta":         pnl_delta,
+                "max_drawdown":      f"{dd:.2f}",
+                "dd_delta":          dd_delta,
+                "calmar":            f"{calmar:.2f}",
+                "sharpe":            f"{m['sharpe']:.2f}",
+            })
+            logger.info(f"  Cutoff={label}  vix_days={vix_days_affected}  trades={len(all_trades):>5}  P&L=${pnl:>10,.2f}  DD=${dd:>9,.2f}  Calmar={calmar:.2f}  Sharpe={m['sharpe']:.2f}")
+
+    with open(VIX_ENTRY_CUTOFF_SWEEP_FILE, "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=cols)
+        w.writeheader()
+        w.writerows(rows)
+
+    sep = "─" * 108
+    logger.info("")
+    logger.info("═" * 108)
+    logger.info(f"  {'CUTOFF':>7} | {'VIX DAYS':>8} | {'TRADES':>7} | {'WIN%':>5} | {'TOTAL_PNL':>12} | "
+                f"{'PNL_DELTA':>10} | {'MAX_DD':>10} | {'DD_DELTA':>10} | {'CALMAR':>8} | {'SHARPE':>7}")
+    logger.info(sep)
+    for row in rows:
+        logger.info(
+            f"  {row['cutoff_time']:>7} | {row['vix_days_affected']:>8} | {row['num_trades']:>7} | "
+            f"{row['win_rate_pct']:>4}% | ${float(row['total_pnl']):>11,.2f} | {row['pnl_delta']:>10} | "
+            f"${float(row['max_drawdown']):>9,.2f} | {row['dd_delta']:>10} | "
+            f"{row['calmar']:>8} | {row['sharpe']:>7}"
+        )
+    logger.info("═" * 108)
+    logger.info(f"  Full results: {VIX_ENTRY_CUTOFF_SWEEP_FILE}")
 
 
 # ─────────────────────────────────────────────
@@ -8217,6 +8622,9 @@ async def run():
     print_monthly_pnl_table(all_trades)
     print_spy_comparison(all_trades)
     print_large_loss_days(all_trades)
+    print_entry_time_analysis(all_trades)
+    print_seasonality_analysis(all_trades)
+    print_econ_date_analysis(all_trades)
     _save_run_summary(all_trades, date_list)
     print_vix_analysis(all_trades)
     if RUN_STRIKE_DISTANCE_ANALYSIS:
@@ -8341,6 +8749,8 @@ if __name__ == "__main__":
         asyncio.run(run_eom_sl_sweep())
     elif RUN_PER_POS_SL_SWEEP:
         asyncio.run(run_per_pos_sl_sweep())
+    elif RUN_VIX_ENTRY_CUTOFF_SWEEP:
+        asyncio.run(run_vix_entry_cutoff_sweep())
     elif RUN_CALENDAR_RISK_SL_SWEEP:
         asyncio.run(run_calendar_risk_sl_sweep())
     elif RUN_PRESSURE_VIX_SWEEP:
