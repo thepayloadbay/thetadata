@@ -562,6 +562,15 @@ DYNAMIC_SL_VIX_MID   = (13.0, 13.5) # apply SL when VIX is in this range (low-VI
 # to entry mark, not absolute) is developed to isolate directional loss from B/A spread.
 INTRADAY_ENTRY_GATE  = None          # keep disabled — see above
 
+# ── Per-Position Fixed Stop Loss ──
+# Closes an individual position when its own MTM loss exceeds this threshold,
+# independent of total daily P&L. Targets large single-position losses (e.g. 2023-10-09
+# where the 11:00 entry lost -$2,834 on its own). Different from per-position trailing
+# stop (tested negative) — this is a fixed floor, not a peak-pullback trigger.
+# None = disabled (baseline).
+ENABLE_PER_POS_SL  = False
+PER_POS_SL_AMOUNT  = -400.0   # close position if MTM loss exceeds this (e.g. -400 = -$400)
+
 SKIP_VIX_RANGE       = None          # (lo, hi) → skip day entirely when VIX is in this range.
                                      # TESTED: (25.0, 30.0) — full marathon backtest result:
                                      #   P&L: $607,034 → $597,112  (-$9,922, -1.6%)
@@ -910,6 +919,11 @@ VIX_SUB12_SL_AMOUNT  = -300.0  # tighter SL on VIX < threshold days
 RUN_EOM_SL_SWEEP    = False
 EOM_SL_SWEEP_FILE   = _out("meds_eom_sl_sweep.csv")
 EOM_SL_SWEEP_LEVELS = [-200, -300, -400, -500, -600, None]
+
+# ── Per-Position Fixed SL Sweep ──
+RUN_PER_POS_SL_SWEEP    = True
+PER_POS_SL_SWEEP_FILE   = _out("meds_per_pos_sl_sweep.csv")
+PER_POS_SL_SWEEP_LEVELS = [None, -200, -300, -400, -500, -600]  # None = baseline (no per-pos SL)
 
 # ── EOM SL (live) ──
 ENABLE_EOM_SL  = True
@@ -1838,6 +1852,7 @@ async def _simulate_day(
     pressure_vix_min: float | None = "USE_GLOBAL",
     pressure_vix_max: float | None = "USE_GLOBAL",
     enable_pressure_filter: bool | None = None,
+    per_pos_sl: float | None = "USE_GLOBAL",
 ) -> tuple:
     """Run the intraday simulation using the pre-populated quote cache.
 
@@ -1976,6 +1991,30 @@ async def _simulate_day(
                         f"{pos['short_strike']}/{pos['long_strike']} | P&L=${pos['pnl_earned']:.2f}"
                     )
                 if pos_to_close:
+                    current_day_pnl = sum(p["pnl_earned"] for p in active_positions)
+
+            # ── Per-Position Fixed Stop Loss ──
+            _per_pos_sl = (PER_POS_SL_AMOUNT if ENABLE_PER_POS_SL else None) if per_pos_sl == "USE_GLOBAL" else per_pos_sl
+            if _per_pos_sl is not None and active_positions:
+                pos_sl_to_close = [p for p in active_positions if p["pnl_earned"] <= _per_pos_sl]
+                for pos in pos_sl_to_close:
+                    active_positions.remove(pos)
+                    commission_per_pos = 2 * 2 * pos["qty"] * COMMISSION
+                    pos["pnl_earned"] -= commission_per_pos
+                    pos.update({
+                        "outcome": "PER_POS_SL",
+                        "profit_price": curr_price,
+                        "win":  1 if pos["pnl_earned"] > 0 else 0,
+                        "loss": 1 if pos["pnl_earned"] <= 0 else 0,
+                        "close_date": date_str, "close_time": bar_time,
+                        "profit_date_time": f"{date_str} {bar_time}",
+                    })
+                    day_trades_log.append(pos)
+                    logger.debug(
+                        f"[{bar_label}] PER_POS_SL: {pos['option_type']} "
+                        f"{pos['short_strike']}/{pos['long_strike']} | P&L=${pos['pnl_earned']:.2f}"
+                    )
+                if pos_sl_to_close:
                     current_day_pnl = sum(p["pnl_earned"] for p in active_positions)
 
             # ── Per-position Touch Exit ──
@@ -5673,6 +5712,108 @@ async def run_eom_sl_sweep():
     logger.info(f"  Full results: {EOM_SL_SWEEP_FILE}")
 
 
+async def run_per_pos_sl_sweep():
+    """Sweep per-position fixed SL thresholds to test Option 3d.
+
+    Closes an individual position when its own MTM loss exceeds the threshold,
+    independent of total daily P&L. Tests whether capping single-position losses
+    (e.g. the -$2,834 position on 2023-10-09) improves overall metrics.
+    None = baseline (no per-position SL).
+    """
+    logger.info("=" * 70)
+    logger.info("MEDS: PER-POSITION FIXED SL SWEEP")
+    logger.info(f"Levels        : {PER_POS_SL_SWEEP_LEVELS}")
+    logger.info(f"Output        : {PER_POS_SL_SWEEP_FILE}")
+    logger.info("=" * 70)
+
+    date_list = pd.date_range(PILOT_YEAR_START, PILOT_YEAR_END, freq="B")
+    day_pool: dict[str, dict] = {}
+    async with _get_session() as session:
+        for d in date_list:
+            d_str = d.strftime("%Y%m%d")
+            if d_str in MARKET_HOLIDAYS:
+                continue
+            if ENABLE_ECON_FILTER and d_str in ECON_DATES:
+                continue
+            day_data = await _fetch_day_data(session, d_str)
+            if day_data is not None:
+                day_pool[d_str] = day_data
+    logger.info(f"Pre-fetched {len(day_pool)} qualifying days.")
+
+    cols = ["per_pos_sl", "num_trades", "win_rate_pct",
+            "total_pnl", "pnl_delta", "max_drawdown", "dd_delta", "calmar", "sharpe"]
+    rows = []
+    base_pnl = None
+    base_dd  = None
+
+    async with _get_session() as session:
+        for sl_level in PER_POS_SL_SWEEP_LEVELS:
+            label = "none" if sl_level is None else str(sl_level)
+            all_trades: list = []
+
+            for d_str, day_data in day_pool.items():
+                effective_sl = _get_effective_sl(day_data, d_str)
+                in_danger    = effective_sl is not None
+                sample_interval = DANGER_PNL_SAMPLE_INTERVAL if in_danger else PNL_SAMPLE_INTERVAL
+                direction    = _get_baseline_mode(d_str)
+                trades, _ = await _simulate_day(
+                    session, day_data, effective_sl,
+                    baseline_mode=direction,
+                    pnl_sample_interval=sample_interval,
+                    per_pos_sl=sl_level,
+                )
+                all_trades.extend(trades)
+
+            m      = compute_metrics(all_trades)
+            pnl    = m["total_pnl"]
+            dd     = m["max_drawdown"]
+            calmar = pnl / abs(dd) if dd != 0 else float("inf")
+            wr     = m["win_rate"] * 100
+
+            if base_pnl is None:
+                base_pnl  = pnl
+                base_dd   = dd
+                pnl_delta = "—"
+                dd_delta  = "—"
+            else:
+                pnl_delta = f"{pnl - base_pnl:+.2f}"
+                dd_delta  = f"{dd - base_dd:+.2f}"
+
+            rows.append({
+                "per_pos_sl":   label,
+                "num_trades":   len(all_trades),
+                "win_rate_pct": f"{wr:.1f}",
+                "total_pnl":    f"{pnl:.2f}",
+                "pnl_delta":    pnl_delta,
+                "max_drawdown": f"{dd:.2f}",
+                "dd_delta":     dd_delta,
+                "calmar":       f"{calmar:.2f}",
+                "sharpe":       f"{m['sharpe']:.2f}",
+            })
+            logger.info(f"  SL={label:>6}  trades={len(all_trades):>5}  P&L=${pnl:>10,.2f}  DD=${dd:>9,.2f}  Calmar={calmar:.2f}  Sharpe={m['sharpe']:.2f}")
+
+    with open(PER_POS_SL_SWEEP_FILE, "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=cols)
+        w.writeheader()
+        w.writerows(rows)
+
+    sep = "─" * 100
+    logger.info("")
+    logger.info("═" * 100)
+    logger.info(f"  {'SL':>8} | {'TRADES':>7} | {'WIN%':>5} | {'TOTAL_PNL':>12} | "
+                f"{'PNL_DELTA':>10} | {'MAX_DD':>10} | {'DD_DELTA':>10} | {'CALMAR':>8} | {'SHARPE':>7}")
+    logger.info(sep)
+    for row in rows:
+        logger.info(
+            f"  {row['per_pos_sl']:>8} | {row['num_trades']:>7} | {row['win_rate_pct']:>4}% | "
+            f"${float(row['total_pnl']):>11,.2f} | {row['pnl_delta']:>10} | "
+            f"${float(row['max_drawdown']):>9,.2f} | {row['dd_delta']:>10} | "
+            f"{row['calmar']:>8} | {row['sharpe']:>7}"
+        )
+    logger.info("═" * 100)
+    logger.info(f"  Full results: {PER_POS_SL_SWEEP_FILE}")
+
+
 # ─────────────────────────────────────────────
 #  CALENDAR RISK SL SWEEP RUNNER
 # ─────────────────────────────────────────────
@@ -8116,6 +8257,8 @@ if __name__ == "__main__":
         asyncio.run(run_vix_sub12_sl_sweep())
     elif RUN_EOM_SL_SWEEP:
         asyncio.run(run_eom_sl_sweep())
+    elif RUN_PER_POS_SL_SWEEP:
+        asyncio.run(run_per_pos_sl_sweep())
     elif RUN_CALENDAR_RISK_SL_SWEEP:
         asyncio.run(run_calendar_risk_sl_sweep())
     elif RUN_PRESSURE_VIX_SWEEP:

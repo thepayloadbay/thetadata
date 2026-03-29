@@ -144,6 +144,41 @@ Entry cap variants also tested: cap=5 (-$161k vs baseline), cap=7 (-$144k). Both
 ### Option 2 — Strike distance decay signal (surgical, future research)
 At each entry bar, compute how much existing positions' average OTM distance has shrunk since they were originally entered. If the average decay exceeds X pts (e.g. 15–20 pts), the market is actively trending against open positions — suppress new entries for that bar. This is more targeted than a cap because it only fires when the market is actually moving against you, not on all VIX 15–20 days. Needs a sweep to find the right decay threshold. See "Intraday Trend Reversal Detection" section above for full implementation notes. **Hold until account grows and Kelly sizing is enabled — P&L growth is higher priority.**
 
+### Option 3a — ✗ NOT VIABLE: Consecutive loss circuit breaker (2026-03-29)
+Investigated. A consecutive-*closed*-loss counter cannot fire intraday on the worst days because all positions settle as a batch — not individually:
+
+| Date | VIX | W/L | Close mechanism | Why circuit breaker fails |
+|------|----:|-----|-----------------|--------------------------|
+| 2023-10-09 | 17.7 | 3W/4L | EXPIRATION (15:59) | All 7 settle at EOD together |
+| 2026-03-10 | 25.5 | 0W/10L | STOP_LOSS (14:15) | All 10 entries already open before SL fires |
+| 2024-06-27 | 12.2 | 0W/5L | STOP_LOSS (11:29) | All 5 entries already open before SL fires |
+| 2025-10-01 | 16.2 | 0W/2L | EXPIRATION (15:59) | Both settle at EOD together |
+
+The correct version of this idea is to track **unrealized losses on open positions** intraday — halt new entries when N open positions are already underwater past a threshold. This is essentially Option 2 (strike distance decay signal). See that section.
+
+### Option 3b — Untested: Entry window cutoff by VIX range (future research)
+For VIX 15–20 days specifically, stop new entries earlier (e.g. 11:30 instead of 12:45). The failure mode on these days is market reversal *after* the entry window closes — later entries open with less time cushion and get caught by end-of-day moves. This is more surgical than the entry cap because it targets time-of-day rather than trade count. Would need a sweep over cutoff times (10:30 / 11:00 / 11:30 / 12:00 / 12:15) to find the right balance.
+
+### Option 3c — Untested: Tighter per-trade SL when day is already negative (future research)
+Apply a tighter per-position stop-loss only once total daily P&L is already negative (e.g. once down -$500 on the day, subsequent positions use -$150 SL instead of the standard dynamic SL). Targets the mixed-result days (6W/4L, 3W/7L) where early winners were wiped out by larger late-day losses. Unlike global EOM SL, this is dynamic and applies on any day that turns red. Risk: may over-tighten on days that recover.
+
+### Option 3d — Untested: Per-position fixed SL for late-day losses (future research)
+Close an individual position when its own MTM loss exceeds a threshold (e.g. -$400), independent of total daily P&L. On 2023-10-09, the 11:00 entry lost -$2,834 — a per-position SL of -$400 would have capped it. Note: "per-position trailing stop" was tested negative (CLAUDE.md), but a fixed SL is different and untested. Risk: 93%+ expiry WR means most positions that temporarily go negative ultimately recover — a per-position SL may clip recoveries.
+
+### Option 3e — Untested: Tighter daily SL for late-day entries (future research)
+After a certain time of day (e.g. after 11:30), apply a tighter daily SL (e.g. -$2,000) to limit damage from positions that have less time to recover. The current DAILY_SL = -$20,000 is intentionally loose (black swan protection only). A tighter mid/late-day variant could cap days like 2026-03-10 where 10 entries are open by 14:15 with large unrealized losses. Risk: may fire on normal intraday volatility that resolves before EOD.
+
+### Option 3f — Untested: Halt new entries on intraday trend reversal signal (future research)
+Detect when the intraday market trend is reversing against open positions and halt new entries for the rest of the day. The failure mode on the worst loss days is a market that trends *with* positions during the morning entry window, then reverses sharply and hits multiple short strikes. If the reversal can be detected before the entry window closes, late-day entries that would open into the reversal can be blocked.
+
+Candidate signals to detect reversal:
+- **EMA cross**: short-term EMA (e.g. EMA5) crosses below long-term EMA (e.g. EMA20) on the intraday price series — signals trend flip
+- **Price vs VWAP**: spot crosses below VWAP on a PUT day (or above on a CALL day) — institutional flow flipping direction
+- **Rolling high/low break**: spot breaks below the session rolling high by X pts — momentum exhaustion signal
+- **Average OTM distance decay**: existing positions' average OTM distance has shrunk by X pts from entry — market actively moving toward strikes (see Option 2)
+
+Implementation approach: at each entry bar, compute the reversal signal. If triggered, set a `trend_reversed` flag and suppress all new entries for the remainder of the day (similar to `stopped_today` but without closing existing positions). Needs a parameter sweep over signal threshold and lookback window. Key risk: same failure mode as the Bayesian gate and pressure filter — may fire on temporary pullbacks on winning days that ultimately recover.
+
 ### Option 3 — Accept baseline, focus on P&L growth ✅ CURRENT DIRECTION (2026-03-29)
 The baseline Calmar of 88.0 and DD of -$6,894 are already exceptional for a $40k account. All DD reduction attempts cost significant P&L with zero DD improvement. Focus shifts to growth:
 - **Live fill improvement**: bid→mid fills on live trading could recover $80–100k P&L (backtest uses worst-case bid fills throughout)
