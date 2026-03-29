@@ -460,6 +460,8 @@ Half-sizing top 20% costs -$44k. The Q1→Q5 gradient ($353→$760) reinforces t
 
 **Feasibility:** Medium — computing IV from bid/ask mid + BSM is straightforward. The delta column already provides an approximation, but the exact 25-delta strikes shift daily. Worth implementing if the price-proxy gradient ($274/day Q1→Q5) strengthens with true IV. Priority: test after VIX futures backwardation [13].
 
+**Extension (from VIX Decomposition whitepaper):** Once true IV is computed, also test the **Wings vs. Shoulders ratio** — 10-delta IV divided by 30-delta IV ("skew of skew"). When the wings (10-delta, deep OTM) rise significantly faster than the shoulders (30-delta, where MEDS trades), professional hedgers are pricing in crash risk even while ATM vol looks calm. Use as an early warning signal: if wings/shoulders ratio spikes above a threshold, tighten stop losses or reduce size. This requires true IV first — the IV column in existing data is all zeros.
+
 ---
 
 ### [16] Kalman Filter — ✗ SKIP
@@ -564,6 +566,27 @@ Half-sizing top 20% costs -$44k. The Q1→Q5 gradient ($353→$760) reinforces t
 **Data needed:** Daily DSPX close — published by CBOE. May require CBOE data subscription or Bloomberg. Check if freely available via CBOE website.
 
 **Feasibility:** Medium — data availability unclear (CBOE may not publish historical DSPX freely). Priority: investigate data access first, then test alongside [20] GEX. If data is paywalled, skip.
+
+---
+
+### [25] Dynamic Delta-Adjusted Strike Distance — LOW PRIORITY
+
+**Concept:** Replace the fixed `MIN_OTM_DISTANCE=30` with a VIX-adjusted distance that maintains a constant short-strike delta (~10-delta) regardless of VIX level. From the CBOE VIX Decomposition whitepaper (Exhibit 8), the delta-to-moneyness mapping changes significantly with VIX:
+
+| VIX Level | 10-delta put OTM % | Equivalent SPX pts (SPX=5500) |
+|---|---|---|
+| 15 | ~3.8% | ~209 pts |
+| 20 | ~5.0% | ~275 pts |
+| 25 | ~6.2% | ~341 pts |
+| 30 | ~7.4% | ~407 pts |
+
+At current fixed 30pts, the delta of the short strike shrinks as VIX rises — the strike becomes relatively *safer* in delta terms but not in point terms. A VIX-adjusted distance would push strikes further out as VIX rises, theoretically maintaining constant probability of profit.
+
+**Why likely counterproductive:** High-VIX days (15–25) are the strategy's best days (98%+ WR). Pushing strikes further out on these days reduces credit received, risks dropping below `MIN_NET_CREDIT=0.55`, and reduces the number of qualifying entries — all of which cost P&L. The fixed 30-pt distance was sweep-validated and the VIX 25–30 zone is already handled by `ENABLE_DYNAMIC_SL`.
+
+**What to test if pursued:** Implement a `VIX_ADJUSTED_OTM` function that scales `MIN_OTM_DISTANCE` linearly with VIX (e.g., base 30pts at VIX 15, scaled up proportionally). Compare total P&L, WR, and entry count vs. fixed 30pts baseline.
+
+**Priority:** Low — after [13], [15], [19], [20], [21]. Risk of hurting P&L is real given consistent pattern that high-VIX days are best days.
 
 ---
 
