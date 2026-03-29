@@ -587,7 +587,7 @@ PREMIUM_BUYBACK_EXIT = None   # keep disabled — see above
 # Set both to None to disable. Only one should be active at a time.
 TOUCH_EXIT_DOLLARS = None   # e.g. 5 = exit when underlying is $5 above short put
 TOUCH_EXIT_PCT     = None   # e.g. 0.5 = exit when 0.5% OTM; -1.0 = exit when 1% ITM
-RUN_TOUCH_SWEEP    = True
+RUN_TOUCH_SWEEP    = False
 SWEEP_TOUCH_DOLLARS = [-20, -10, -5, -2, 0, 2, 5, 10, 20, 30]  # None added programmatically as baseline
 SWEEP_TOUCH_PCT     = [-2.0, -1.0, -0.5, -0.25, 0, 0.25, 0.5, 1.0, 1.5, 2.0]
 TOUCH_SWEEP_FILE    = _out("metf_v35_bidask_touch_sweep.csv")
