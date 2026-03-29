@@ -204,7 +204,7 @@ PRESSURE_FILTER_VIX_MAX: float | None = 20.0   # only active when VIX <  this (N
 # Caps max daily entries when VIX is in the 15–20 reversal-day danger zone.
 # Big losses always come from entries #5–10 on those days; early entries are mostly winners.
 # None = use global MAX_TRADES_DAY for all VIX ranges.
-MAX_TRADES_DAY_VIX_15_20: int | None = 5
+MAX_TRADES_DAY_VIX_15_20: int | None = 7
 
 # ── Calendar Event Date Sets ──
 # Used by run_calendar_event_sweep() to test each event type independently.
@@ -2152,7 +2152,6 @@ async def _simulate_day(
                 logger.debug(f"[{bar_label}] Opening skew compute failed: {e}")
 
         for opt_type, right in sides_to_enter:
-            logger.info(f"[{bar_label}] Entry attempt | spot={curr_price:.2f} EMA13={e13:.2f} EMA48={e48:.2f} | {opt_type}")
 
             # Fetch strikes from 10 OTM out to (200 + spread_width) OTM so the long leg
             # is always in the chain regardless of spread width.
@@ -2189,7 +2188,7 @@ async def _simulate_day(
                         logger.debug(f"[{bar_label}] Skipping offset={offset}: credit={c:.3f} exceeds cap={credit_cap}")
                         break  # closest qualifying strike already exceeds cap — skip entry
                     short_strike, long_strike, short_q, long_q, credit = s, l, sq, lq, c
-                    logger.info(f"[{bar_label}] Found spread at offset={offset}: {s}/{l} credit={c:.3f} (bid-ask)")
+                    logger.info(f"[{bar_label}] {opt_type} spread spot={curr_price:.2f} offset={offset}: {s}/{l} credit={c:.3f}")
                     break
 
             if short_strike is None:
@@ -2253,8 +2252,8 @@ async def _simulate_day(
                     logger.warning(f"[{bar_label}] Open chg {open_chg:.2f}% > max {open_chg_pct_max}% — skipping entry.")
                     continue
 
-            strike_dist = round(abs(short_strike - curr_price), 2)
-            logger.info(f"[{bar_label}] ENTERING {opt_type} spread {short_strike}/{long_strike} credit={credit:.3f} (bid-ask) x {entry_qty} x 100 = ${credit*entry_qty*100:.2f} | net_delta={projected_delta:.3f} | strike_dist={strike_dist:.1f}pts")
+            strike_dist = round(abs(short_strike - curr_price))
+            logger.info(f"[{bar_label}] ENTERING {opt_type} spread {short_strike}/{long_strike} credit={credit:.3f} (bid-ask) x {entry_qty} x 100 = ${credit*entry_qty*100:.2f} | strike_dist={strike_dist}pts")
             active_positions.append({
                 "entry_date": date_str, "entry_time": bar_time,
                 "option_type": opt_type,
