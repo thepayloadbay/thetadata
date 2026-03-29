@@ -129,6 +129,10 @@ MIN_OTM_DISTANCE  = 30.0   # minimum OTM distance (pts) for short strike at entr
                            # None/10/15/20/25 all had net-negative or near-zero P&L at those levels.
                            # 30pt floor transformed baseline from ~$62k → $320k by eliminating
                            # close-in, low-OTM entries on dangerous days. 35–50 skip too many trades.
+# Raised OTM floor specifically for VIX 15–20 days. Analysis of worst 15 loss days showed
+# failure mode #1 (late-day losses) clusters in entries with dist 29–39 at entry in this zone.
+# None = use global MIN_OTM_DISTANCE for all VIX ranges.
+MIN_OTM_DISTANCE_VIX_15_20: float | None = 40.0
 PUT_ONLY       = False  # legacy flag — use DIRECTION_MODE instead
 DIRECTION_MODE = "vix_change"  # "vix_change" | "always_put" | "always_call" | "ema"
 # vix_change: VIX falling → PUT spread (bullish); VIX rising → CALL spread (bearish)
@@ -195,7 +199,7 @@ ECON_DATES = {
 # the market trends with positions during the entry window then reverses after 12:45 hitting multiple strikes.
 # Threshold raised to 45 (from 27) because losses cluster in entries with dist 30–45 at entry;
 # 27pt threshold only fires 3pts below MIN_OTM_DISTANCE=30, catching almost nothing.
-ENABLE_PRESSURE_FILTER          = True
+ENABLE_PRESSURE_FILTER          = False
 PRESSURE_DISTANCE_THRESHOLD     = 45.0    # block new entries if any short strike is within X pts of spot
 PRESSURE_FILTER_VIX_MIN: float | None = 15.0   # only active when VIX >= this (None = no lower bound)
 PRESSURE_FILTER_VIX_MAX: float | None = 20.0   # only active when VIX <  this (None = no upper bound)
@@ -204,7 +208,7 @@ PRESSURE_FILTER_VIX_MAX: float | None = 20.0   # only active when VIX <  this (N
 # Caps max daily entries when VIX is in the 15–20 reversal-day danger zone.
 # Big losses always come from entries #5–10 on those days; early entries are mostly winners.
 # None = use global MAX_TRADES_DAY for all VIX ranges.
-MAX_TRADES_DAY_VIX_15_20: int | None = 7
+MAX_TRADES_DAY_VIX_15_20: int | None = None
 
 # ── Calendar Event Date Sets ──
 # Used by run_calendar_event_sweep() to test each event type independently.
@@ -2168,6 +2172,9 @@ async def _simulate_day(
             credit_threshold = min_credit if min_credit is not None else MIN_NET_CREDIT
             credit_cap      = max_credit if max_credit is not None else MAX_NET_CREDIT
             otm_floor = min_otm_distance if min_otm_distance is not None else MIN_OTM_DISTANCE
+            if (MIN_OTM_DISTANCE_VIX_15_20 is not None and vix_level is not None
+                    and 15.0 <= vix_level < 20.0):
+                otm_floor = max(otm_floor or 0, MIN_OTM_DISTANCE_VIX_15_20)
             short_strike = long_strike = short_q = long_q = credit = None
             for offset in range(200, 0, -5):
                 if otm_floor is not None and offset < otm_floor:
@@ -2188,7 +2195,6 @@ async def _simulate_day(
                         logger.debug(f"[{bar_label}] Skipping offset={offset}: credit={c:.3f} exceeds cap={credit_cap}")
                         break  # closest qualifying strike already exceeds cap — skip entry
                     short_strike, long_strike, short_q, long_q, credit = s, l, sq, lq, c
-                    logger.info(f"[{bar_label}] {opt_type} spread spot={curr_price:.2f} offset={offset}: {s}/{l} credit={c:.3f}")
                     break
 
             if short_strike is None:
@@ -2253,7 +2259,7 @@ async def _simulate_day(
                     continue
 
             strike_dist = round(abs(short_strike - curr_price))
-            logger.info(f"[{bar_label}] ENTERING {opt_type} spread {short_strike}/{long_strike} credit={credit:.3f} (bid-ask) x {entry_qty} x 100 = ${credit*entry_qty*100:.2f} | strike_dist={strike_dist}pts")
+            logger.info(f"[{bar_label}] {opt_type.lower()} spread spot={curr_price:.2f} | {short_strike}/{long_strike} credit=${round(credit*entry_qty*100)} | dist={strike_dist}pts")
             active_positions.append({
                 "entry_date": date_str, "entry_time": bar_time,
                 "option_type": opt_type,

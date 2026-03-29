@@ -132,6 +132,26 @@ All max drawdown comes from the CALL side.
 
 ---
 
+## Next Steps — VIX 15–20 Loss Day Research (2026-03-29)
+
+Three options ranked by priority. Context: entry cap (`MAX_TRADES_DAY_VIX_15_20`) tested at 5 and 7 both failed — cost -$144k P&L with DD unchanged at -$6,894. The cap is too blunt, penalising ~1,400 winning trades/year to protect against ~5 reversal days.
+
+### Option 1 — Isolate pressure filter impact ✅ TESTED 2026-03-29 — REJECTED
+Filter only (PRESSURE_DISTANCE_THRESHOLD=45, VIX 15–20, no cap): P&L $472,730 vs baseline $606,832 (-$134k). DD unchanged at -$6,894 across all variants. Filter eliminated 2023-10-09 and 2025-01-06 from worst days but cost 1,297 trades and -$134k P&L. Not worth it — worst day (2023-06-15, VIX 14.4) is below the 15.0 filter floor and immovable regardless. Reverted to `ENABLE_PRESSURE_FILTER = False`.
+
+Entry cap variants also tested: cap=5 (-$161k vs baseline), cap=7 (-$144k). Both failed — DD never moved, just bled P&L.
+
+### Option 2 — Strike distance decay signal (surgical, future research)
+At each entry bar, compute how much existing positions' average OTM distance has shrunk since they were originally entered. If the average decay exceeds X pts (e.g. 15–20 pts), the market is actively trending against open positions — suppress new entries for that bar. This is more targeted than a cap because it only fires when the market is actually moving against you, not on all VIX 15–20 days. Needs a sweep to find the right decay threshold. See "Intraday Trend Reversal Detection" section above for full implementation notes. **Hold until account grows and Kelly sizing is enabled — P&L growth is higher priority.**
+
+### Option 3 — Accept baseline, focus on P&L growth ✅ CURRENT DIRECTION (2026-03-29)
+The baseline Calmar of 88.0 and DD of -$6,894 are already exceptional for a $40k account. All DD reduction attempts cost significant P&L with zero DD improvement. Focus shifts to growth:
+- **Live fill improvement**: bid→mid fills on live trading could recover $80–100k P&L (backtest uses worst-case bid fills throughout)
+- **Kelly sizing**: enable `ENABLE_KELLY_SIZING = True` once account reaches ~$80k — projected +$560k P&L over 4 years (+92%)
+- **New signal research**: net unusual options flow / institutional sweeps as next confluence candidate
+
+---
+
 ## Black Swan Protection ✓ IMPLEMENTED — 2026-03-28
 
 Two complementary layers implemented to protect the ~$40k account from catastrophic events.
