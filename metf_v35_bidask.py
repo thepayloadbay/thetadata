@@ -338,18 +338,44 @@ def _build_calendar_event_dates() -> "dict[str, set[str]]":
     _pce  = pce_dates & all_bdays
     _eom  = eom
     _opex = monthly_opex
+
+    # Pre-triple-witching: the trading day immediately before each TW Friday
+    pre_tw: set[str] = set()
+    _all_bdays_sorted = sorted(all_bdays)
+    for tw in tw_dates:
+        # find the last bday strictly before tw
+        idx = None
+        for i, d in enumerate(_all_bdays_sorted):
+            if d >= tw:
+                if i > 0:
+                    idx = i - 1
+                break
+        if idx is not None:
+            pre_tw.add(_all_bdays_sorted[idx])
+
+    # Post-major-holiday: first trading day after each MARKET_HOLIDAYS entry
+    post_holiday: set[str] = set()
+    for hol in MARKET_HOLIDAYS:
+        # find first bday strictly after hol
+        for d in _all_bdays_sorted:
+            if d > hol:
+                post_holiday.add(d)
+                break
+
     return {
-        "fomc":             fomc_dates,   # NOTE: needs MARKET_HOLIDAYS override in sweep
-        "triple_witching":  tw_dates,     # NOTE: needs MARKET_HOLIDAYS override in sweep
-        "cpi":              cpi_dates   & all_bdays,
-        "nfp":              nfp_dates   & all_bdays,
-        "ppi":              ppi_dates   & all_bdays,
-        "pce":              _pce,
-        "monthly_opex":     _opex,
-        "end_of_month":     _eom,
-        "end_of_quarter":   eoq,
-        "first_weekly":     first_weekly,
-        "full_moon":        full_moon,
+        "fomc":                fomc_dates,   # NOTE: needs MARKET_HOLIDAYS override in sweep
+        "triple_witching":     tw_dates,     # NOTE: needs MARKET_HOLIDAYS override in sweep
+        "cpi":                 cpi_dates   & all_bdays,
+        "nfp":                 nfp_dates   & all_bdays,
+        "ppi":                 ppi_dates   & all_bdays,
+        "pce":                 _pce,
+        "monthly_opex":        _opex,
+        "end_of_month":        _eom,
+        "end_of_quarter":      eoq,
+        "first_weekly":        first_weekly,
+        "full_moon":           full_moon,
+        "pre_triple_witching": pre_tw,
+        "post_major_holiday":  post_holiday,
         # ── Combinations ──
         "pce+end_of_month": _pce | _eom,
         "pce+eom+opex":     _pce | _eom | _opex,
@@ -403,7 +429,7 @@ KELLY_ZONE_QTY = [           # (vix_lo_inclusive, vix_hi_exclusive, qty)
 
 # ── VIX Day Filter ──
 # Set to a float to skip trading days outside this VIX range. None = no filter.
-VIX_MIN_FILTER = None   # e.g. 15.0 → skip days where VIX < 15
+VIX_MIN_FILTER = None
 VIX_MAX_FILTER = None   # no cap — vix_change direction adapts to any VIX regime
 
 VIX_ANALYSIS_FILE = _out("metf_v35_bidask_vix_analysis.csv")
@@ -417,7 +443,7 @@ DAY_FILTER_VIX_CHG_MAX  = None   # prior day VIX change% <= X (e.g. 5 = skip if 
 DAY_FILTER_VIX_CHG_MIN  = None   # prior day VIX change% >= X (e.g. -5 = skip if VIX dropped >5%)
 DAY_FILTER_VARPC_MIN    = None   # prior day close position in range >= X (0–100; 50=closed above midpoint)
 DAY_FILTER_RSI_MIN      = None   # prior day RSI(14) >= X (avoid oversold; e.g. 45)
-DAY_FILTER_RSI_MAX      = None   # prior day RSI(14) <= X (avoid overbought; e.g. 75)
+DAY_FILTER_RSI_MAX = None
 DAY_FILTER_DIST_SMA_MIN = None   # prior day (close-SMA20)/SMA20 >= X (e.g. -0.03 = no more than 3% below 20d mean)
 DAY_FILTER_ATR_MAX      = None   # prior day ATR(14) <= X SPX points (avoid high-vol days)
 DAY_FILTER_BODY_MAX     = None   # prior day abs(open-close) <= X SPX points (avoid large directional candles)
@@ -426,9 +452,13 @@ DAY_FILTER_STOCH_MIN    = None   # prior day Stoch %K(14) >= X (avoid oversold m
 DAY_FILTER_GAP_MAX      = None   # today's abs(gap%) <= X (avoid large gap opens; e.g. 0.5 = 0.5%)
 DAY_FILTER_ABOVE_SMA5          = None   # True = only trade when prior close > SMA5
 DAY_FILTER_ABOVE_SMA200        = None   # True = only trade when prior close > SMA200
-DAY_FILTER_ADX_MIN             = None   # prior day ADX(14) >= X (only trade trending days; e.g. 25)
+DAY_FILTER_ADX_MIN = None
 DAY_FILTER_RANGE_MAX           = None   # prior day (H-L)/prevC <= X% (skip high-range days; e.g. 1.5)
+DAY_FILTER_RANGE_MIN = None
 DAY_FILTER_EXP_MOVE_MAX        = None   # today VIX-implied 1-day move <= X% (skip high-vol days; e.g. 1.5)
+DAY_FILTER_EXP_MOVE_MIN = None
+DAY_FILTER_CCI_MAX = None
+DAY_FILTER_IVR_MIN = None
 DAY_FILTER_SKIP_VIX_RISE_DECEL = False  # True = skip days where VIX rising but decelerating
                                         # SWEEP RESULT: improves Sharpe 10.60→13.17 but costs ~$13k P&L.
                                         # Rise+decel days still profitable (92%+ WR, $312/day avg).
@@ -590,7 +620,7 @@ MAX_BP_SWEEP_FILE    = _out("metf_v35_bidask_max_bp_sweep.csv")
 # ── Daily Bar Indicator Filter Sweep ──
 # Tests each indicator independently across threshold levels.
 # Each row = one (indicator, threshold) combination with full backtest metrics.
-RUN_DAY_FILTER_SWEEP  = True
+RUN_DAY_FILTER_SWEEP  = False
 SWEEP_DAY_FILTERS = {
     "vix_max":          [12, 13, 14, 14.5, 15, 16, 18, 20, None],  # today's VIX <= X (None=no filter)
     "vix_min":          [12, 13, 14, 14.5, 15, 16, 18, 20],        # today's VIX >= X (None=no filter)
@@ -820,6 +850,48 @@ VIX_SUB12_THRESHOLD      = 13.0   # apply tighter SL only when VIX < this
 ENABLE_VIX_SUB12_SL  = False
 VIX_SUB12_SL_AMOUNT  = -300.0  # tighter SL on VIX < threshold days
 
+# ── EOM SL Sweep ──
+# Tests applying a tighter daily SL exclusively on the last trading day of each month.
+# EOM days have 74% WR and $105/day avg vs 93% WR and $618/day for normal days.
+# Top 4 single-day losses (-$7k, -$7k, -$4.3k, -$2.5k) all fell on EOM dates.
+RUN_EOM_SL_SWEEP    = False
+EOM_SL_SWEEP_FILE   = _out("metf_v35_bidask_eom_sl_sweep.csv")
+EOM_SL_SWEEP_LEVELS = [-200, -300, -400, -500, -600, None]
+
+# ── EOM SL (live) ──
+ENABLE_EOM_SL  = True
+EOM_SL_AMOUNT  = -200.0  # tighter SL applied on last trading day of each month
+
+# ── Calendar Risk SL Sweep ──
+# Tests each recurring-date SL category independently to identify which ones
+# are net positive (save more than they cost on winning days).
+RUN_CALENDAR_RISK_SL_SWEEP   = False
+CALENDAR_RISK_SL_SWEEP_FILE  = _out("metf_v35_bidask_calendar_risk_sl_sweep.csv")
+CALENDAR_RISK_SL_SWEEP_LEVELS = [-100, -200, -300, -400, -500, None]
+
+# ── Calendar Risk SL ──
+# Tighter daily SL applied on recurring high-risk calendar dates identified from
+# large single-day loss analysis:
+#   CPI days:              2 of top 15 losses (May 11 '22, Aug 10 '23)
+#   PCE days:              3 of top 15 losses (Jun 27 '24, Aug 29 '24, Sep 30 '24)
+#   End of quarter:        3 related losses   (Jun 27 '24, Sep 30 '24, Oct 1 '25)
+#   Day before TW:         2 losses           (Jun 15 '23, Sep 15 '22)
+#   Post-major-holiday:    2 losses           (Sep 2 '25 Labor Day, Jan 6 '25 New Year)
+ENABLE_CPI_SL        = False
+CPI_SL_AMOUNT        = -300.0   # tighter SL on CPI release days
+
+ENABLE_PCE_SL        = False
+PCE_SL_AMOUNT        = -300.0   # tighter SL on PCE release days
+
+ENABLE_EOQ_SL        = False
+EOQ_SL_AMOUNT        = -300.0   # tighter SL on last trading day of each quarter
+
+ENABLE_PRE_TW_SL     = False
+PRE_TW_SL_AMOUNT     = -300.0   # tighter SL on the trading day before Triple Witching
+
+ENABLE_POST_HOL_SL   = False
+POST_HOL_SL_AMOUNT   = -300.0   # tighter SL on first trading day after each market holiday
+
 # ── Bias Sweep ──
 # Tests each daily indicator as a direction router: bullish signal → PUT spread,
 # bearish signal → CALL spread.  Compares against always-PUT, always-CALL, and
@@ -934,6 +1006,12 @@ def date_to_expiry(date_str: str) -> str:
 #  DAILY BAR INDICATORS
 # ─────────────────────────────────────────────
 _DAILY_INDICATORS: dict = {}   # date_str -> dict of indicator values; built once at startup
+_EOM_DATES: set = set()        # last trading day of each month (YYYYMMDD); built once at startup
+_CPI_DATES: set = set()        # CPI release days
+_PCE_DATES: set = set()        # PCE release days
+_EOQ_DATES: set = set()        # last trading day of each quarter
+_PRE_TW_DATES: set = set()     # trading day immediately before Triple Witching Friday
+_POST_HOL_DATES: set = set()   # first trading day after each market holiday
 
 
 def _get_baseline_mode(date_str: str) -> str | None:
@@ -1243,7 +1321,11 @@ def _passes_active_day_filters(date_str: str, vix_level: float | None = None) ->
         ("above_sma200",     DAY_FILTER_ABOVE_SMA200),
         ("dAdx_min",         DAY_FILTER_ADX_MIN),
         ("dRangePct_max",    DAY_FILTER_RANGE_MAX),
+        ("dRangePct_min",    DAY_FILTER_RANGE_MIN),
         ("dExpMovePct_max",  DAY_FILTER_EXP_MOVE_MAX),
+        ("dExpMovePct_min",  DAY_FILTER_EXP_MOVE_MIN),
+        ("dCci_max",         DAY_FILTER_CCI_MAX),
+        ("dIvRank_min",      DAY_FILTER_IVR_MIN),
     ]
     for fname, threshold in checks:
         if threshold is None:
@@ -2158,6 +2240,26 @@ def _get_effective_sl(day_data: dict, date_str: str) -> "float | None":
             else:
                 effective_sl = max(effective_sl, candidate)  # use tighter (less negative)
 
+    if ENABLE_EOM_SL and date_str in _EOM_DATES:
+        candidate = EOM_SL_AMOUNT
+        if effective_sl is None:
+            effective_sl = candidate
+        else:
+            effective_sl = max(effective_sl, candidate)  # use tighter (less negative)
+
+    for _flag, _dates, _amt in [
+        (ENABLE_CPI_SL,      _CPI_DATES,      CPI_SL_AMOUNT),
+        (ENABLE_PCE_SL,      _PCE_DATES,      PCE_SL_AMOUNT),
+        (ENABLE_EOQ_SL,      _EOQ_DATES,      EOQ_SL_AMOUNT),
+        (ENABLE_PRE_TW_SL,   _PRE_TW_DATES,   PRE_TW_SL_AMOUNT),
+        (ENABLE_POST_HOL_SL, _POST_HOL_DATES, POST_HOL_SL_AMOUNT),
+    ]:
+        if _flag and date_str in _dates:
+            if effective_sl is None:
+                effective_sl = _amt
+            else:
+                effective_sl = max(effective_sl, _amt)  # tighter wins
+
     return effective_sl
 
 
@@ -2270,12 +2372,20 @@ def print_vix_analysis(all_trades: list) -> None:
 #  STRIKE DISTANCE ANALYSIS
 # ─────────────────────────────────────────────
 STRIKE_DISTANCE_BUCKETS = [
-    ("0–10",   0,   10),
-    ("10–20",  10,  20),
-    ("20–30",  20,  30),
-    ("30–40",  30,  40),
-    ("40–50",  40,  50),
-    ("50+",    50,  None),
+    ("35–40",   35,  40),
+    ("40–45",   40,  45),
+    ("45–50",   45,  50),
+    ("50–55",   50,  55),
+    ("55–60",   55,  60),
+    ("60–65",   60,  65),
+    ("65–70",   65,  70),
+    ("70–75",   70,  75),
+    ("75–80",   75,  80),
+    ("80–85",   80,  85),
+    ("85–90",   85,  90),
+    ("90–95",   90,  95),
+    ("95–100",  95,  100),
+    ("100+",    100, None),
 ]
 
 
@@ -2403,29 +2513,33 @@ def print_performance_report(all_trades: list, date_list) -> None:
     expectancy  = (avg_win * len(wins) / n) + (avg_loss * len(losses) / n) if n else 0
     profit_factor = abs(sum(wins) / sum(losses)) if losses and sum(losses) != 0 else float("inf")
 
-    # Per-day P&L — used for Sharpe/Sortino and daily stats
-    day_pnls: dict = {}
+    # Per-day P&L
+    day_pnls: dict[str, float] = {}
+    day_trade_count: dict[str, int] = {}
     for t in all_trades:
-        day_pnls.setdefault(t["entry_date"], 0.0)
-        day_pnls[t["entry_date"]] += t["pnl_earned"]
+        d = t["entry_date"]
+        day_pnls[d] = day_pnls.get(d, 0.0) + t["pnl_earned"]
+        day_trade_count[d] = day_trade_count.get(d, 0) + 1
     best_day  = max(day_pnls.values()) if day_pnls else 0
     worst_day = min(day_pnls.values()) if day_pnls else 0
+    days_traded = len(day_pnls)
+    avg_trades_per_day = n / days_traded if days_traded else 0
 
     # Sharpe & Sortino — daily P&L basis, rf-adjusted, annualised with sqrt(252)
-    # rf_daily = opportunity cost of tying up ACCOUNT_SIZE in T-bills for one day
     rf_daily     = ANNUAL_RISK_FREE_RATE * ACCOUNT_SIZE / 252
     daily_vals   = list(day_pnls.values())
     n_days       = len(daily_vals)
     mean_daily   = sum(daily_vals) / n_days if n_days else 0
     var_daily    = sum((p - mean_daily) ** 2 for p in daily_vals) / n_days if n_days else 0
     std_daily    = math.sqrt(var_daily)
+    ann_vol      = std_daily * math.sqrt(252)
     sharpe       = ((mean_daily - rf_daily) / std_daily * math.sqrt(252)) if std_daily else 0
 
     downside_d   = [p for p in daily_vals if p < mean_daily]
     down_var_d   = sum((p - mean_daily) ** 2 for p in downside_d) / len(downside_d) if downside_d else 0
     sortino      = ((mean_daily - rf_daily) / math.sqrt(down_var_d) * math.sqrt(252)) if down_var_d else 0
 
-    # Max drawdown (on cumulative P&L curve per trade)
+    # Max drawdown (trade-level equity curve)
     equity = 0.0
     peak   = 0.0
     max_dd = 0.0
@@ -2435,31 +2549,875 @@ def print_performance_report(all_trades: list, date_list) -> None:
         max_dd  = min(max_dd, equity - peak)
     max_dd_pct = (max_dd / peak * 100) if peak > 0 else 0
 
-    sep = "─" * 52
+    # Time underwater — % of trading days where cumulative equity is below its peak
+    eq_d = peak_d = 0.0
+    underwater_days = 0
+    for d in sorted(day_pnls):
+        eq_d += day_pnls[d]
+        peak_d = max(peak_d, eq_d)
+        if eq_d < peak_d:
+            underwater_days += 1
+    time_underwater_pct = underwater_days / days_traded * 100 if days_traded else 0
+
+    # CAGR — based on calendar days between first and last trade date
+    sorted_dates = sorted(day_pnls.keys())
+    if len(sorted_dates) >= 2:
+        from datetime import datetime as _dtt
+        first_d = _dtt.strptime(sorted_dates[0],  "%Y%m%d")
+        last_d  = _dtt.strptime(sorted_dates[-1], "%Y%m%d")
+        years   = (last_d - first_d).days / 365.25
+    else:
+        years = 1.0
+    final_equity = ACCOUNT_SIZE + total_pnl
+    cagr = ((final_equity / ACCOUNT_SIZE) ** (1 / years) - 1) * 100 if years > 0 else 0
+
+    # Calmar & Recovery factor
+    calmar          = cagr / abs(max_dd / ACCOUNT_SIZE * 100) if max_dd != 0 else float("inf")
+    recovery_factor = total_pnl / abs(max_dd) if max_dd != 0 else float("inf")
+
+    # Premium capture rate = net P&L / gross premium collected
+    gross_premium    = sum(float(t.get("credit_received", 0)) * float(t.get("qty", 1)) * 100
+                          for t in all_trades)
+    prem_capture_pct = (total_pnl / gross_premium * 100) if gross_premium > 0 else 0.0
+
+    # Commission (pnl_earned already net of commission; add it back to compute gross)
+    total_commission = sum(2 * 2 * float(t.get("qty", 1)) * COMMISSION for t in all_trades)
+
+    # Buying power per trade = (spread_width - credit_received) * qty * 100
+    bp_per_trade = [(float(t.get("spread_width", WIDTH)) - float(t.get("credit_received", 0)))
+                    * float(t.get("qty", 1)) * 100 for t in all_trades]
+    avg_bp_per_trade = sum(bp_per_trade) / n if n else 0
+    # Max BP deployed on a single day (sum of all trades that day)
+    day_bp: dict[str, float] = {}
+    for t, bp in zip(all_trades, bp_per_trade):
+        d = t["entry_date"]
+        day_bp[d] = day_bp.get(d, 0.0) + bp
+    max_bp_day = max(day_bp.values()) if day_bp else 0
+    avg_bp_day = sum(day_bp.values()) / len(day_bp) if day_bp else 0
+
+    # ── Print report ──
+    sep  = "─" * 56
+    sep2 = "─" * 56
     logger.info(sep)
     logger.info("  PERFORMANCE REPORT")
     logger.info(sep)
+
+    # Period & day counts
     logger.info(f"  Period          : {date_list[0].strftime('%Y-%m-%d')} → {date_list[-1].strftime('%Y-%m-%d')}")
-    days_in_range  = len(date_list)
-    days_traded    = len(day_pnls)
-    days_skipped   = days_in_range - days_traded
-    logger.info(f"  Business days   : {days_in_range}  (skipped {days_skipped} — holidays/FOMC/TW/calendar filter)")
+    days_in_range = len(date_list)
+    days_skipped  = days_in_range - days_traded
+    _holidays_in_range = sum(1 for d in date_list if d.strftime("%Y%m%d") in MARKET_HOLIDAYS)
+    _skip_parts = [f"{_holidays_in_range} holidays"]
+    if ENABLE_ECON_FILTER:
+        _skip_parts.append("econ filter")
+    if ENABLE_CALENDAR_FILTER:
+        _skip_parts.append(f"calendar ({', '.join(sorted(CALENDAR_FILTER_EVENTS))})")
+    _active_day_filters = [k for k, v in [
+        ("vix_max", VIX_MAX_FILTER), ("vix_min", VIX_MIN_FILTER),
+        ("vix_max", DAY_FILTER_VIX_MAX), ("vix_min", DAY_FILTER_VIX_MIN),
+        ("adx_min", DAY_FILTER_ADX_MIN), ("range_max", DAY_FILTER_RANGE_MAX),
+        ("range_min", DAY_FILTER_RANGE_MIN), ("rsi_min", DAY_FILTER_RSI_MIN),
+        ("rsi_max", DAY_FILTER_RSI_MAX), ("atr_max", DAY_FILTER_ATR_MAX),
+        ("exp_mv_max", DAY_FILTER_EXP_MOVE_MAX), ("exp_mv_min", DAY_FILTER_EXP_MOVE_MIN),
+        ("cci_max", DAY_FILTER_CCI_MAX), ("ivr_min", DAY_FILTER_IVR_MIN),
+        ("sma200", DAY_FILTER_ABOVE_SMA200),
+    ] if v is not None]
+    if _active_day_filters:
+        _skip_parts.append(f"day filters ({', '.join(dict.fromkeys(_active_day_filters))})")
+    _other = days_skipped - _holidays_in_range
+    if _other > 0:
+        _skip_parts.append(f"{_other} no data/no trades")
+    logger.info(f"  Business days   : {days_in_range}  (skipped {days_skipped} — {' + '.join(_skip_parts)})")
     logger.info(f"  Days traded     : {days_traded}")
     logger.info(f"  Total trades    : {n}  (wins: {len(wins)}  losses: {len(losses)})")
+    logger.info(f"  Avg trades/day  : {avg_trades_per_day:>10.1f}")
     logger.info(sep)
-    logger.info(f"  Total P&L       : ${total_pnl:>10,.2f}")
-    logger.info(f"  Win rate        : {win_rate:>9.1f}%")
-    logger.info(f"  Avg win         : ${avg_win:>10,.2f}")
-    logger.info(f"  Avg loss        : ${avg_loss:>10,.2f}")
+
+    # Returns
+    logger.info(f"  Total P&L       : ${total_pnl:>10,.2f}  (net of commission)")
+    logger.info(f"  Gross premium   : ${gross_premium:>10,.2f}")
+    logger.info(f"  Prem capture    : {prem_capture_pct:>9.1f}%  (net P&L / gross premium)")
+    logger.info(f"  CAGR            : {cagr:>9.1f}%  (acct=${ACCOUNT_SIZE:,.0f})")
+    logger.info(f"  Avg profit/trade: ${avg_win:>10,.2f}")
+    logger.info(f"  Avg loss/trade  : ${avg_loss:>10,.2f}")
     logger.info(f"  Expectancy/trade: ${expectancy:>10,.2f}")
     logger.info(f"  Profit factor   : {profit_factor:>10.2f}x")
     logger.info(sep)
-    logger.info(f"  Sharpe ratio    : {sharpe:>10.2f}  (rf={ANNUAL_RISK_FREE_RATE*100:.1f}%, acct=${ACCOUNT_SIZE:,.0f})")
-    logger.info(f"  Sortino ratio   : {sortino:>10.2f}")
+
+    # Risk
     logger.info(f"  Max drawdown    : ${max_dd:>10,.2f}  ({max_dd_pct:.1f}%)")
+    logger.info(f"  Calmar ratio    : {calmar:>10.2f}  (CAGR / max DD%)")
+    logger.info(f"  Recovery factor : {recovery_factor:>10.2f}  (net P&L / max DD)")
+    logger.info(f"  Time underwater : {time_underwater_pct:>9.1f}%  ({underwater_days} of {days_traded} days)")
     logger.info(sep)
+
+    # Ratios
+    logger.info(f"  Win rate        : {win_rate:>9.1f}%")
+    logger.info(f"  Sharpe ratio    : {sharpe:>10.2f}  (rf={ANNUAL_RISK_FREE_RATE*100:.1f}%)")
+    logger.info(f"  Sortino ratio   : {sortino:>10.2f}")
+    logger.info(f"  Ann. volatility : ${ann_vol:>10,.2f}  (daily P&L std × √252)")
+    logger.info(sep)
+
+    # Day stats
     logger.info(f"  Best day        : ${best_day:>10,.2f}")
     logger.info(f"  Worst day       : ${worst_day:>10,.2f}")
+    logger.info(sep)
+
+    # Cost & capital
+    logger.info(f"  Commission total: ${total_commission:>10,.2f}  (${COMMISSION}/contract/leg)")
+    logger.info(f"  Avg BP/trade    : ${avg_bp_per_trade:>10,.2f}")
+    logger.info(f"  Avg BP/day      : ${avg_bp_day:>10,.2f}")
+    logger.info(f"  Max BP day      : ${max_bp_day:>10,.2f}")
+    logger.info(sep)
+
+
+# ─────────────────────────────────────────────
+#  RESULTS.md APPEND
+# ─────────────────────────────────────────────
+def append_results_md(all_trades: list, date_list) -> None:
+    """Append a full performance snapshot to RESULTS.md after every run."""
+    import math
+    from collections import defaultdict
+    from datetime import datetime as _dtt
+
+    # ── Core metrics ──────────────────────────────────────────────────────────
+    pnls   = [t["pnl_earned"] for t in all_trades]
+    wins   = [p for p in pnls if p > 0]
+    losses = [p for p in pnls if p <= 0]
+    n      = len(pnls)
+    total_pnl     = sum(pnls)
+    win_rate      = len(wins) / n * 100 if n else 0
+    avg_win       = sum(wins)   / len(wins)   if wins   else 0
+    avg_loss      = sum(losses) / len(losses) if losses else 0
+    expectancy    = (avg_win * len(wins) / n) + (avg_loss * len(losses) / n) if n else 0
+    profit_factor = abs(sum(wins) / sum(losses)) if losses and sum(losses) != 0 else float("inf")
+    gross_premium    = sum(float(t.get("credit_received", 0)) * float(t.get("qty", 1)) * 100
+                          for t in all_trades)
+    prem_capture_pct = (total_pnl / gross_premium * 100) if gross_premium > 0 else 0.0
+
+    day_pnls: dict[str, float] = {}
+    for t in all_trades:
+        d = t["entry_date"]
+        day_pnls[d] = day_pnls.get(d, 0.0) + t["pnl_earned"]
+    days_traded        = len(day_pnls)
+    avg_trades_per_day = n / days_traded if days_traded else 0
+    best_day           = max(day_pnls.values()) if day_pnls else 0
+    worst_day          = min(day_pnls.values()) if day_pnls else 0
+
+    rf_daily   = ANNUAL_RISK_FREE_RATE * ACCOUNT_SIZE / 252
+    daily_vals = list(day_pnls.values())
+    n_days     = len(daily_vals)
+    mean_daily = sum(daily_vals) / n_days if n_days else 0
+    var_daily  = sum((p - mean_daily) ** 2 for p in daily_vals) / n_days if n_days else 0
+    std_daily  = math.sqrt(var_daily)
+    ann_vol    = std_daily * math.sqrt(252)
+    sharpe     = ((mean_daily - rf_daily) / std_daily * math.sqrt(252)) if std_daily else 0
+    downside_d = [p for p in daily_vals if p < mean_daily]
+    down_var_d = sum((p - mean_daily) ** 2 for p in downside_d) / len(downside_d) if downside_d else 0
+    sortino    = ((mean_daily - rf_daily) / math.sqrt(down_var_d) * math.sqrt(252)) if down_var_d else 0
+
+    equity = peak = max_dd = 0.0
+    for p in pnls:
+        equity += p; peak = max(peak, equity); max_dd = min(max_dd, equity - peak)
+    max_dd_pct = (max_dd / peak * 100) if peak > 0 else 0
+
+    eq_d = peak_d = 0.0; underwater_days = 0
+    for d in sorted(day_pnls):
+        eq_d += day_pnls[d]; peak_d = max(peak_d, eq_d)
+        if eq_d < peak_d: underwater_days += 1
+    time_underwater_pct = underwater_days / days_traded * 100 if days_traded else 0
+
+    sorted_dates = sorted(day_pnls.keys())
+    if len(sorted_dates) >= 2:
+        first_d = _dtt.strptime(sorted_dates[0],  "%Y%m%d")
+        last_d  = _dtt.strptime(sorted_dates[-1], "%Y%m%d")
+        years   = (last_d - first_d).days / 365.25
+    else:
+        years = 1.0
+    final_equity    = ACCOUNT_SIZE + total_pnl
+    cagr            = ((final_equity / ACCOUNT_SIZE) ** (1 / years) - 1) * 100 if years > 0 else 0
+    calmar          = cagr / abs(max_dd / ACCOUNT_SIZE * 100) if max_dd != 0 else float("inf")
+    recovery_factor = total_pnl / abs(max_dd) if max_dd != 0 else float("inf")
+    total_commission = sum(2 * 2 * float(t.get("qty", 1)) * COMMISSION for t in all_trades)
+    bp_per_trade = [(float(t.get("spread_width", WIDTH)) - float(t.get("credit_received", 0)))
+                    * float(t.get("qty", 1)) * 100 for t in all_trades]
+    avg_bp_per_trade = sum(bp_per_trade) / n if n else 0
+    day_bp: dict[str, float] = {}
+    for t, bp in zip(all_trades, bp_per_trade):
+        day_bp[t["entry_date"]] = day_bp.get(t["entry_date"], 0.0) + bp
+    max_bp_day = max(day_bp.values()) if day_bp else 0
+    avg_bp_day = sum(day_bp.values()) / len(day_bp) if day_bp else 0
+
+    # ── Helpers ───────────────────────────────────────────────────────────────
+    def _sf(val):
+        """Safe float — returns float or None."""
+        try:
+            return float(val) if val not in (None, "") else None
+        except (ValueError, TypeError):
+            return None
+
+    def _bucket_stats(bucket):
+        bp = [float(t.get("pnl_earned", 0)) for t in bucket]
+        m  = len(bp)
+        if m == 0:
+            return 0, 0.0, 0.0, 0.0
+        w  = sum(1 for x in bp if x > 0)
+        eq2 = pk2 = dd2 = 0.0
+        for x in bp:
+            eq2 += x; pk2 = max(pk2, eq2); dd2 = min(dd2, eq2 - pk2)
+        return m, w / m * 100, sum(bp) / m, sum(bp)
+
+    # ── VIX correlation table ─────────────────────────────────────────────────
+    vix_rows = []
+    for label, lo, hi in VIX_BUCKETS:
+        bucket = [t for t in all_trades if
+                  _sf(t.get("vix_level")) is not None and
+                  (lo is None or _sf(t.get("vix_level")) >= lo) and
+                  (hi is None or _sf(t.get("vix_level")) < hi)]
+        cnt, wr, avg_p, tot_p = _bucket_stats(bucket)
+        vix_rows.append((label, cnt, wr, avg_p, tot_p))
+
+    # ── Strike distance table ─────────────────────────────────────────────────
+    sd_rows = []
+    for label, lo, hi in STRIKE_DISTANCE_BUCKETS:
+        bucket = [t for t in all_trades if
+                  _sf(t.get("strike_distance")) is not None and
+                  _sf(t.get("strike_distance")) >= lo and
+                  (hi is None or _sf(t.get("strike_distance")) < hi)]
+        cnt, wr, avg_p, tot_p = _bucket_stats(bucket)
+        sd_rows.append((label, cnt, wr, avg_p, tot_p))
+
+    # ── PUT vs CALL split ─────────────────────────────────────────────────────
+    pc_rows = []
+    for label in ("PUT", "CALL"):
+        bucket = [t for t in all_trades if t.get("option_type") == label]
+        m = compute_metrics(bucket)
+        avg_p = m["total_pnl"] / m["num_trades"] if m["num_trades"] else 0.0
+        pf_str = f"{m['profit_factor']:.2f}" if m["profit_factor"] != float("inf") else "inf"
+        pc_rows.append((label, m["num_trades"], m["win_rate"], avg_p,
+                        m["total_pnl"], m["avg_win"], m["avg_loss"], pf_str, m["max_drawdown"]))
+
+    # ── Dynamic SL VIX zones ──────────────────────────────────────────────────
+    vl = DYNAMIC_SL_VIX_LOW; ml, mh = DYNAMIC_SL_VIX_MID; hl, hh = DYNAMIC_SL_VIX_HIGH
+    dyn_buckets = [
+        (f"< {vl}",   None, vl,   True),
+        (f"{ml}–{mh}", ml,  mh,   True),
+        (f"{mh}–{hl}", mh,  hl,   False),
+        (f"{hl}–{hh}", hl,  hh,   True),
+        (f"> {hh}",    hh,  None, False),
+    ]
+    dyn_rows = []
+    for label, lo, hi, sl_on in dyn_buckets:
+        bucket = [t for t in all_trades if
+                  _sf(t.get("vix_level")) is not None and
+                  (lo is None or _sf(t.get("vix_level")) >= lo) and
+                  (hi is None or _sf(t.get("vix_level")) < hi)]
+        cnt, wr, avg_p, tot_p = _bucket_stats(bucket)
+        bp2 = [float(x.get("pnl_earned", 0)) for x in bucket]
+        eq2 = pk2 = dd2 = 0.0
+        for x in bp2:
+            eq2 += x; pk2 = max(pk2, eq2); dd2 = min(dd2, eq2 - pk2)
+        dyn_rows.append((label, "ON" if sl_on else "—", cnt, wr, avg_p, tot_p, dd2))
+
+    # ── Monthly P&L ───────────────────────────────────────────────────────────
+    month_pnl: dict[int, dict[int, float]] = defaultdict(lambda: defaultdict(float))
+    month_trades_map: dict[int, dict[int, list]] = defaultdict(lambda: defaultdict(list))
+    for t in sorted(all_trades, key=lambda x: x["entry_date"]):
+        y = int(t["entry_date"][:4]); m2 = int(t["entry_date"][4:6])
+        month_pnl[y][m2] += t["pnl_earned"]
+        month_trades_map[y][m2].append(t["pnl_earned"])
+
+    def _month_max_dd(pl_list):
+        eq2 = pk2 = dd2 = 0.0
+        for x in pl_list:
+            eq2 += x; pk2 = max(pk2, eq2); dd2 = min(dd2, eq2 - pk2)
+        return dd2
+
+    mon_abbr = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+    all_years = sorted(month_pnl.keys())
+
+    # ── Large loss days ───────────────────────────────────────────────────────
+    loss_day_pnl: dict[str, float] = {}
+    loss_day_trades: dict[str, int] = {}
+    for t in all_trades:
+        d2 = t["entry_date"]
+        loss_day_pnl[d2]    = loss_day_pnl.get(d2, 0.0) + t["pnl_earned"]
+        loss_day_trades[d2] = loss_day_trades.get(d2, 0) + 1
+    worst_15 = sorted([(pnl, d2) for d2, pnl in loss_day_pnl.items() if pnl < 0])[:15]
+
+    # ── Build markdown ────────────────────────────────────────────────────────
+    run_ts = _dtt.now().strftime("%Y-%m-%d %H:%M:%S")
+    period = f"{date_list[0].strftime('%Y-%m-%d')} → {date_list[-1].strftime('%Y-%m-%d')}"
+
+    L = [
+        "\n---\n",
+        f"## Run: {run_ts}",
+        f"**Period:** {period}  |  **Days traded:** {days_traded}  |  **Total trades:** {n}",
+        "",
+        "### Key Config",
+        "| Parameter | Value |",
+        "|-----------|-------|",
+        f"| Width | {int(WIDTH)}pt |",
+        f"| QTY | {QTY} |",
+        f"| Min credit | ${MIN_NET_CREDIT:.2f} |",
+        f"| Min OTM dist | {MIN_OTM_DISTANCE}pt |",
+        f"| Entry window | {ENTRY_START.strftime('%H:%M')}–{ENTRY_END.strftime('%H:%M')} every {ENTRY_INTERVAL}min |",
+        f"| Dynamic SL | {'on' if ENABLE_DYNAMIC_SL else 'off'} ${DYNAMIC_SL_AMOUNT if ENABLE_DYNAMIC_SL else ''} |",
+        f"| EOM SL | {'on' if ENABLE_EOM_SL else 'off'} {'$'+str(int(EOM_SL_AMOUNT)) if ENABLE_EOM_SL else ''} |",
+        f"| CPI SL | {'on $'+str(int(CPI_SL_AMOUNT)) if ENABLE_CPI_SL else 'off'} |",
+        f"| PCE SL | {'on $'+str(int(PCE_SL_AMOUNT)) if ENABLE_PCE_SL else 'off'} |",
+        f"| EOQ SL | {'on $'+str(int(EOQ_SL_AMOUNT)) if ENABLE_EOQ_SL else 'off'} |",
+        f"| Pre-TW SL | {'on $'+str(int(PRE_TW_SL_AMOUNT)) if ENABLE_PRE_TW_SL else 'off'} |",
+        f"| Post-holiday SL | {'on $'+str(int(POST_HOL_SL_AMOUNT)) if ENABLE_POST_HOL_SL else 'off'} |",
+        "",
+        "### Returns",
+        "| Metric | Value |",
+        "|--------|-------|",
+        f"| Total P&L (net) | ${total_pnl:,.2f} |",
+        f"| Gross premium collected | ${gross_premium:,.2f} |",
+        f"| Premium capture rate | {prem_capture_pct:.1f}% |",
+        f"| CAGR | {cagr:.1f}% |",
+        f"| Avg profit/trade | ${avg_win:,.2f} |",
+        f"| Avg loss/trade | ${avg_loss:,.2f} |",
+        f"| Expectancy/trade | ${expectancy:,.2f} |",
+        f"| Profit factor | {profit_factor:.2f}x |",
+        "",
+        "### Risk",
+        "| Metric | Value |",
+        "|--------|-------|",
+        f"| Max drawdown | ${max_dd:,.2f} ({max_dd_pct:.1f}%) |",
+        f"| Calmar ratio | {calmar:.2f} |",
+        f"| Recovery factor | {recovery_factor:.2f} |",
+        f"| Time underwater | {time_underwater_pct:.1f}% ({underwater_days} of {days_traded} days) |",
+        "",
+        "### Ratios & Volatility",
+        "| Metric | Value |",
+        "|--------|-------|",
+        f"| Win rate | {win_rate:.1f}% |",
+        f"| Sharpe ratio | {sharpe:.2f} |",
+        f"| Sortino ratio | {sortino:.2f} |",
+        f"| Ann. volatility | ${ann_vol:,.2f} |",
+        "",
+        "### Day Stats",
+        "| Metric | Value |",
+        "|--------|-------|",
+        f"| Best day | ${best_day:,.2f} |",
+        f"| Worst day | ${worst_day:,.2f} |",
+        f"| Avg trades/day | {avg_trades_per_day:.1f} |",
+        "",
+        "### Cost & Capital",
+        "| Metric | Value |",
+        "|--------|-------|",
+        f"| Commission total | ${total_commission:,.2f} |",
+        f"| Avg BP/trade | ${avg_bp_per_trade:,.2f} |",
+        f"| Avg BP/day | ${avg_bp_day:,.2f} |",
+        f"| Max BP day | ${max_bp_day:,.2f} |",
+        "",
+        "### VIX Correlation",
+        "| VIX Range | Trades | Win Rate | Avg P&L | Total P&L |",
+        "|-----------|-------:|--------:|--------:|----------:|",
+    ]
+    for label, cnt, wr, avg_p, tot_p in vix_rows:
+        L.append(f"| {label} | {cnt} | {wr:.1f}% | ${avg_p:,.2f} | ${tot_p:,.2f} |")
+
+    L += [
+        "",
+        "### Dynamic SL VIX Zones",
+        "| VIX Range | Dyn SL | Trades | Win Rate | Avg P&L | Total P&L | Max DD |",
+        "|-----------|:------:|-------:|--------:|--------:|----------:|-------:|",
+    ]
+    for label, sl_flag, cnt, wr, avg_p, tot_p, mdd in dyn_rows:
+        L.append(f"| {label} | {sl_flag} | {cnt} | {wr:.1f}% | ${avg_p:,.2f} | ${tot_p:,.2f} | ${mdd:,.2f} |")
+
+    L += [
+        "",
+        "### Strike Distance vs Win Rate",
+        "| Distance | Trades | Win Rate | Avg P&L | Total P&L |",
+        "|----------|-------:|--------:|--------:|----------:|",
+    ]
+    for label, cnt, wr, avg_p, tot_p in sd_rows:
+        L.append(f"| {label} | {cnt} | {wr:.1f}% | ${avg_p:,.2f} | ${tot_p:,.2f} |")
+
+    L += [
+        "",
+        "### PUT vs CALL Split",
+        "| Type | Trades | Win Rate | Avg P&L | Total P&L | Avg Win | Avg Loss | Prof Factor | Max DD |",
+        "|------|-------:|--------:|--------:|----------:|--------:|---------:|------------:|-------:|",
+    ]
+    for row in pc_rows:
+        label, cnt, wr, avg_p, tot_p, aw, al, pf_str, mdd = row
+        L.append(f"| {label} | {cnt} | {wr:.1f}% | ${avg_p:,.2f} | ${tot_p:,.2f} | ${aw:,.2f} | ${al:,.2f} | {pf_str} | ${mdd:,.2f} |")
+
+    # Monthly P&L table
+    L += ["", "### Monthly P&L ($)"]
+    L.append("| Year | " + " | ".join(mon_abbr) + " | Total |")
+    L.append("|------|" + "|".join(["------:"] * 12) + "|------:|")
+    yearly_totals: dict[int, float] = {}
+    for y in all_years:
+        ytotal = sum(month_pnl[y].get(m2, 0.0) for m2 in range(1, 13) if m2 in month_pnl[y])
+        yearly_totals[y] = ytotal
+        cells = []
+        for m2 in range(1, 13):
+            pval = month_pnl[y].get(m2)
+            cells.append(f"${pval:,.0f}" if pval is not None else "—")
+        L.append(f"| {y} | " + " | ".join(cells) + f" | ${ytotal:,.0f} |")
+    # Grand total row
+    gtotal_cells = []
+    grand_total = 0.0
+    for m2 in range(1, 13):
+        col_sum = sum(month_pnl[y].get(m2, 0.0) for y in all_years if m2 in month_pnl[y])
+        has_data = any(m2 in month_pnl[y] for y in all_years)
+        gtotal_cells.append(f"${col_sum:,.0f}" if has_data else "—")
+        if has_data: grand_total += col_sum
+    L.append(f"| **Total** | " + " | ".join(gtotal_cells) + f" | **${grand_total:,.0f}** |")
+
+    # Intra-month max drawdown table
+    L += ["", "### Intra-Month Max Drawdown ($)"]
+    L.append("| Year | " + " | ".join(mon_abbr) + " | Annual DD |")
+    L.append("|------|" + "|".join(["------:"] * 12) + "|----------:|")
+    for y in all_years:
+        cells = []
+        for m2 in range(1, 13):
+            tlist = month_trades_map[y].get(m2)
+            cells.append(f"${_month_max_dd(tlist):,.0f}" if tlist else "—")
+        yr_dd = _month_max_dd([t["pnl_earned"] for t in sorted(all_trades, key=lambda x: x["entry_date"]) if int(t["entry_date"][:4]) == y])
+        L.append(f"| {y} | " + " | ".join(cells) + f" | ${yr_dd:,.0f} |")
+
+    # Strategy vs SPY comparison
+    spy_ret_md = _get_spy_monthly_returns(all_years[0], all_years[-1])
+    if spy_ret_md:
+        L += ["", "### Monthly Return: Strategy vs SPY (strat% / SPY%)"]
+        L.append("| Year | " + " | ".join(mon_abbr) + " | Annual Strat | Annual SPY | Alpha |")
+        L.append("|------|" + "|".join([":------:"] * 12) + "|------------:|-----------:|------:|")
+        for y in all_years:
+            cells = []
+            s_ann = sp_ann = 0.0
+            for m2 in range(1, 13):
+                spnl  = month_pnl[y].get(m2)
+                spy_m = spy_ret_md.get((y, m2))
+                if spnl is None and spy_m is None:
+                    cells.append("—")
+                else:
+                    s_pct  = f"{spnl/ACCOUNT_SIZE*100:+.1f}%" if spnl  is not None else "—"
+                    sp_pct = f"{spy_m:+.1f}%"                 if spy_m is not None else "—"
+                    if spnl  is not None: s_ann  += spnl / ACCOUNT_SIZE * 100
+                    if spy_m is not None: sp_ann += spy_m
+                    cells.append(f"{s_pct} / {sp_pct}")
+            L.append(f"| {y} | " + " | ".join(cells) +
+                     f" | {s_ann:+.1f}% | {sp_ann:+.1f}% | {s_ann-sp_ann:+.1f}% |")
+
+    # Large loss days
+    L += ["", "### Largest Loss Days (worst 15)"]
+    L.append("| Date | Trades | Day P&L |")
+    L.append("|------|-------:|--------:|")
+    for pnl, d2 in worst_15:
+        date_fmt = f"{d2[:4]}-{d2[4:6]}-{d2[6:]}"
+        L.append(f"| {date_fmt} | {loss_day_trades[d2]} | ${pnl:,.2f} |")
+
+    L.append("")
+
+    results_path = "RESULTS.md"
+    new_block = "\n".join(L)
+    if os.path.exists(results_path):
+        existing = open(results_path).read()
+        # Strip the static header so we can re-prepend it cleanly
+        header = "# MEDS Strategy — Backtest Results\n\n"
+        body = existing[len(header):] if existing.startswith(header) else existing
+        with open(results_path, "w") as f:
+            f.write(header + new_block + "\n" + body)
+    else:
+        with open(results_path, "w") as f:
+            f.write("# MEDS Strategy — Backtest Results\n\n" + new_block + "\n")
+
+    logger.info(f"  Results prepended to {results_path}")
+
+
+# ─────────────────────────────────────────────
+#  SETTINGS SUMMARY
+# ─────────────────────────────────────────────
+def print_settings_summary() -> None:
+    sep = "─" * 62
+    logger.info(sep)
+    logger.info("  STRATEGY SETTINGS")
+    logger.info(sep)
+    logger.info(f"  Period          : {PILOT_YEAR_START} → {PILOT_YEAR_END}")
+    logger.info(f"  Spread          : {int(WIDTH)}pt width  |  min credit ${MIN_NET_CREDIT:.2f}")
+    logger.info(f"  Entry window    : {ENTRY_START.strftime('%H:%M')}–{ENTRY_END.strftime('%H:%M')}  every {ENTRY_INTERVAL} min")
+    logger.info(f"  EMA direction   : fast={EMA_FAST}  slow={EMA_SLOW}")
+    logger.info(f"  Daily SL / TP   : {DAILY_SL if DAILY_SL is not None else 'off'}  /  {DAILY_TP if DAILY_TP is not None else 'off'}")
+    eom_str = f"${EOM_SL_AMOUNT:,.0f} on EOM days" if ENABLE_EOM_SL else "off"
+    logger.info(f"  EOM stop loss   : {eom_str}")
+    dyn_str = (f"${DYNAMIC_SL_AMOUNT:,.0f}  VIX<{DYNAMIC_SL_VIX_LOW} or "
+               f"{DYNAMIC_SL_VIX_MID[0]}–{DYNAMIC_SL_VIX_MID[1]} or "
+               f"{DYNAMIC_SL_VIX_HIGH[0]}–{DYNAMIC_SL_VIX_HIGH[1]}")
+    logger.info(f"  Dynamic SL      : {dyn_str}")
+    logger.info(f"  VIX filter      : min={VIX_MIN_FILTER or 'off'}  max={VIX_MAX_FILTER or 'off'}")
+    logger.info(f"  Max BP          : {f'${MAX_BUYING_POWER:,.0f}' if MAX_BUYING_POWER is not None else 'unlimited'}")
+    # Active day filters (non-None only)
+    active_filters = {k: v for k, v in [
+        ("vix_max",    DAY_FILTER_VIX_MAX),   ("vix_min",    DAY_FILTER_VIX_MIN),
+        ("vix_chg_max",DAY_FILTER_VIX_CHG_MAX),("vix_chg_min",DAY_FILTER_VIX_CHG_MIN),
+        ("rsi_min",    DAY_FILTER_RSI_MIN),    ("rsi_max",    DAY_FILTER_RSI_MAX),
+        ("atr_max",    DAY_FILTER_ATR_MAX),    ("adx_min",    DAY_FILTER_ADX_MIN),
+        ("range_max",  DAY_FILTER_RANGE_MAX),  ("range_min",  DAY_FILTER_RANGE_MIN),
+        ("exp_mv_max", DAY_FILTER_EXP_MOVE_MAX),("exp_mv_min",DAY_FILTER_EXP_MOVE_MIN),
+        ("cci_max",    DAY_FILTER_CCI_MAX),    ("ivr_min",    DAY_FILTER_IVR_MIN),
+        ("gap_max",    DAY_FILTER_GAP_MAX),    ("sma200",     DAY_FILTER_ABOVE_SMA200),
+        ("body_max",   DAY_FILTER_BODY_MAX),   ("knife_max",  DAY_FILTER_KNIFE_MAX),
+    ] if v is not None}
+    if active_filters:
+        fstr = "  ".join(f"{k}={v}" for k, v in active_filters.items())
+        logger.info(f"  Day filters     : {fstr}")
+    else:
+        logger.info(f"  Day filters     : none")
+    # Calendar risk SL summary
+    cal_sl_parts = []
+    if ENABLE_CPI_SL:      cal_sl_parts.append(f"CPI ${CPI_SL_AMOUNT:.0f}")
+    if ENABLE_PCE_SL:      cal_sl_parts.append(f"PCE ${PCE_SL_AMOUNT:.0f}")
+    if ENABLE_EOQ_SL:      cal_sl_parts.append(f"EOQ ${EOQ_SL_AMOUNT:.0f}")
+    if ENABLE_PRE_TW_SL:   cal_sl_parts.append(f"pre-TW ${PRE_TW_SL_AMOUNT:.0f}")
+    if ENABLE_POST_HOL_SL: cal_sl_parts.append(f"post-hol ${POST_HOL_SL_AMOUNT:.0f}")
+    logger.info(f"  Calendar SL     : {', '.join(cal_sl_parts) if cal_sl_parts else 'off'}")
+    logger.info(sep)
+
+
+# ─────────────────────────────────────────────
+#  DYNAMIC SL VIX RANGE ANALYSIS
+# ─────────────────────────────────────────────
+def print_dynamic_sl_vix_analysis(all_trades: list) -> None:
+    """Break down stats by the key VIX ranges that drive dynamic SL behaviour."""
+    vl  = DYNAMIC_SL_VIX_LOW
+    ml, mh = DYNAMIC_SL_VIX_MID
+    hl, hh = DYNAMIC_SL_VIX_HIGH
+
+    # Buckets: (label, lo, hi, dynamic_sl_active)
+    buckets = [
+        (f"< {vl}",          None, vl,   True),
+        (f"{ml}–{mh}",       ml,   mh,   True),
+        (f"{mh}–{hl}",       mh,   hl,   False),
+        (f"{hl}–{hh}",       hl,   hh,   True),
+        (f"> {hh}",          hh,   None, False),
+    ]
+
+    def bucket_stats(trades):
+        pnls = [float(t.get("pnl_earned", 0)) for t in trades]
+        n    = len(pnls)
+        if n == 0:
+            return dict(n=0, wr=0, avg=0, total=0, max_dd=0)
+        wins = [p for p in pnls if p > 0]
+        eq = peak = dd = 0.0
+        for p in pnls:
+            eq += p; peak = max(peak, eq); dd = min(dd, eq - peak)
+        return dict(
+            n=n,
+            wr=len(wins)/n*100,
+            avg=sum(pnls)/n,
+            total=sum(pnls),
+            max_dd=dd,
+        )
+
+    sep = "─" * 80
+    logger.info(sep)
+    logger.info("  VIX RANGE ANALYSIS  (dynamic SL zones)")
+    logger.info(sep)
+    logger.info(
+        f"  {'VIX Range':<12} {'DynSL':>6} {'Trades':>7} {'WR%':>7} "
+        f"{'Avg P&L':>10} {'Total P&L':>12} {'Max DD':>11}"
+    )
+    logger.info(sep)
+
+    for label, lo, hi, sl_on in buckets:
+        bucket = []
+        for t in all_trades:
+            try:
+                v = float(t.get("vix_level") or "")
+            except (ValueError, TypeError):
+                continue
+            if (lo is None or v >= lo) and (hi is None or v < hi):
+                bucket.append(t)
+        s = bucket_stats(bucket)
+        sl_flag = "ON" if sl_on else "—"
+        logger.info(
+            f"  {label:<12} {sl_flag:>6} {s['n']:>7} {s['wr']:>6.1f}% "
+            f"${s['avg']:>9,.2f} ${s['total']:>11,.2f} ${s['max_dd']:>10,.2f}"
+        )
+
+    logger.info(sep)
+
+
+# ─────────────────────────────────────────────
+#  MONTHLY P&L TABLE
+# ─────────────────────────────────────────────
+def print_monthly_pnl_table(all_trades: list) -> None:
+    from collections import defaultdict
+
+    # Build day_pnl map and monthly buckets
+    day_pnl: dict[str, float] = {}
+    for t in all_trades:
+        d = t["entry_date"]
+        day_pnl[d] = day_pnl.get(d, 0.0) + t["pnl_earned"]
+
+    # month_pnl[year][month] = total P&L
+    month_pnl: dict[int, dict[int, float]] = defaultdict(lambda: defaultdict(float))
+    # month_trades[year][month] = list of trade pnls in order (for intra-month DD)
+    month_trades: dict[int, dict[int, list]] = defaultdict(lambda: defaultdict(list))
+
+    for t in sorted(all_trades, key=lambda x: x["entry_date"]):
+        y = int(t["entry_date"][:4])
+        m = int(t["entry_date"][4:6])
+        month_pnl[y][m] += t["pnl_earned"]
+        month_trades[y][m].append(t["pnl_earned"])
+
+    # Intra-month max drawdown
+    def month_max_dd(pnls):
+        eq = peak = dd = 0.0
+        for p in pnls:
+            eq += p
+            peak = max(peak, eq)
+            dd = min(dd, eq - peak)
+        return dd
+
+    years = sorted(month_pnl.keys())
+    months = list(range(1, 13))
+    mon_abbr = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+
+    col_w = 9
+    hdr = f"  {'Year':<6}" + "".join(f"{m:>{col_w}}" for m in mon_abbr) + f"{'Total':>{col_w+1}}"
+    sep = "─" * len(hdr)
+
+    logger.info(sep)
+    logger.info("  MONTHLY P&L  ($)")
+    logger.info(sep)
+    logger.info(hdr)
+    logger.info(sep)
+
+    yearly_totals: dict[int, float] = {}
+    for y in years:
+        row = f"  {y:<6}"
+        ytotal = 0.0
+        for m in months:
+            pnl = month_pnl[y].get(m)
+            if pnl is None:
+                row += f"{'—':>{col_w}}"
+            else:
+                ytotal += pnl
+                row += f"{pnl:>{col_w},.0f}"
+        row += f"{ytotal:>{col_w+1},.0f}"
+        yearly_totals[y] = ytotal
+        logger.info(row)
+
+    # Grand total row
+    logger.info(sep)
+    grand = f"  {'Total':<6}"
+    gtotal = 0.0
+    for m in months:
+        col_sum = sum(month_pnl[y].get(m, 0.0) for y in years if m in month_pnl[y])
+        if col_sum == 0.0 and all(m not in month_pnl[y] for y in years):
+            grand += f"{'—':>{col_w}}"
+        else:
+            grand += f"{col_sum:>{col_w},.0f}"
+            gtotal += col_sum
+    grand += f"{gtotal:>{col_w+1},.0f}"
+    logger.info(grand)
+    logger.info(sep)
+
+    # Max drawdown by year table
+    logger.info("  INTRA-MONTH MAX DRAWDOWN  ($)")
+    logger.info(sep)
+    logger.info(hdr)
+    logger.info(sep)
+    for y in years:
+        row = f"  {y:<6}"
+        for m in months:
+            trades_m = month_trades[y].get(m)
+            if not trades_m:
+                row += f"{'—':>{col_w}}"
+            else:
+                dd = month_max_dd(trades_m)
+                row += f"{dd:>{col_w},.0f}"
+        yr_dd = month_max_dd([t["pnl_earned"] for t in sorted(all_trades, key=lambda x: x["entry_date"]) if int(t["entry_date"][:4]) == y])
+        row += f"{yr_dd:>{col_w+1},.0f}"
+        logger.info(row)
+    logger.info(sep)
+
+
+# ─────────────────────────────────────────────
+#  SPY BENCHMARK COMPARISON
+# ─────────────────────────────────────────────
+SPY_CACHE_FILE = "spy_monthly_closes.csv"   # local cache: date (YYYY-MM-DD), close
+
+def _get_spy_monthly_returns(first_year: int, last_year: int) -> "dict[tuple,float]":
+    """Return {(year, month): pct_return} for SPY.
+
+    Reads from SPY_CACHE_FILE when present; only calls yfinance for months
+    not yet in the cache. Saves updated closes back to disk.
+    """
+    from datetime import date as _date
+
+    # ── Load existing cache ───────────────────────────────────────────────────
+    cached: dict[str, float] = {}   # "YYYY-MM-DD" → adjusted close
+    if os.path.exists(SPY_CACHE_FILE):
+        try:
+            with open(SPY_CACHE_FILE, newline="") as f:
+                for row in csv.DictReader(f):
+                    cached[row["date"]] = float(row["close"])
+        except Exception:
+            cached = {}
+
+    # ── Determine what's missing ──────────────────────────────────────────────
+    # We need the month-end close for every month from (first_year-1, 12) through
+    # (last_year, 12) — the extra prior month is needed to compute the first return.
+    today = _date.today()
+    needed_months = []
+    for y in range(first_year - 1, last_year + 1):
+        for m in range(1, 13):
+            # skip future months
+            if y > today.year or (y == today.year and m > today.month):
+                continue
+            needed_months.append((y, m))
+
+    # Determine which month-end dates are missing from cache
+    def _month_end_key(y, m):
+        """Return the last calendar day of the month as YYYY-MM-DD string."""
+        import calendar
+        last_day = calendar.monthrange(y, m)[1]
+        return f"{y}-{m:02d}-{last_day:02d}"
+
+    missing = [(y, m) for y, m in needed_months if _month_end_key(y, m) not in cached]
+
+    # ── Fetch missing data from yfinance ──────────────────────────────────────
+    if missing:
+        try:
+            import yfinance as yf
+            fetch_start_y = min(y for y, _ in missing)
+            fetch_start_m = min(m for y, m in missing if y == fetch_start_y)
+            # go one month back to ensure we get a prior-month close for the first return
+            if fetch_start_m == 1:
+                fetch_start_y -= 1; fetch_start_m = 12
+            else:
+                fetch_start_m -= 1
+            fetch_start = f"{fetch_start_y}-{fetch_start_m:02d}-01"
+            fetch_end   = f"{last_year + 1}-01-01"
+            spy = yf.download("SPY", start=fetch_start, end=fetch_end,
+                               auto_adjust=True, progress=False)
+            if not spy.empty:
+                monthly = spy["Close"].resample("ME").last()
+                if hasattr(monthly, "columns"):   # multi-index from newer yfinance
+                    monthly = monthly.iloc[:, 0]
+                for ts, close in monthly.items():
+                    import math as _math
+                    v = float(close)
+                    if not _math.isnan(v):
+                        cached[ts.strftime("%Y-%m-%d")] = v
+                # Persist updated cache
+                with open(SPY_CACHE_FILE, "w", newline="") as f:
+                    w = csv.writer(f)
+                    w.writerow(["date", "close"])
+                    for d_str in sorted(cached):
+                        w.writerow([d_str, f"{cached[d_str]:.6f}"])
+                logger.info(f"  SPY cache updated → {SPY_CACHE_FILE} ({len(cached)} month-end rows)")
+        except Exception as exc:
+            logger.warning(f"  SPY fetch failed: {exc}")
+
+    # ── Compute monthly returns from cached closes ────────────────────────────
+    sorted_closes = sorted((d, v) for d, v in cached.items())
+    returns: dict[tuple, float] = {}
+    for i in range(1, len(sorted_closes)):
+        d_str, close = sorted_closes[i]
+        prev_close   = sorted_closes[i - 1][1]
+        y, m = int(d_str[:4]), int(d_str[5:7])
+        if prev_close and prev_close != 0:
+            returns[(y, m)] = (close / prev_close - 1) * 100
+    return returns
+
+
+def print_spy_comparison(all_trades: list) -> None:
+    """Year × Month table comparing strategy monthly return % vs SPY monthly return %."""
+    from collections import defaultdict
+
+    # Build strategy monthly P&L
+    month_pnl: dict[tuple, float] = defaultdict(float)
+    for t in all_trades:
+        y, m = int(t["entry_date"][:4]), int(t["entry_date"][4:6])
+        month_pnl[(y, m)] += t["pnl_earned"]
+
+    if not month_pnl:
+        return
+
+    all_years = sorted({y for y, _ in month_pnl})
+    spy_ret   = _get_spy_monthly_returns(all_years[0], all_years[-1])
+
+    mon_abbr = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+    col_w    = 13   # wide enough for "str% / str%"
+    hdr      = f"  {'Year':<6}" + "".join(f"{m:^{col_w}}" for m in mon_abbr) + f"{'Annual':^{col_w+2}}"
+    sep      = "─" * len(hdr)
+
+    logger.info(sep)
+    logger.info("  MONTHLY RETURN: STRATEGY vs SPY  (strat% / SPY%  |  alpha=strat-SPY)")
+    logger.info(sep)
+    logger.info(hdr)
+    logger.info(sep)
+
+    for y in all_years:
+        row = f"  {y:<6}"
+        strat_annual = 0.0
+        spy_annual   = 0.0
+        for m in range(1, 13):
+            spnl   = month_pnl.get((y, m))
+            spy_m  = spy_ret.get((y, m))
+            if spnl is None and spy_m is None:
+                row += f"{'—':^{col_w}}"
+            else:
+                s_pct  = (spnl  / ACCOUNT_SIZE * 100) if spnl  is not None else None
+                sp_pct = spy_m if spy_m is not None else None
+                if s_pct is not None:  strat_annual += s_pct
+                if sp_pct is not None: spy_annual   += sp_pct
+                s_str  = f"{s_pct:+.1f}%" if s_pct  is not None else "   — "
+                sp_str = f"{sp_pct:+.1f}%" if sp_pct is not None else "   — "
+                cell   = f"{s_str}/{sp_str}"
+                row   += f"{cell:^{col_w}}"
+        # Annual column
+        a_str  = f"{strat_annual:+.1f}%"
+        sp_a   = f"{spy_annual:+.1f}%" if spy_annual != 0.0 else "—"
+        alpha  = strat_annual - spy_annual
+        row   += f"  {a_str}/{sp_a} (α{alpha:+.1f}%)"
+        logger.info(row)
+
+    # Grand totals row
+    logger.info(sep)
+    total_strat = sum(month_pnl.values()) / ACCOUNT_SIZE * 100
+    total_spy   = sum(spy_ret.get((y, m), 0.0) for y in all_years for m in range(1, 13)
+                      if (y, m) in month_pnl)
+    logger.info(f"  {'Total':<6}  Cumul strategy: {total_strat:+.1f}%  |  "
+                f"Cumul SPY: {total_spy:+.1f}%  |  Alpha: {total_strat-total_spy:+.1f}%")
+    logger.info(sep)
+
+
+# ─────────────────────────────────────────────
+#  LARGE LOSS DAYS
+# ─────────────────────────────────────────────
+def print_large_loss_days(all_trades: list, n: int = 15) -> None:
+    day_pnl: dict[str, float] = {}
+    day_trades: dict[str, int] = {}
+    for t in all_trades:
+        d = t["entry_date"]
+        day_pnl[d] = day_pnl.get(d, 0.0) + t["pnl_earned"]
+        day_trades[d] = day_trades.get(d, 0) + 1
+
+    loss_days = sorted([(pnl, d) for d, pnl in day_pnl.items() if pnl < 0])
+    if not loss_days:
+        return
+
+    top_n = loss_days[:n]
+    sep = "─" * 52
+    logger.info(sep)
+    logger.info(f"  LARGEST LOSS DAYS  (worst {n})")
+    logger.info(sep)
+    logger.info(f"  {'Date':<12} {'Trades':>7} {'Day P&L':>12}")
+    logger.info(sep)
+    for pnl, d in top_n:
+        date_fmt = f"{d[:4]}-{d[4:6]}-{d[6:]}"
+        logger.info(f"  {date_fmt:<12} {day_trades[d]:>7} {pnl:>12,.2f}")
     logger.info(sep)
 
 
@@ -4476,6 +5434,356 @@ async def run_vix_sub12_sl_sweep():
 
 
 # ─────────────────────────────────────────────
+#  EOM SL SWEEP RUNNER
+# ─────────────────────────────────────────────
+async def run_eom_sl_sweep():
+    """Sweep tighter SL levels applied exclusively on the last trading day of each month.
+
+    EOM days have 74% WR and $105/day avg vs 93%+ WR and $618/day for normal days.
+    The 4 largest single-day losses all fell on EOM dates. Tests whether a tighter
+    daily SL on EOM days improves risk-adjusted returns without hurting normal days.
+    All other days use standard _get_effective_sl() unchanged.
+    """
+    logger.info("=" * 70)
+    logger.info("MEDS: EOM SL SWEEP")
+    logger.info(f"EOM days      : {len(_EOM_DATES)}")
+    logger.info(f"Levels        : {EOM_SL_SWEEP_LEVELS}")
+    logger.info(f"Output        : {EOM_SL_SWEEP_FILE}")
+    logger.info("=" * 70)
+
+    date_list = pd.date_range(PILOT_YEAR_START, PILOT_YEAR_END, freq="B")
+    day_pool: dict[str, dict] = {}
+    async with _get_session() as session:
+        for d in date_list:
+            d_str = d.strftime("%Y%m%d")
+            if d_str in MARKET_HOLIDAYS:
+                continue
+            if ENABLE_ECON_FILTER and d_str in ECON_DATES:
+                continue
+            day_data = await _fetch_day_data(session, d_str)
+            if day_data is not None:
+                day_pool[d_str] = day_data
+    logger.info(f"Pre-fetched {len(day_pool)} qualifying days.")
+
+    eom_in_pool = sum(1 for d_str in day_pool if d_str in _EOM_DATES)
+    logger.info(f"EOM days in pool: {eom_in_pool}")
+
+    cols = ["eom_sl", "eom_days", "num_trades", "win_rate_pct",
+            "total_pnl", "pnl_delta", "max_drawdown", "dd_delta", "calmar", "sharpe"]
+    rows = []
+    base_pnl = None
+    base_dd  = None
+
+    async with _get_session() as session:
+        for sl_level in EOM_SL_SWEEP_LEVELS:
+            label = "none" if sl_level is None else str(sl_level)
+            all_trades: list = []
+
+            for d_str, day_data in day_pool.items():
+                is_eom = d_str in _EOM_DATES
+
+                if is_eom and sl_level is not None:
+                    dyn_sl = _get_effective_sl(day_data, d_str)
+                    effective_sl = max(sl_level, dyn_sl) if dyn_sl is not None else sl_level
+                else:
+                    effective_sl = _get_effective_sl(day_data, d_str)
+
+                in_danger = effective_sl is not None
+                sample_interval = DANGER_PNL_SAMPLE_INTERVAL if in_danger else PNL_SAMPLE_INTERVAL
+                direction = _get_baseline_mode(d_str)
+                trades, _ = await _simulate_day(
+                    session, day_data, effective_sl,
+                    baseline_mode=direction,
+                    pos_trail_activation=POS_TRAIL_ACTIVATION,
+                    pos_trail_pullback=POS_TRAIL_PULLBACK,
+                    min_otm_distance=MIN_OTM_DISTANCE,
+                    max_credit=MAX_NET_CREDIT,
+                    pnl_sample_interval=sample_interval,
+                )
+                all_trades.extend(trades)
+
+            m      = compute_metrics(all_trades)
+            pnl    = m["total_pnl"]
+            dd     = m["max_drawdown"]
+            calmar = pnl / abs(dd) if dd != 0 else float("inf")
+
+            if base_pnl is None:
+                base_pnl  = pnl
+                base_dd   = dd
+                pnl_delta = "—"
+                dd_delta  = "—"
+            else:
+                pnl_delta = f"{pnl - base_pnl:+.2f}"
+                dd_delta  = f"{dd - base_dd:+.2f}"
+
+            rows.append({
+                "eom_sl":       label,
+                "eom_days":     eom_in_pool,
+                "num_trades":   m["num_trades"],
+                "win_rate_pct": f"{m['win_rate']:.1f}",
+                "total_pnl":    f"{pnl:.2f}",
+                "pnl_delta":    pnl_delta,
+                "max_drawdown": f"{dd:.2f}",
+                "dd_delta":     dd_delta,
+                "calmar":       f"{calmar:.2f}",
+                "sharpe":       f"{m['sharpe']:.2f}",
+            })
+            logger.info(
+                f"  eom_sl={label:>6} | trades={m['num_trades']:>5} | "
+                f"pnl=${pnl:>10,.2f} ({pnl_delta}) | dd=${dd:>9,.2f} ({dd_delta}) | "
+                f"calmar={calmar:.2f} | sharpe={m['sharpe']:.2f}"
+            )
+
+    with open(EOM_SL_SWEEP_FILE, "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=cols)
+        w.writeheader()
+        w.writerows(rows)
+
+    sep = "─" * 105
+    logger.info("")
+    logger.info("═" * 105)
+    logger.info("  EOM SL SWEEP RESULTS")
+    logger.info("═" * 105)
+    logger.info(f"  {'SL':>8} | {'TRADES':>7} | {'WIN%':>5} | {'TOTAL_PNL':>12} | "
+                f"{'PNL_DELTA':>10} | {'MAX_DD':>10} | {'DD_DELTA':>10} | {'CALMAR':>8} | {'SHARPE':>7}")
+    logger.info(sep)
+    for row in rows:
+        logger.info(
+            f"  {row['eom_sl']:>8} | {row['num_trades']:>7} | {row['win_rate_pct']:>4}% | "
+            f"${float(row['total_pnl']):>11,.2f} | {row['pnl_delta']:>10} | "
+            f"${float(row['max_drawdown']):>9,.2f} | {row['dd_delta']:>10} | "
+            f"{row['calmar']:>8} | {row['sharpe']:>7}"
+        )
+    logger.info("═" * 105)
+    logger.info(f"  Full results: {EOM_SL_SWEEP_FILE}")
+
+
+# ─────────────────────────────────────────────
+#  CALENDAR RISK SL SWEEP RUNNER
+# ─────────────────────────────────────────────
+async def run_calendar_risk_sl_sweep():
+    """Test each recurring-date SL category independently across SL levels.
+
+    For each category (CPI, PCE, EOQ, pre-TW, post-holiday), runs every level in
+    CALENDAR_RISK_SL_SWEEP_LEVELS with all OTHER calendar risk SLs disabled, so
+    the P&L delta shows the isolated impact of that one category.
+    Finishes with a combined row using the best level found for each category.
+    """
+    global ENABLE_CPI_SL, CPI_SL_AMOUNT
+    global ENABLE_PCE_SL, PCE_SL_AMOUNT
+    global ENABLE_EOQ_SL, EOQ_SL_AMOUNT
+    global ENABLE_PRE_TW_SL, PRE_TW_SL_AMOUNT
+    global ENABLE_POST_HOL_SL, POST_HOL_SL_AMOUNT
+
+    logger.info("=" * 110)
+    logger.info("MEDS: CALENDAR RISK SL SWEEP")
+    logger.info(f"Levels: {CALENDAR_RISK_SL_SWEEP_LEVELS}")
+    logger.info(f"Output: {CALENDAR_RISK_SL_SWEEP_FILE}")
+    logger.info("=" * 110)
+
+    # Disable all calendar risk SLs during sweep — each test enables only one
+    ENABLE_CPI_SL = ENABLE_PCE_SL = ENABLE_EOQ_SL = False
+    ENABLE_PRE_TW_SL = ENABLE_POST_HOL_SL = False
+
+    # Pre-fetch day pool
+    date_list = pd.date_range(PILOT_YEAR_START, PILOT_YEAR_END, freq="B")
+    day_pool: dict[str, dict] = {}
+    async with _get_session() as session:
+        for d in date_list:
+            d_str = d.strftime("%Y%m%d")
+            if d_str in MARKET_HOLIDAYS:
+                continue
+            if ENABLE_ECON_FILTER and d_str in ECON_DATES:
+                continue
+            day_data = await _fetch_day_data(session, d_str)
+            if day_data is not None:
+                day_pool[d_str] = day_data
+    logger.info(f"Pre-fetched {len(day_pool)} qualifying days.")
+
+    # Category definitions: (label, date_set, enable_setter, amount_setter)
+    categories = [
+        ("CPI",       _CPI_DATES,      "_cpi"),
+        ("PCE",       _PCE_DATES,      "_pce"),
+        ("EOQ",       _EOQ_DATES,      "_eoq"),
+        ("pre-TW",    _PRE_TW_DATES,   "_pretw"),
+        ("post-hol",  _POST_HOL_DATES, "_posthol"),
+    ]
+
+    cols = ["category", "sl_level", "cat_days", "num_trades", "win_rate_pct",
+            "total_pnl", "pnl_delta", "max_drawdown", "dd_delta", "calmar", "sharpe"]
+    rows = []
+
+    async with _get_session() as session:
+
+        # ── Baseline: all calendar risk SLs off ──────────────────────────────
+        base_trades: list = []
+        for d_str, day_data in day_pool.items():
+            effective_sl = _get_effective_sl(day_data, d_str)
+            direction    = _get_baseline_mode(d_str)
+            trades, _    = await _simulate_day(
+                session, day_data, effective_sl,
+                baseline_mode=direction,
+                pos_trail_activation=POS_TRAIL_ACTIVATION,
+                pos_trail_pullback=POS_TRAIL_PULLBACK,
+                min_otm_distance=MIN_OTM_DISTANCE,
+                max_credit=MAX_NET_CREDIT,
+                pnl_sample_interval=PNL_SAMPLE_INTERVAL,
+            )
+            base_trades.extend(trades)
+        bm       = compute_metrics(base_trades)
+        base_pnl = bm["total_pnl"]
+        base_dd  = bm["max_drawdown"]
+        base_cal = base_pnl / abs(base_dd) if base_dd != 0 else float("inf")
+        rows.append({
+            "category": "BASELINE", "sl_level": "—", "cat_days": "—",
+            "num_trades": bm["num_trades"], "win_rate_pct": f"{bm['win_rate']:.1f}",
+            "total_pnl": f"{base_pnl:.2f}", "pnl_delta": "—",
+            "max_drawdown": f"{base_dd:.2f}", "dd_delta": "—",
+            "calmar": f"{base_cal:.2f}", "sharpe": f"{bm['sharpe']:.2f}",
+        })
+        logger.info(f"  {'BASELINE':>10} | sl=    — | pnl=${base_pnl:>10,.2f} |  — |"
+                    f" dd=${base_dd:>9,.2f} |  — | calmar={base_cal:.2f} | sharpe={bm['sharpe']:.2f}")
+
+        # ── Per-category sweep ────────────────────────────────────────────────
+        best_level: dict[str, "float|None"] = {}
+
+        for cat_label, cat_dates, cat_key in categories:
+            cat_days = sum(1 for d in day_pool if d in cat_dates)
+            best_pnl = base_pnl
+            best_lv  = None
+            logger.info(f"  --- {cat_label} ({cat_days} days) ---")
+
+            for sl_level in CALENDAR_RISK_SL_SWEEP_LEVELS:
+                # Enable only this category at this level
+                ENABLE_CPI_SL      = (cat_key == "_cpi"    and sl_level is not None)
+                ENABLE_PCE_SL      = (cat_key == "_pce"    and sl_level is not None)
+                ENABLE_EOQ_SL      = (cat_key == "_eoq"    and sl_level is not None)
+                ENABLE_PRE_TW_SL   = (cat_key == "_pretw"  and sl_level is not None)
+                ENABLE_POST_HOL_SL = (cat_key == "_posthol" and sl_level is not None)
+                if cat_key == "_cpi":      CPI_SL_AMOUNT      = sl_level or -300.0
+                elif cat_key == "_pce":    PCE_SL_AMOUNT      = sl_level or -300.0
+                elif cat_key == "_eoq":    EOQ_SL_AMOUNT      = sl_level or -300.0
+                elif cat_key == "_pretw":  PRE_TW_SL_AMOUNT   = sl_level or -300.0
+                elif cat_key == "_posthol":POST_HOL_SL_AMOUNT = sl_level or -300.0
+
+                all_trades: list = []
+                for d_str, day_data in day_pool.items():
+                    effective_sl = _get_effective_sl(day_data, d_str)
+                    in_danger    = effective_sl is not None
+                    sample_int   = DANGER_PNL_SAMPLE_INTERVAL if in_danger else PNL_SAMPLE_INTERVAL
+                    direction    = _get_baseline_mode(d_str)
+                    trades, _    = await _simulate_day(
+                        session, day_data, effective_sl,
+                        baseline_mode=direction,
+                        pos_trail_activation=POS_TRAIL_ACTIVATION,
+                        pos_trail_pullback=POS_TRAIL_PULLBACK,
+                        min_otm_distance=MIN_OTM_DISTANCE,
+                        max_credit=MAX_NET_CREDIT,
+                        pnl_sample_interval=sample_int,
+                    )
+                    all_trades.extend(trades)
+
+                m      = compute_metrics(all_trades)
+                pnl    = m["total_pnl"]
+                dd     = m["max_drawdown"]
+                calmar = pnl / abs(dd) if dd != 0 else float("inf")
+                label  = "none" if sl_level is None else str(sl_level)
+                rows.append({
+                    "category":    cat_label, "sl_level": label, "cat_days": cat_days,
+                    "num_trades":  m["num_trades"], "win_rate_pct": f"{m['win_rate']:.1f}",
+                    "total_pnl":   f"{pnl:.2f}",  "pnl_delta":  f"{pnl - base_pnl:+.2f}",
+                    "max_drawdown": f"{dd:.2f}",   "dd_delta":   f"{dd - base_dd:+.2f}",
+                    "calmar":      f"{calmar:.2f}", "sharpe":     f"{m['sharpe']:.2f}",
+                })
+                logger.info(
+                    f"  {cat_label:>10} | sl={label:>6} | pnl=${pnl:>10,.2f} | delta={pnl-base_pnl:>+9,.2f} |"
+                    f" dd=${dd:>9,.2f} | dd_delta={dd-base_dd:>+8,.2f} | calmar={calmar:.2f}"
+                )
+                if pnl > best_pnl:
+                    best_pnl = pnl
+                    best_lv  = sl_level
+
+            best_level[cat_key] = best_lv
+
+        # ── Combined: best level per category ────────────────────────────────
+        ENABLE_CPI_SL      = best_level["_cpi"]     is not None
+        ENABLE_PCE_SL      = best_level["_pce"]     is not None
+        ENABLE_EOQ_SL      = best_level["_eoq"]     is not None
+        ENABLE_PRE_TW_SL   = best_level["_pretw"]   is not None
+        ENABLE_POST_HOL_SL = best_level["_posthol"] is not None
+        if best_level["_cpi"]:      CPI_SL_AMOUNT      = best_level["_cpi"]
+        if best_level["_pce"]:      PCE_SL_AMOUNT      = best_level["_pce"]
+        if best_level["_eoq"]:      EOQ_SL_AMOUNT      = best_level["_eoq"]
+        if best_level["_pretw"]:    PRE_TW_SL_AMOUNT   = best_level["_pretw"]
+        if best_level["_posthol"]:  POST_HOL_SL_AMOUNT = best_level["_posthol"]
+
+        combo_trades: list = []
+        for d_str, day_data in day_pool.items():
+            effective_sl = _get_effective_sl(day_data, d_str)
+            in_danger    = effective_sl is not None
+            sample_int   = DANGER_PNL_SAMPLE_INTERVAL if in_danger else PNL_SAMPLE_INTERVAL
+            direction    = _get_baseline_mode(d_str)
+            trades, _    = await _simulate_day(
+                session, day_data, effective_sl,
+                baseline_mode=direction,
+                pos_trail_activation=POS_TRAIL_ACTIVATION,
+                pos_trail_pullback=POS_TRAIL_PULLBACK,
+                min_otm_distance=MIN_OTM_DISTANCE,
+                max_credit=MAX_NET_CREDIT,
+                pnl_sample_interval=sample_int,
+            )
+            combo_trades.extend(trades)
+
+        cm     = compute_metrics(combo_trades)
+        cpnl   = cm["total_pnl"]
+        cdd    = cm["max_drawdown"]
+        ccal   = cpnl / abs(cdd) if cdd != 0 else float("inf")
+        combo_label = " + ".join(
+            f"{k}={v}" for k, v in [
+                ("CPI", best_level["_cpi"]), ("PCE", best_level["_pce"]),
+                ("EOQ", best_level["_eoq"]), ("preTW", best_level["_pretw"]),
+                ("postHol", best_level["_posthol"]),
+            ] if v is not None
+        ) or "none"
+        rows.append({
+            "category": "COMBINED", "sl_level": combo_label, "cat_days": "—",
+            "num_trades": cm["num_trades"], "win_rate_pct": f"{cm['win_rate']:.1f}",
+            "total_pnl": f"{cpnl:.2f}", "pnl_delta": f"{cpnl - base_pnl:+.2f}",
+            "max_drawdown": f"{cdd:.2f}", "dd_delta": f"{cdd - base_dd:+.2f}",
+            "calmar": f"{ccal:.2f}", "sharpe": f"{cm['sharpe']:.2f}",
+        })
+        logger.info(f"  {'COMBINED':>10} | {combo_label} |"
+                    f" pnl=${cpnl:>10,.2f} | delta={cpnl-base_pnl:>+9,.2f} |"
+                    f" dd=${cdd:>9,.2f} | calmar={ccal:.2f}")
+
+    # Save CSV
+    with open(CALENDAR_RISK_SL_SWEEP_FILE, "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=cols)
+        w.writeheader()
+        w.writerows(rows)
+
+    W = 115
+    logger.info("")
+    logger.info("═" * W)
+    logger.info("  CALENDAR RISK SL SWEEP RESULTS")
+    logger.info("═" * W)
+    logger.info(f"  {'CATEGORY':>10} | {'SL':>7} | {'DAYS':>5} | {'TRADES':>7} | {'WIN%':>5} | "
+                f"{'TOTAL_PNL':>12} | {'PNL_DELTA':>10} | {'MAX_DD':>10} | {'DD_DELTA':>9} | "
+                f"{'CALMAR':>8} | {'SHARPE':>7}")
+    logger.info("─" * W)
+    for row in rows:
+        logger.info(
+            f"  {row['category']:>10} | {row['sl_level']:>7} | {str(row['cat_days']):>5} | "
+            f"{row['num_trades']:>7} | {row['win_rate_pct']:>4}% | "
+            f"${float(row['total_pnl']):>11,.2f} | {row['pnl_delta']:>10} | "
+            f"${float(row['max_drawdown']):>9,.2f} | {row['dd_delta']:>9} | "
+            f"{row['calmar']:>8} | {row['sharpe']:>7}"
+        )
+    logger.info("═" * W)
+    logger.info(f"  Full results: {CALENDAR_RISK_SL_SWEEP_FILE}")
+
+
+# ─────────────────────────────────────────────
 #  CALL-SIDE SL SWEEP RUNNER
 # ─────────────────────────────────────────────
 async def run_call_sl_sweep():
@@ -6377,6 +7685,7 @@ async def run():
     logger.info(f"Trades  → {SAVE_FILE}")
     logger.info(f"Log     → {LOG_FILE}")
     logger.info("=" * 60)
+    print_settings_summary()
 
     async with _get_session() as session:
         for i, d in enumerate(date_list):
@@ -6408,6 +7717,11 @@ async def run():
 
     logger.info(f"DONE — {len(all_trades)} trades logged to {SAVE_FILE}")
     print_performance_report(all_trades, date_list)
+    append_results_md(all_trades, date_list)
+    print_dynamic_sl_vix_analysis(all_trades)
+    print_monthly_pnl_table(all_trades)
+    print_spy_comparison(all_trades)
+    print_large_loss_days(all_trades)
     _save_run_summary(all_trades, date_list)
     print_vix_analysis(all_trades)
     if RUN_STRIKE_DISTANCE_ANALYSIS:
@@ -6451,12 +7765,20 @@ if __name__ == "__main__":
     if _args.max_credit is not None:
         MAX_NET_CREDIT = _args.max_credit
 
+    # Build EOM date set (used by EOM SL and EOM SL sweep)
+    _cal_event_sets_startup = _build_calendar_event_dates()
+    _EOM_DATES.update(_cal_event_sets_startup.get("end_of_month", set()))
+    _CPI_DATES.update(_cal_event_sets_startup.get("cpi", set()))
+    _PCE_DATES.update(_cal_event_sets_startup.get("pce", set()))
+    _EOQ_DATES.update(_cal_event_sets_startup.get("end_of_quarter", set()))
+    _PRE_TW_DATES.update(_cal_event_sets_startup.get("pre_triple_witching", set()))
+    _POST_HOL_DATES.update(_cal_event_sets_startup.get("post_major_holiday", set()))
+
     # Build calendar skip set (PCE + End-of-Month hard skip)
     _CALENDAR_SKIP_DATES: set[str] = set()
     if ENABLE_CALENDAR_FILTER and CALENDAR_FILTER_EVENTS:
-        _cal_event_sets = _build_calendar_event_dates()
         for _ev in CALENDAR_FILTER_EVENTS:
-            _CALENDAR_SKIP_DATES |= _cal_event_sets.get(_ev, set())
+            _CALENDAR_SKIP_DATES |= _cal_event_sets_startup.get(_ev, set())
         logger.info(
             f"Calendar filter active: {sorted(CALENDAR_FILTER_EVENTS)} — "
             f"{len(_CALENDAR_SKIP_DATES)} dates will be hard-skipped"
@@ -6469,6 +7791,9 @@ if __name__ == "__main__":
         DAY_FILTER_DIST_SMA_MIN, DAY_FILTER_ATR_MAX, DAY_FILTER_BODY_MAX,
         DAY_FILTER_KNIFE_MAX, DAY_FILTER_STOCH_MIN, DAY_FILTER_GAP_MAX,
         DAY_FILTER_ABOVE_SMA5, DAY_FILTER_ABOVE_SMA200,
+        DAY_FILTER_ADX_MIN, DAY_FILTER_RANGE_MAX, DAY_FILTER_RANGE_MIN,
+        DAY_FILTER_EXP_MOVE_MAX, DAY_FILTER_EXP_MOVE_MIN,
+        DAY_FILTER_CCI_MAX, DAY_FILTER_IVR_MIN,
         DAY_FILTER_SKIP_VIX_RISE_DECEL,
         RUN_DAY_FILTER_SWEEP,
     ])
@@ -6515,6 +7840,10 @@ if __name__ == "__main__":
         asyncio.run(run_gap_call_sl_sweep())
     elif RUN_VIX_SUB12_SL_SWEEP:
         asyncio.run(run_vix_sub12_sl_sweep())
+    elif RUN_EOM_SL_SWEEP:
+        asyncio.run(run_eom_sl_sweep())
+    elif RUN_CALENDAR_RISK_SL_SWEEP:
+        asyncio.run(run_calendar_risk_sl_sweep())
     elif RUN_SPREAD_WIDTH_SWEEP:
         asyncio.run(run_spread_width_sweep())
     elif RUN_TRAILING_STOP_SWEEP:

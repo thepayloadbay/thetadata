@@ -18,7 +18,7 @@ Backtest and optimize a **Multi-Entry Directional Spreads (MEDS)** strategy trad
 - Direction signal: prior-day VIX change (`dVixChgPct`). VIX fell → PUT spread; VIX rose → CALL spread
 - Signal is locked in for the whole day (no intraday update)
 - Main backtest file: `metf_v35_bidask.py`
-- Confirmed baseline (2022-01-03 → 2026-03-25): $607,034 P&L, DD -$9,922, Sharpe 12.35, Calmar 61.2, WR 93.1%, 7,014 trades
+- Confirmed baseline (2022-01-03 → 2026-03-25): $606,832 P&L, DD -$6,894, Sharpe 13.99, Calmar 88.0, WR 92.3%, 6,937 trades
 
 ---
 
@@ -54,6 +54,7 @@ Backtest and optimize a **Multi-Entry Directional Spreads (MEDS)** strategy trad
 | `ENTRY_INTERVAL` | `20 min` | Sweet spot; 5-min boosts P&L but doubles drawdown to -$66k |
 | `COMMISSION` | `$0.50/contract/leg` | TradeStation rate |
 | `ENABLE_DYNAMIC_SL` | `True`, `-$500` | Triggers in VIX danger zones; adds ~$3,800 vs no SL |
+| `ENABLE_EOM_SL` | `True`, `-$200` | EOM-only SL on last trading day of each month; costs -$202 P&L but cuts max DD from -$9,922 → -$6,894 (31%), Sharpe 12.35 → 13.99, Calmar 61.2 → 88.0 |
 | `DAILY_TP` | `None` | Removing $750 cap added +$140k with same max DD |
 | `ENABLE_ECON_FILTER` | `False` | CPI costs $29,790, NFP costs $36,214 to skip |
 | `ENABLE_CALENDAR_FILTER` | `False` | All calendar events net profitable — skipping costs money |
@@ -85,6 +86,7 @@ Backtest and optimize a **Multi-Entry Directional Spreads (MEDS)** strategy trad
 - **VIX magnitude filter**: skipping low-VIX-change days always costs P&L at every tested threshold
 - **Skip VIX 25–30**: P&L -$10k vs baseline, max DD unchanged — not worth it
 - **All direction alternatives** (RSI, MACD, gap, SMA200, momentum, stochastic): negative P&L, not statistically significant
+- **EOM skip (no trades)**: costs -$5,774 P&L — EOM days are net positive so skipping them is worse than trading them with a SL
 
 ---
 
@@ -93,7 +95,7 @@ Backtest and optimize a **Multi-Entry Directional Spreads (MEDS)** strategy trad
 - VIX 15–20 and 20–25 are the sweet spots (98%+ WR, $78–79/trade avg)
 - VIX 25–30: 68% WR, $3/trade — protected by dynamic SL (53% of all losses live here)
 - VIX <13: 85.5% WR, $55/trade — weakest, partially unprotected
-- All max drawdown comes from the CALL side (PUT max DD only -$5,982)
+- Max drawdown is now balanced between PUT (-$6,114) and CALL (-$6,356) after EOM SL; previously CALL-dominated
 - Gap direction is NOT a useful filter — disagreement between VIX signal and gap actually has higher avg PnL
 
 ---

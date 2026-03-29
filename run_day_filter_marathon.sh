@@ -1,21 +1,23 @@
 #!/usr/bin/env bash
 # Full-run day filter marathon — one complete backtest per filter candidate.
-# Candidates from filter sweep (top by P&L/day vs baseline, >500 trading days):
-#   vix_max=20          669 days  +11.5%/day
-#   above_sma200=True   852 days   +8.7%/day
-#   dAdx_min=25         631 days   +7.6%/day
-#   dRangePct_max=1.5   766 days   +6.2%/day
-#   dExpMovePct_max=1.5 839 days   +6.2%/day
+# Candidates from filter sweep (top by Calmar vs baseline, >290 trading days):
+#   vix_min=20              359 days  Calmar 739  (sweep)
+#   dExpMovePct_min=1.25    365 days  Calmar 755  (sweep)
+#   dRangePct_min=1.5       290 days  Calmar 559  (sweep)
+#   dCci_max=0              299 days  Calmar 523  (sweep)
+#   dIvRank_min=20          466 days  Calmar 114  (sweep)
+#   dAdx_min=40             322 days  Calmar  31  (sweep)
+#   dRsi_max=60             714 days  Calmar  47  (sweep)
 # Results land in logs/run_history.json.
 
 set -e
 cd "$(dirname "$0")"
 
-patch() { sed -i '' "s/^$1\b.*/$1 = $2/" metf_v35_bidask.py; }
-reset() { sed -i '' "s/^$1\b.*/$1 = None/" metf_v35_bidask.py; }
+patch() { sed -i '' "s/^$1[[:space:]]*=.*/$1 = $2/" metf_v35_bidask.py; }
+reset() { sed -i '' "s/^$1[[:space:]]*=.*/$1 = None/" metf_v35_bidask.py; }
 
 # Disable sweep mode for marathon runs
-patch RUN_DAY_FILTER_SWEEP False
+sed -i '' "s/^RUN_DAY_FILTER_SWEEP = .*/RUN_DAY_FILTER_SWEEP = False/" metf_v35_bidask.py
 
 run_filter() {
     local label="$1"
@@ -27,7 +29,7 @@ run_filter() {
     echo "  FILTER: $label"
     echo "============================================================"
     patch "$var" "$val"
-    python3 metf_v35_bidask.py 2>&1 | grep -E "Total P&L|Win rate|Max drawdown|Sharpe ratio|Calmar|Total trades"
+    python3 metf_v35_bidask.py --marathon 2>&1 | grep -E "Total P&L|Win rate|Max drawdown|Sharpe ratio|Calmar|Total trades"
     reset "$var"
 }
 
@@ -36,17 +38,19 @@ echo ""
 echo "============================================================"
 echo "  BASELINE (no day filter)"
 echo "============================================================"
-python3 metf_v35_bidask.py 2>&1 | grep -E "Total P&L|Win rate|Max drawdown|Sharpe ratio|Calmar|Total trades"
+python3 metf_v35_bidask.py --marathon 2>&1 | grep -E "Total P&L|Win rate|Max drawdown|Sharpe ratio|Calmar|Total trades"
 
 # ── Candidates ──
-run_filter "vix_max=20"           "VIX_MAX_FILTER"         "20"
-run_filter "above_sma200=True"    "DAY_FILTER_ABOVE_SMA200" "True"
-run_filter "dAdx_min=25"          "DAY_FILTER_ADX_MIN"      "25"
-run_filter "dRangePct_max=1.5"    "DAY_FILTER_RANGE_MAX"    "1.5"
-run_filter "dExpMovePct_max=1.5"  "DAY_FILTER_EXP_MOVE_MAX" "1.5"
+run_filter "vix_min=20"              "VIX_MIN_FILTER"          "20.0"
+run_filter "dExpMovePct_min=1.25"    "DAY_FILTER_EXP_MOVE_MIN" "1.25"
+run_filter "dRangePct_min=1.5"       "DAY_FILTER_RANGE_MIN"    "1.5"
+run_filter "dCci_max=0"              "DAY_FILTER_CCI_MAX"      "0"
+run_filter "dIvRank_min=20"          "DAY_FILTER_IVR_MIN"      "20"
+run_filter "dAdx_min=40"             "DAY_FILTER_ADX_MIN"      "40"
+run_filter "dRsi_max=60"             "DAY_FILTER_RSI_MAX"      "60"
 
 # ── Restore ──
-patch RUN_DAY_FILTER_SWEEP True
+sed -i '' "s/^RUN_DAY_FILTER_SWEEP = .*/RUN_DAY_FILTER_SWEEP = True/" metf_v35_bidask.py
 
 echo ""
 echo "All filters restored to None. RUN_DAY_FILTER_SWEEP restored to True."
