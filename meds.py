@@ -924,8 +924,8 @@ VIX_SUB12_SL_LEVELS      = [-100, -150, -200, -250, -300, -350, -400, -500, None
 VIX_SUB12_THRESHOLD      = 13.0   # apply tighter SL only when VIX < this
 
 # -- VIX Sub-13 Tighter SL (live) --
-ENABLE_VIX_SUB12_SL  = False
-VIX_SUB12_SL_AMOUNT  = -300.0  # tighter SL on VIX < threshold days
+ENABLE_VIX_SUB12_SL  = True
+VIX_SUB12_SL_AMOUNT  = -400.0  # tighter SL on VIX < threshold days
 
 # -- EOM SL Sweep --
 # Tests applying a tighter daily SL exclusively on the last trading day of each month.

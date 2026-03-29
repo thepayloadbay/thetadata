@@ -1,5 +1,7 @@
 # CLAUDE.md — MEDS Strategy Project
 
+model: opus
+
 ## Project Goal
 
 Backtest and optimize a **Multi-Entry Directional Spreads (MEDS)** strategy trading SPXW 0DTE credit spreads, using prior-day VIX change as the direction signal. The primary objective is to **maximize total P&L** while keeping max drawdown and risk-adjusted metrics (Sharpe, Calmar) strong. All research, parameter sweeps, and feature experiments are in service of this goal.

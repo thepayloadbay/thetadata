@@ -331,6 +331,117 @@ The baseline Calmar of 88.0 and DD of -$6,894 are already exceptional for a $40k
 
 ---
 
+## Performance Report Deep Dive (2026-03-29)
+
+### Finding 1: Oct 9, 2023 — Single Largest Loss Day (-$6,118) defines Max DD
+
+**VIX:** 17.7 (sweet spot zone, dynamic SL NOT active)
+**Direction:** CALL spreads (VIX rose → short calls)
+**Calendar event:** NONE — regular Monday
+**Price action:** V-shaped rally. Opened 4289, dipped to 4284, then rallied +47 pts to close 4336. All entries in the morning dip, market ripped against them in the afternoon.
+
+| Time | Strike | OTM | P&L | Result |
+|------|--------|-----|-----|--------|
+| 09:40 | 4335 | 42pt | +$46 | WIN |
+| 10:00 | 4345 | 42pt | +$96 | WIN |
+| 10:20 | 4340 | 43pt | +$96 | WIN |
+| 10:40 | 4330 | 40pt | -$834 | LOSS |
+| 11:00 | 4320 | 33pt | -$2,834 | LOSS |
+| 11:20 | 4325 | 31pt | -$1,854 | LOSS |
+| 11:40 | 4330 | 29pt | -$834 | LOSS |
+
+**Root cause:** Late entries (10:40–11:40) had 29–40pt OTM distance. Market rallied ~50pt from morning lows, running through all short strikes by expiration. No dynamic SL because VIX 17.7 is in the "safe" zone. No per-position SL. DAILY_SL=-$20k never fired.
+
+**Why existing protections don't help:**
+- Dynamic SL only activates at VIX <13, 13–13.5, or 25–30 — VIX 17.7 is unprotected
+- EOM SL: not an EOM day
+- Per-position SL: disabled (and tested/rejected — costs $276k+ P&L)
+- Pressure filter at VIX 15-20: tested at 45pt threshold, rejected (-$134k cost)
+
+**Potential mitigations (untested):**
+- [ ] **Intraday momentum filter for VIX 15–20**: if SPX has moved >0.5% against spread direction since open, suppress entries. Targets V-shape days where early entries are fine but late entries open into the rally.
+- [ ] **Strike distance decay signal** (Option 2 above): at 11:00 the existing positions' avg OTM had already shrunk 10+ pts. Could have blocked the worst entry (-$2,834).
+- [ ] **VIX 15-20 dynamic SL**: currently no SL in this zone. A loose SL (e.g. -$1,500 to -$2,000) might cap this day from -$6,118 to ~-$3,000 without costing much P&L on normal days. Needs sweep.
+
+---
+
+### Finding 2: VIX 13.0–13.5 — The ONLY Net-Negative Zone
+
+**Stats:** 177 trades, 40 trading days, 55.4% WR, -$568 P&L, -$2,296 DD
+**Dynamic SL:** Already ON at -$800 via `DYNAMIC_SL_VIX_MID = (13.0, 13.5)`
+
+**Loss day breakdown (19 losing date-direction combos):**
+- 14 of 19 are PUT spreads (-$7,832 cumulative)
+- 5 of 19 are CALL spreads (-$3,748 cumulative)
+- Only 3 overlap calendar events (2023-06-16 TW, 2023-07-26 FOMC, 2024-03-20 FOMC)
+- 84% of losses have NO calendar event — the zone itself is the problem
+
+**Worst days:** 2024-07-16 CALL -$920 (5 trades, 0% WR), 2024-01-26 PUT -$788 (7 trades, 14% WR), 2024-06-04 CALL -$740 (10 trades, 40% WR)
+
+**Root cause:** VIX 13.0–13.5 = extremely low IV. Credits are minimal ($0.55–0.70), leaving almost no buffer. The -$800 SL fires frequently, turning it into a death-by-a-thousand-cuts zone. SL is doing its job (preventing DD from being worse) but the zone is structurally unprofitable.
+
+**Options tested:**
+- [ ] **Tighter SL in this zone**: -$500 or -$400 instead of -$800. The zone is so weak that cutting losses faster might reduce DD from -$2,296 without losing much P&L (already net negative).
+- ✗ **Skip VIX 13.0–13.5 entirely** — MARATHON TESTED 2026-03-29: P&L $611,768 (-$244), DD -$6,356 (unchanged), Sharpe 15.32 (+1.17), WR 94.2%. **Rejected** — P&L cost negligible but DD unchanged. Sharpe gain is cosmetic (removed variance, not saved money). 60 days skipped for no structural benefit.
+- [ ] **Widen the danger zone to 13.5–15.0**: extend dynamic SL coverage to the full VIX <15 range (currently unprotected gap at 13.5–15.0).
+
+---
+
+### Finding 3: June Weakness — Regime-Driven, NOT Calendar-Driven
+
+**June avg P&L:** $7,289/yr vs $12,210/yr for other months (40% underperformance)
+
+| June | P&L | Trades | WR% | Avg VIX | Key Driver |
+|------|-----|--------|-----|---------|------------|
+| 2022 | +$10,588 | 173 | 82.7% | 28.1 | High VIX = strong |
+| 2023 | +$3,080 | 65 | 96.9% | 14.0 | 1 catastrophic day (6/15 -$4,292) wiped 57% |
+| 2024 | -$3,152 | 113 | 57.5% | 12.6 | 10 loss days, VIX compressed |
+| 2025 | +$18,638 | 168 | 100% | 18.3 | Elevated VIX = perfect |
+
+**Root cause:** VIX regime, not the calendar. Correlation ~0.88 between avg June VIX and monthly P&L. Jun 2024 VIX avg 12.6 = catastrophic; Jun 2025 VIX avg 18.3 = perfect.
+
+**Jun 2024 loss clusters:**
+- Jobs report cluster (6/4–6/7): -$2,776
+- FOMC/holiday cluster (6/10–6/13, 6/21): -$2,978
+- Q2 quarter-end cluster (6/24–6/27): -$3,114
+- 95% of losses attributable to event + low-VIX clustering
+
+**Jun 2023:** Single day 6/15 (-$4,292, pre-FOMC) ruined the month. Without it: +$7,372.
+
+**Conclusion:** June weakness = low-VIX regime problem already documented above. No June-specific filter needed — the VIX-level protections (dynamic SL, potential VIX floor) cover the root cause. When June VIX is elevated (2022, 2025), strategy performs at or above average.
+
+---
+
+### Finding 4: Calendar SL at -$300 across all categories too expensive
+
+Run with all 5 calendar SLs enabled at -$300 cost -$48k P&L ($558k vs $607k) with only -$234 DD improvement ($6,660 vs $6,894). Individual categories may still help at different amounts:
+
+- [ ] **Re-sweep each calendar SL independently** at -$150, -$200, -$300, -$400. The combined run penalised all event days; individual categories (especially EOQ, Pre-TW, Post-Holiday which showed "potential") might work at looser thresholds.
+
+---
+
+### Finding 5: Strike distance 70+ shows WR degradation
+
+| Distance | WR% | Avg P&L | Notes |
+|----------|-----|---------|-------|
+| 35–65 | 93.9–95.4% | $88–98 | Strong |
+| 70–75 | 85.9% | $73.54 | Drop-off |
+| 80–85 | 83.1% | $62.50 | Worst |
+| 100+ | 87.2% | $84.23 | Recovers slightly |
+
+- [ ] **Test MAX_OTM_DISTANCE cap**: e.g. skip entries where strike would be >75pt OTM. These are likely high-VIX days where wider OTM = weaker edge. May overlap with VIX 25-30 danger zone. Needs investigation.
+
+---
+
+### Finding 6: VIX <13 disproportionate DD
+
+$7,012 P&L but -$6,382 DD = 0.91 Calmar for this zone alone. Carries 93% of portfolio max DD for only 1.2% of total P&L.
+
+- [ ] **Tighter dynamic SL for VIX <13**: currently -$800. Test -$500, -$400. The zone is marginally profitable — tighter SL might preserve P&L while cutting DD significantly.
+- [ ] **Skip VIX <12 entirely**: only ~20 days in 4yr backtest. Previously noted as potential mitigation in the low-VIX structural gap section.
+
+---
+
 ## Low-VIX Trending Regime — Structural Gap (2026-03-29)
 
 **Finding:** 87% of all loss days when VIX <13 are complete 0-win wipeouts (13 of 15 days). 23 zero-win days cluster in VIX <15, costing $-16,626 over 4 years. This is the clearest structural gap in the strategy — not covered by dynamic SL (which only activates at VIX <13.0, 13.0–13.5, and 25–30) or VIX_MAX_FILTER (which only skips VIX >35).
