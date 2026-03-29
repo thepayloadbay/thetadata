@@ -114,6 +114,22 @@ All max drawdown comes from the CALL side.
 - **Net unusual premiums** — large institutional options sweeps/block prints as a pre-entry signal. Requires separate options flow data source. Most plausible remaining confluence candidate given VIX change is already the direction signal.
 - **Black swan / tail-risk protection** — ✓ IMPLEMENTED 2026-03-28. See research log below.
 
+### Intraday Trend Reversal Detection (VIX 15–20 loss day problem)
+
+**Problem:** 10 of 15 worst loss days are in VIX 15–20. Pattern: market drifts *with* positions during the 9:35–12:45 entry window, then reverses hard after close and hits multiple short strikes at expiry. By the time the reversal is obvious, the entry window is already closed. Pressure filter and entry cap (`MAX_TRADES_DAY_VIX_15_20=5`) are partial mitigations but do not detect the reversal itself.
+
+**Ideas to explore:**
+
+1. **Strike distance decay rate** — track how fast existing positions' average OTM distance is shrinking bar-by-bar. If distance decays by more than X pts over the last N bars, it means the market is trending against us even if positions are still technically OTM. Block new entries when decay rate exceeds threshold. Advantage: purely reactive to actual price action, no look-ahead. Implementation: compute `avg_dist_now - avg_dist_N_bars_ago` at each entry bar; if delta < -threshold, suppress entry.
+
+2. **SPX momentum / rate-of-change filter** — measure the direction and magnitude of price movement over the last 30–60 min. If price is moving *against* the spread direction at a sustained rate (e.g., > 0.3% in 30 min), suppress new entries. This is an intraday momentum signal added *on top of* the VIX direction signal. Needs care to avoid the same failure mode as other intraday filters (blocking good days more than bad ones).
+
+3. **Accumulated position heat** — stop new entries if the sum of unrealised P&L across all active positions crosses a negative threshold (e.g., -$300 cumulative open loss across all legs). This is similar to the Bayesian gate but uses mark-to-market loss on *open* positions rather than realised daily P&L. The Bayesian gate was rejected because it fired on winning days due to B/A spread noise; this variant uses a larger threshold to get above that noise floor.
+
+4. **EMA crossover on SPX intraday bars** — compute a fast/slow EMA on the 1-min or 5-min intraday SPX bars *within the trading day*. If the fast EMA crosses below (for PUT days) or above (for CALL days) the slow EMA during the entry window, it signals the intraday trend has reversed and new entries should be suppressed. Key risk: same overfitting concern as the global EMA direction signal — need to verify on out-of-sample data.
+
+**Caution:** All four ideas share the same failure mode as prior rejected filters — they may fire on *winning* days where the market temporarily moves against positions before recovering. Validate any implementation by checking not just the loss days but the ratio of correctly-blocked-loss-entries vs incorrectly-blocked-win-entries across the full 4-year backtest.
+
 ---
 
 ## Black Swan Protection ✓ IMPLEMENTED — 2026-03-28

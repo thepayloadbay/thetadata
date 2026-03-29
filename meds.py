@@ -191,11 +191,20 @@ ECON_DATES = {
 # ── Pressure Filter ──
 # Stops from opening more positions if any active short strike is within PRESSURE_DISTANCE_THRESHOLD pts of spot.
 # VIX range gate: only activates on days where VIX_MIN <= VIX < VIX_MAX (None = no bound).
-# Motivation: 10 of 15 worst loss days are in VIX 15–20 (low-VIX complacency days with sudden intraday moves).
+# Motivation: 10 of 15 worst loss days are in VIX 15–20 — morning-drift / afternoon-reversal days where
+# the market trends with positions during the entry window then reverses after 12:45 hitting multiple strikes.
+# Threshold raised to 45 (from 27) because losses cluster in entries with dist 30–45 at entry;
+# 27pt threshold only fires 3pts below MIN_OTM_DISTANCE=30, catching almost nothing.
 ENABLE_PRESSURE_FILTER          = True
-PRESSURE_DISTANCE_THRESHOLD     = 27.0    # block new entries if any short strike is within X pts of spot
+PRESSURE_DISTANCE_THRESHOLD     = 45.0    # block new entries if any short strike is within X pts of spot
 PRESSURE_FILTER_VIX_MIN: float | None = 15.0   # only active when VIX >= this (None = no lower bound)
 PRESSURE_FILTER_VIX_MAX: float | None = 20.0   # only active when VIX <  this (None = no upper bound)
+
+# ── VIX-Range Entry Cap ──
+# Caps max daily entries when VIX is in the 15–20 reversal-day danger zone.
+# Big losses always come from entries #5–10 on those days; early entries are mostly winners.
+# None = use global MAX_TRADES_DAY for all VIX ranges.
+MAX_TRADES_DAY_VIX_15_20: int | None = 5
 
 # ── Calendar Event Date Sets ──
 # Used by run_calendar_event_sweep() to test each event type independently.
@@ -2091,8 +2100,11 @@ async def _simulate_day(
                         is_under_pressure = True
                         break
 
-        can_enter = in_window and on_interval and not stopped_today and daily_trades < MAX_TRADES_DAY and not econ_skip_entries and bayesian_gate_ok and not is_under_pressure 
-        # can_enter   = in_window and on_interval and not stopped_today and daily_trades < MAX_TRADES_DAY and not econ_skip_entries and bayesian_gate_ok
+        _max_trades = MAX_TRADES_DAY
+        if (MAX_TRADES_DAY_VIX_15_20 is not None and vix_level is not None
+                and 15.0 <= vix_level < 20.0):
+            _max_trades = MAX_TRADES_DAY_VIX_15_20
+        can_enter = in_window and on_interval and not stopped_today and daily_trades < _max_trades and not econ_skip_entries and bayesian_gate_ok and not is_under_pressure
 
         if not can_enter:
             continue
