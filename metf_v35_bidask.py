@@ -883,7 +883,7 @@ CPI_SL_AMOUNT        = -300.0   # tighter SL on CPI release days
 ENABLE_PCE_SL        = False
 PCE_SL_AMOUNT        = -300.0   # tighter SL on PCE release days
 
-ENABLE_EOQ_SL        = False
+ENABLE_EOQ_SL        = True
 EOQ_SL_AMOUNT        = -300.0   # tighter SL on last trading day of each quarter
 
 ENABLE_PRE_TW_SL     = False
