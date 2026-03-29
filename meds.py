@@ -953,7 +953,7 @@ VIX_ENTRY_CUTOFF_VIX_HI       = 20.0   # apply cutoff when VIX <  this
 # -- EOM SL (live) --
 ENABLE_EOM_SL         = True
 EOM_SL_AMOUNT         = -200.0   # tighter SL on EOM days (normal VIX)
-EOM_SL_AMOUNT_DANGER  = -300.0   # tighter SL on EOM days when VIX is in danger zone
+EOM_SL_AMOUNT_DANGER  = -150.0   # even tighter SL on EOM days when VIX is in danger zone
 
 # -- SL Gap Re-entry --
 # After the batch STOP_LOSS fires, instead of blocking all further entries for the day
@@ -1022,21 +1022,21 @@ ENABLE_CPI_SKIP      = False    # skip all entries on CPI days entirely
 
 ENABLE_FOMC_SL          = False
 FOMC_SL_AMOUNT          = -300.0   # tighter SL on FOMC days (normal VIX)
-FOMC_SL_AMOUNT_DANGER   = -500.0   # tighter SL on FOMC days when VIX in danger zone
+FOMC_SL_AMOUNT_DANGER   = -200.0   # even tighter SL on FOMC days when VIX in danger zone
 ENABLE_FOMC_SKIP        = False    # skip all entries on FOMC days entirely
 
 ENABLE_PCE_SL           = False
 PCE_SL_AMOUNT           = -300.0   # tighter SL on PCE release days (normal VIX)
-PCE_SL_AMOUNT_DANGER    = -500.0   # tighter SL on PCE days when VIX in danger zone
+PCE_SL_AMOUNT_DANGER    = -200.0   # even tighter SL on PCE days when VIX in danger zone
 ENABLE_PCE_SKIP         = False    # skip all entries on PCE days entirely
 
 ENABLE_EOQ_SL        = False
 EOQ_SL_AMOUNT        = -300.0   # tighter SL on last trading day of each quarter
-ENABLE_EOQ_SKIP      = False    # skip all entries on EOQ days entirely
+ENABLE_EOQ_SKIP      = True    # skip all entries on EOQ days entirely
 
 ENABLE_PRE_TW_SL        = False
 PRE_TW_SL_AMOUNT        = -300.0   # tighter SL on the trading day before Triple Witching (normal VIX)
-PRE_TW_SL_AMOUNT_DANGER = -500.0   # tighter SL on pre-TW days when VIX in danger zone
+PRE_TW_SL_AMOUNT_DANGER = -200.0   # even tighter SL on pre-TW days when VIX in danger zone
 ENABLE_PRE_TW_SKIP      = False    # skip all entries on pre-Triple-Witching days entirely
 
 ENABLE_POST_HOL_SL   = False
@@ -1186,11 +1186,16 @@ def _get_baseline_mode(date_str: str) -> str | None:
     return None  # "ema" -- use intraday EMA direction
 
 
-def _build_daily_indicators() -> dict:
+def _build_daily_indicators(compute_full: bool = False) -> dict:
     """Aggregate 1-min SPX OHLC parquets to daily bars and compute indicators.
 
     Reads all years present in DATA_DIR so rolling windows (SMA200, ATR14, RSI14, etc.)
     are properly warmed up before the backtest window starts.
+
+    When compute_full=False (default), only computes the fields needed for the
+    standard marathon: VIX change (direction signal), gap%, and basic OHLC.
+    When compute_full=True, computes all technical indicators (SMAs, RSI, Stoch,
+    ADX, CCI, CMO, MACD, StochRSI, ExpMove, IvRank, RangePct, etc.).
 
     Returns dict[date_str -> {open, high, low, close, dVarPct, dBodySize, dGapPercent,
                                dSma5, dSma20, dSma200, distFromSma, fallingKnife,
@@ -1241,108 +1246,110 @@ def _build_daily_indicators() -> dict:
         vix_df["vix_rise_decel"] = (vix_df["dVixVelocity"] > 0) & (vix_df["dVixAccel"] < 0)
         d = d.merge(vix_df[["date", "vix_close", "dVixChgPct", "dVixVelocity", "dVixAccel", "vix_rise_decel"]], on="date", how="left")
 
-    # -- Single-bar indicators --
+    # -- Single-bar indicators (always needed) --
     hl = (d["high"] - d["low"]).clip(lower=0.01)
     d["dVarPct"]     = (d["close"] - d["low"]) / hl * 100
     d["dBodySize"]   = (d["open"] - d["close"]).abs()
     d["dGapPercent"] = (d["open"] - d["prev_close"]) / d["prev_close"] * 100
 
-    # -- Moving averages --
-    d["dSma5"]   = d["close"].rolling(5,   min_periods=1).mean()
-    d["dSma10"]  = d["close"].rolling(10,  min_periods=1).mean()
-    d["dSma20"]  = d["close"].rolling(20,  min_periods=1).mean()
-    d["dSma30"]  = d["close"].rolling(30,  min_periods=1).mean()
-    d["dSma50"]  = d["close"].rolling(50,  min_periods=1).mean()
-    d["dSma100"] = d["close"].rolling(100, min_periods=1).mean()
-    d["dSma200"] = d["close"].rolling(200, min_periods=1).mean()
-    d["distFromSma"]   = (d["close"] - d["dSma20"]) / d["dSma20"]
-    d["fallingKnife"]  = (d["close"] - d["dSma5"]).abs() / d["dSma5"]
-    d["above_sma5"]    = d["close"] > d["dSma5"]
-    d["above_sma10"]   = d["close"] > d["dSma10"]
-    d["above_sma20"]   = d["close"] > d["dSma20"]
-    d["above_sma30"]   = d["close"] > d["dSma30"]
-    d["above_sma50"]   = d["close"] > d["dSma50"]
-    d["above_sma100"]  = d["close"] > d["dSma100"]
-    d["above_sma200"]  = d["close"] > d["dSma200"]
+    # -- Full technical indicators (only when day filters or sweeps are active) --
+    if compute_full:
+        # -- Moving averages --
+        d["dSma5"]   = d["close"].rolling(5,   min_periods=1).mean()
+        d["dSma10"]  = d["close"].rolling(10,  min_periods=1).mean()
+        d["dSma20"]  = d["close"].rolling(20,  min_periods=1).mean()
+        d["dSma30"]  = d["close"].rolling(30,  min_periods=1).mean()
+        d["dSma50"]  = d["close"].rolling(50,  min_periods=1).mean()
+        d["dSma100"] = d["close"].rolling(100, min_periods=1).mean()
+        d["dSma200"] = d["close"].rolling(200, min_periods=1).mean()
+        d["distFromSma"]   = (d["close"] - d["dSma20"]) / d["dSma20"]
+        d["fallingKnife"]  = (d["close"] - d["dSma5"]).abs() / d["dSma5"]
+        d["above_sma5"]    = d["close"] > d["dSma5"]
+        d["above_sma10"]   = d["close"] > d["dSma10"]
+        d["above_sma20"]   = d["close"] > d["dSma20"]
+        d["above_sma30"]   = d["close"] > d["dSma30"]
+        d["above_sma50"]   = d["close"] > d["dSma50"]
+        d["above_sma100"]  = d["close"] > d["dSma100"]
+        d["above_sma200"]  = d["close"] > d["dSma200"]
 
-    # -- ATR(14): True Range = max(H-L, |H-prevC|, |L-prevC|) --
-    tr = pd.concat([
-        d["high"] - d["low"],
-        (d["high"] - d["prev_close"]).abs(),
-        (d["low"]  - d["prev_close"]).abs(),
-    ], axis=1).max(axis=1)
-    d["dATR"] = tr.rolling(14, min_periods=1).mean()
+        # -- ATR(14): True Range = max(H-L, |H-prevC|, |L-prevC|) --
+        tr = pd.concat([
+            d["high"] - d["low"],
+            (d["high"] - d["prev_close"]).abs(),
+            (d["low"]  - d["prev_close"]).abs(),
+        ], axis=1).max(axis=1)
+        d["dATR"] = tr.rolling(14, min_periods=1).mean()
 
-    # -- RSI(14) --
-    delta = d["close"].diff()
-    gain  = delta.clip(lower=0).rolling(14, min_periods=1).mean()
-    loss  = (-delta.clip(upper=0)).rolling(14, min_periods=1).mean()
-    rs    = gain / loss.replace(0.0, float("nan"))
-    d["dRsi"] = 100.0 - (100.0 / (1.0 + rs))
+        # -- RSI(14) --
+        delta = d["close"].diff()
+        gain  = delta.clip(lower=0).rolling(14, min_periods=1).mean()
+        loss  = (-delta.clip(upper=0)).rolling(14, min_periods=1).mean()
+        rs    = gain / loss.replace(0.0, float("nan"))
+        d["dRsi"] = 100.0 - (100.0 / (1.0 + rs))
 
-    # -- Stochastic %K(14) and %D(3) --
-    low14  = d["low"].rolling(14,  min_periods=1).min()
-    high14 = d["high"].rolling(14, min_periods=1).max()
-    d["dStoch"]  = (d["close"] - low14) / (high14 - low14).clip(lower=0.01) * 100
-    d["dStochD"] = d["dStoch"].rolling(3, min_periods=1).mean()
+        # -- Stochastic %K(14) and %D(3) --
+        low14  = d["low"].rolling(14,  min_periods=1).min()
+        high14 = d["high"].rolling(14, min_periods=1).max()
+        d["dStoch"]  = (d["close"] - low14) / (high14 - low14).clip(lower=0.01) * 100
+        d["dStochD"] = d["dStoch"].rolling(3, min_periods=1).mean()
 
-    # -- ADX(14) --
-    prev_high  = d["high"].shift(1)
-    prev_low   = d["low"].shift(1)
-    up_move    = d["high"] - prev_high
-    down_move  = prev_low  - d["low"]
-    plus_dm    = pd.Series(np.where((up_move > down_move) & (up_move > 0), up_move, 0.0), index=d.index)
-    minus_dm   = pd.Series(np.where((down_move > up_move) & (down_move > 0), down_move, 0.0), index=d.index)
-    atr_s      = d["dATR"].clip(lower=0.01)
-    plus_di14  = 100 * plus_dm.rolling(14, min_periods=1).mean() / atr_s
-    minus_di14 = 100 * minus_dm.rolling(14, min_periods=1).mean() / atr_s
-    dx         = 100 * (plus_di14 - minus_di14).abs() / (plus_di14 + minus_di14).clip(lower=0.01)
-    d["dAdx"]  = dx.rolling(14, min_periods=1).mean()
+        # -- ADX(14) --
+        prev_high  = d["high"].shift(1)
+        prev_low   = d["low"].shift(1)
+        up_move    = d["high"] - prev_high
+        down_move  = prev_low  - d["low"]
+        plus_dm    = pd.Series(np.where((up_move > down_move) & (up_move > 0), up_move, 0.0), index=d.index)
+        minus_dm   = pd.Series(np.where((down_move > up_move) & (down_move > 0), down_move, 0.0), index=d.index)
+        atr_s      = d["dATR"].clip(lower=0.01)
+        plus_di14  = 100 * plus_dm.rolling(14, min_periods=1).mean() / atr_s
+        minus_di14 = 100 * minus_dm.rolling(14, min_periods=1).mean() / atr_s
+        dx         = 100 * (plus_di14 - minus_di14).abs() / (plus_di14 + minus_di14).clip(lower=0.01)
+        d["dAdx"]  = dx.rolling(14, min_periods=1).mean()
 
-    # -- CCI(20) --
-    tp         = (d["high"] + d["low"] + d["close"]) / 3
-    sma_tp     = tp.rolling(20, min_periods=1).mean()
-    mean_dev   = tp.rolling(20, min_periods=1).apply(lambda x: np.mean(np.abs(x - x.mean())), raw=True)
-    d["dCci"]  = (tp - sma_tp) / (0.015 * mean_dev.clip(lower=0.01))
+        # -- CCI(20) --
+        tp         = (d["high"] + d["low"] + d["close"]) / 3
+        sma_tp     = tp.rolling(20, min_periods=1).mean()
+        mean_dev   = tp.rolling(20, min_periods=1).apply(lambda x: np.mean(np.abs(x - x.mean())), raw=True)
+        d["dCci"]  = (tp - sma_tp) / (0.015 * mean_dev.clip(lower=0.01))
 
-    # -- CMO(9) --
-    delta_cmo  = d["close"].diff()
-    sum_up9    = delta_cmo.clip(lower=0).rolling(9, min_periods=1).sum()
-    sum_dn9    = (-delta_cmo.clip(upper=0)).rolling(9, min_periods=1).sum()
-    d["dCmo"]  = 100 * (sum_up9 - sum_dn9) / (sum_up9 + sum_dn9).clip(lower=0.01)
+        # -- CMO(9) --
+        delta_cmo  = d["close"].diff()
+        sum_up9    = delta_cmo.clip(lower=0).rolling(9, min_periods=1).sum()
+        sum_dn9    = (-delta_cmo.clip(upper=0)).rolling(9, min_periods=1).sum()
+        d["dCmo"]  = 100 * (sum_up9 - sum_dn9) / (sum_up9 + sum_dn9).clip(lower=0.01)
 
-    # -- MACD(12,26,9) --
-    ema12          = d["close"].ewm(span=12, adjust=False).mean()
-    ema26          = d["close"].ewm(span=26, adjust=False).mean()
-    d["dMacd"]     = ema12 - ema26
-    d["dMacdSig"]  = d["dMacd"].ewm(span=9, adjust=False).mean()
-    d["dMacdHist"] = d["dMacd"] - d["dMacdSig"]
-    d["dMacdBull"] = d["dMacd"] > d["dMacdSig"]  # True = MACD above signal line
+        # -- MACD(12,26,9) --
+        ema12          = d["close"].ewm(span=12, adjust=False).mean()
+        ema26          = d["close"].ewm(span=26, adjust=False).mean()
+        d["dMacd"]     = ema12 - ema26
+        d["dMacdSig"]  = d["dMacd"].ewm(span=9, adjust=False).mean()
+        d["dMacdHist"] = d["dMacd"] - d["dMacdSig"]
+        d["dMacdBull"] = d["dMacd"] > d["dMacdSig"]  # True = MACD above signal line
 
-    # -- Momentum(10) --
-    d["dMomentum"] = d["close"] - d["close"].shift(10)
+        # -- Momentum(10) --
+        d["dMomentum"] = d["close"] - d["close"].shift(10)
 
-    # -- StochRSI(14,14,3,3): stochastic of RSI(14), smoothed K(3), D(3) --
-    rsi_low14       = d["dRsi"].rolling(14, min_periods=1).min()
-    rsi_high14      = d["dRsi"].rolling(14, min_periods=1).max()
-    stoch_rsi_raw   = (d["dRsi"] - rsi_low14) / (rsi_high14 - rsi_low14).clip(lower=0.01) * 100
-    d["dStochRsiK"] = stoch_rsi_raw.rolling(3, min_periods=1).mean()
-    d["dStochRsiD"] = d["dStochRsiK"].rolling(3, min_periods=1).mean()
+        # -- StochRSI(14,14,3,3): stochastic of RSI(14), smoothed K(3), D(3) --
+        rsi_low14       = d["dRsi"].rolling(14, min_periods=1).min()
+        rsi_high14      = d["dRsi"].rolling(14, min_periods=1).max()
+        stoch_rsi_raw   = (d["dRsi"] - rsi_low14) / (rsi_high14 - rsi_low14).clip(lower=0.01) * 100
+        d["dStochRsiK"] = stoch_rsi_raw.rolling(3, min_periods=1).mean()
+        d["dStochRsiD"] = d["dStochRsiK"].rolling(3, min_periods=1).mean()
 
-    # -- Expected Move (VIX-implied 1-day 1σ): requires merged VIX data --
-    if "vix_close" in d.columns:
-        d["dExpMoveUSD"] = d["close"] * d["vix_close"] / 100.0 / math.sqrt(252)
-        d["dExpMovePct"] = d["vix_close"] / 100.0 / math.sqrt(252) * 100  # same as VIX/sqrt(252)
+        # -- Expected Move (VIX-implied 1-day 1σ): requires merged VIX data --
+        if "vix_close" in d.columns:
+            d["dExpMoveUSD"] = d["close"] * d["vix_close"] / 100.0 / math.sqrt(252)
+            d["dExpMovePct"] = d["vix_close"] / 100.0 / math.sqrt(252) * 100  # same as VIX/sqrt(252)
 
-    # -- IV Rank (52-week VIX percentile, prior close) --
-    if "vix_close" in d.columns:
-        vix_s          = d["vix_close"]
-        vix_min365     = vix_s.rolling(365, min_periods=30).min()
-        vix_max365     = vix_s.rolling(365, min_periods=30).max()
-        d["dIvRank"]   = (vix_s - vix_min365) / (vix_max365 - vix_min365).clip(lower=0.01) * 100
+        # -- IV Rank (52-week VIX percentile, prior close) --
+        if "vix_close" in d.columns:
+            vix_s          = d["vix_close"]
+            vix_min365     = vix_s.rolling(365, min_periods=30).min()
+            vix_max365     = vix_s.rolling(365, min_periods=30).max()
+            d["dIvRank"]   = (vix_s - vix_min365) / (vix_max365 - vix_min365).clip(lower=0.01) * 100
 
-    # -- Prior-day trading range as % of prior close --
-    d["dRangePct"] = (d["high"] - d["low"]) / d["prev_close"].clip(lower=0.01) * 100
+        # -- Prior-day trading range as % of prior close --
+        d["dRangePct"] = (d["high"] - d["low"]) / d["prev_close"].clip(lower=0.01) * 100
 
     result = {}
     for _, row in d.iterrows():
@@ -3162,6 +3169,14 @@ def append_results_md(all_trades: list, date_list) -> None:
         f"| Expectancy/trade | ${expectancy:,.2f} |",
         f"| Profit factor | {profit_factor:.2f}x |",
         "",
+        "### Risk",
+        "| Metric | Value |",
+        "|--------|-------|",
+        f"| Max drawdown | ${max_dd:,.2f} ({max_dd_pct:.1f}%) |",
+        f"| Calmar ratio | {calmar:.2f} |",
+        f"| Recovery factor | {recovery_factor:.2f} |",
+        f"| Time underwater | {time_underwater_pct:.1f}% ({underwater_days} of {days_traded} days) |",
+        "",
         "### Key Config",
         "| Parameter | Value |",
         "|-----------|-------|",
@@ -3177,14 +3192,6 @@ def append_results_md(all_trades: list, date_list) -> None:
         f"| EOQ SL | {'on $'+str(int(EOQ_SL_AMOUNT)) if ENABLE_EOQ_SL else 'off'} |",
         f"| Pre-TW SL | {'on $'+str(int(PRE_TW_SL_AMOUNT)) if ENABLE_PRE_TW_SL else 'off'} |",
         f"| Post-holiday SL | {'on $'+str(int(POST_HOL_SL_AMOUNT)) if ENABLE_POST_HOL_SL else 'off'} |",
-        "",
-        "### Risk",
-        "| Metric | Value |",
-        "|--------|-------|",
-        f"| Max drawdown | ${max_dd:,.2f} ({max_dd_pct:.1f}%) |",
-        f"| Calmar ratio | {calmar:.2f} |",
-        f"| Recovery factor | {recovery_factor:.2f} |",
-        f"| Time underwater | {time_underwater_pct:.1f}% ({underwater_days} of {days_traded} days) |",
         "",
         "### Ratios & Volatility",
         "| Metric | Value |",
@@ -5247,8 +5254,8 @@ async def run_day_filter_sweep():
 
     global _DAILY_INDICATORS
     if not _DAILY_INDICATORS:
-        logger.info("Building daily indicator table from local parquets…")
-        _DAILY_INDICATORS = _build_daily_indicators()
+        logger.info("Building daily indicator table from local parquets (full mode for sweep)...")
+        _DAILY_INDICATORS = _build_daily_indicators(compute_full=True)
         logger.info(f"  -> {len(_DAILY_INDICATORS)} daily bars loaded")
 
     date_list = pd.date_range(PILOT_YEAR_START, PILOT_YEAR_END, freq='B')
@@ -8895,9 +8902,9 @@ if __name__ == "__main__":
             f"{len(_CALENDAR_SKIP_DATES)} dates will be hard-skipped"
         )
 
-    # Build daily indicators if vix_change direction mode or any day filter is active
-    _any_filter_active = any([
-        DIRECTION_MODE == "vix_change",
+    # Build daily indicators: always load basic (VIX change, gap%) for direction signal;
+    # only compute full technical indicators (RSI, ADX, MACD, etc.) when day filters are active.
+    _needs_full_indicators = any([
         DAY_FILTER_VARPC_MIN, DAY_FILTER_RSI_MIN, DAY_FILTER_RSI_MAX,
         DAY_FILTER_DIST_SMA_MIN, DAY_FILTER_ATR_MAX, DAY_FILTER_BODY_MAX,
         DAY_FILTER_KNIFE_MAX, DAY_FILTER_STOCH_MIN, DAY_FILTER_GAP_MAX,
@@ -8908,8 +8915,12 @@ if __name__ == "__main__":
         DAY_FILTER_SKIP_VIX_RISE_DECEL,
         RUN_DAY_FILTER_SWEEP,
     ])
-    if _any_filter_active:
-        _DAILY_INDICATORS.update(_build_daily_indicators())
+    _needs_indicators = DIRECTION_MODE == "vix_change" or _needs_full_indicators
+    if _needs_indicators:
+        _mode = "full" if _needs_full_indicators else "basic"
+        logger.info(f"Building daily indicators ({_mode} mode)...")
+        _DAILY_INDICATORS.update(_build_daily_indicators(compute_full=_needs_full_indicators))
+        logger.info(f"  -> {len(_DAILY_INDICATORS)} daily bars loaded")
 
     load_quote_disk_cache()
 
