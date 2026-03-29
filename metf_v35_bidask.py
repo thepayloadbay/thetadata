@@ -434,8 +434,28 @@ KELLY_ZONE_QTY = [           # (vix_lo_inclusive, vix_hi_exclusive, qty)
 
 # ── VIX Day Filter ──
 # Set to a float to skip trading days outside this VIX range. None = no filter.
+#
+# BLACK SWAN ANALYSIS (2026-03-28):
+# Historical VIX closes on major crisis days:
+#   LTCM/Russia 1998        VIX close 44.28  (high 45.02)  ← would be skipped
+#   Dotcom bottom 2002      VIX close 38.17  (high 38.17)  ← would be skipped
+#   Lehman collapse 2008    VIX close 31.70  (high 31.87)  ← NOT skipped (damage spread over weeks)
+#   GFC peak panic 2008     VIX close 69.95  (high 76.94)  ← would be skipped
+#   Flash Crash 2010        VIX close 32.80  (high 40.71)  ← NOT skipped (close below 35; DAILY_SL covers this)
+#   US Downgrade 2011       VIX close 48.00  (high 48.00)  ← would be skipped
+#   China Black Monday 2015 VIX close 40.74  (high 53.29)  ← would be skipped
+#   Volmageddon 2018        VIX close 37.32  (high 38.80)  ← would be skipped
+#   COVID circuit breaker   VIX close 54.46  (high 62.12)  ← would be skipped
+#   COVID peak 2020-03-16   VIX close 82.69  (high 83.56)  ← would be skipped
+#   Yen carry unwind 2024   VIX close 38.57  (high 65.73)  ← would be skipped
+#   Tariff shock 2025-04    VIX close 45–52  (high 57–60)  ← would be skipped
+#
+# VIX > 35 closes in 2022–2026 backtest: 8 days. VIX 30+ zone has 97.9% WR ($51,630 P&L) —
+# skipping VIX 35+ costs a fraction of that; run marathon to quantify exact cost.
+# Cases NOT caught by this filter (Flash Crash, early Lehman) are covered by DAILY_SL = -20,000.
+# The two filters together provide layered black swan protection.
 VIX_MIN_FILTER = None
-VIX_MAX_FILTER = 35.0   # skip days where VIX > 35 — black swan protection. Only 8 days in 4yr backtest (2022–2026).
+VIX_MAX_FILTER = 35.0   # skip days where VIX > 35 — black swan protection (see analysis above)
 
 VIX_ANALYSIS_FILE = _out("metf_v35_bidask_vix_analysis.csv")
 

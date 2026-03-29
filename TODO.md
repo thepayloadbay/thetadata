@@ -112,7 +112,114 @@ All max drawdown comes from the CALL side.
 ## Open Ideas
 
 - **Net unusual premiums** — large institutional options sweeps/block prints as a pre-entry signal. Requires separate options flow data source. Most plausible remaining confluence candidate given VIX change is already the direction signal.
-- **Black swan / tail-risk protection** — investigate strategies to protect the account against catastrophic events (e.g. 2020 COVID crash, flash crashes) that could gap through the short strike and cause losses far exceeding the dynamic SL. Candidates: long OTM put hedge as permanent portfolio insurance, VIX spike circuit breaker (e.g. halt all new entries if VIX gaps up >X% intraday), or CVaR-based position sizing in extreme regimes (see item [10]).
+- **Black swan / tail-risk protection** — ✓ IMPLEMENTED 2026-03-28. See research log below.
+
+---
+
+## Black Swan Protection ✓ IMPLEMENTED — 2026-03-28
+
+Two complementary layers implemented to protect the ~$40k account from catastrophic events.
+
+### Layer 1: DAILY_SL = -20,000
+
+If total daily P&L hits -$20,000, close all positions and halt entries for the day.
+
+- **Zero P&L cost**: never fired once in 4yr backtest (2022–2026). Worst actual day was -$6,118.
+- **Covers**: intraday crashes where the decline is gradual enough for the stop to execute.
+- **Does not cover**: true instantaneous gaps (circuit-breaker opens) where all positions go max loss before the stop fires.
+- **Tested values**: -$5k → $365,580 P&L (-$241k cost), -$10k → $497,722 (-$109k), -$15k → $578,172 (-$29k), -$20k → $606,832 ($0 cost).
+
+### Layer 2: VIX_MAX_FILTER = 35.0
+
+Skip entire trading day if VIX close > 35. Uses today's VIX close (from local parquet / Thetadata).
+
+- **Covers**: most historical catastrophes — LTCM, GFC peak, COVID, Volmageddon, August 2024 carry unwind, April 2025 tariff shock.
+- **Does not cover**: Flash Crash 2010 (VIX close 32.80, only spiked to 40 intraday) and early Lehman (damage spread over weeks). Both covered by Layer 1.
+- **Cost**: only 8 days triggered VIX > 35 in 2022–2026 backtest. VIX 30+ zone has 97.9% WR — run marathon to quantify exact P&L impact.
+
+### Historical VIX Levels on Major Crisis Days
+
+| Date | Event | VIX Close | VIX High | Caught by VIX>35? |
+|---|---|---|---|---|
+| 1998-08-31 | LTCM/Russia | 44.28 | 45.02 | Yes |
+| 2002-07-19 | Dotcom bottom | 38.17 | 38.17 | Yes |
+| 2008-09-15 | Lehman collapse | 31.70 | 31.87 | No (DAILY_SL covers) |
+| 2008-10-10 | GFC peak panic | 69.95 | 76.94 | Yes |
+| 2010-05-06 | Flash Crash | 32.80 | 40.71 | No (close < 35; DAILY_SL covers) |
+| 2011-08-08 | US Downgrade | 48.00 | 48.00 | Yes |
+| 2015-08-24 | China Black Monday | 40.74 | 53.29 | Yes |
+| 2018-02-05 | Volmageddon | 37.32 | 38.80 | Yes |
+| 2020-03-09 | COVID circuit breaker 1 | 54.46 | 62.12 | Yes |
+| 2020-03-12 | COVID worst day | 75.47 | 76.83 | Yes |
+| 2020-03-16 | COVID peak VIX | 82.69 | 83.56 | Yes |
+| 2024-08-05 | Yen carry unwind | 38.57 | 65.73 | Yes |
+| 2025-04-04 | Tariff shock | 45.31 | 45.61 | Yes |
+| 2025-04-07 | Tariff escalation | 46.98 | 60.13 | Yes |
+| 2025-04-08 | Tariff peak | 52.33 | 57.52 | Yes |
+
+### Theoretical Max Loss (Worst Case)
+
+```
+~10 positions open by 12:45, all go max loss simultaneously
+= 10 × (20pt width - $0.55 credit) × 100 × 2 contracts
+≈ $38,900 theoretical maximum
+```
+With `DAILY_SL = -20,000`: loss capped at ~$20,000 if crash is gradual. If instantaneous gap, all positions hit max loss before stop fires — account takes ~$38,900 hit and survives at ~$1,100. Defined-risk spreads prevent loss exceeding this.
+
+### What Was Tested and Rejected
+
+- **Pressure filter** (`ENABLE_PRESSURE_FILTER`): blocks new entries when any open position's short strike is within 27 pts of spot. Cost -$50k P&L — fires too often on the 92%+ win-rate days where positions are near but ultimately expire OTM. Same failure mode as Bayesian entry gate. Disabled.
+
+### Additional Signal Candidates Ranked by Actionability
+
+| Signal | Data Available | Actionability | Verdict |
+|---|---|---|---|
+| P/C OI ratio | Yes (2022–2025) | High — pre-market | ✗ Tested — redundant (see below) |
+| VIX intraday spike | Yes (1-min bars) | Medium — fires after entry | ✗ Tested — negative (see below) |
+| Prior-day VIX % chg | Yes (history CSV) | High — pre-market | ✗ Tested — negative (see below) |
+| VVIX | No (free CBOE download) | High — pre-market | Not yet tested; signals vol-of-vol regime instability |
+| CBOE SKEW | No (free CBOE download) | Medium | Not yet tested; slow-moving tail risk indicator |
+| News sentiment | No (API needed) | Low | Not actionable without paid data source |
+
+### P/C OI Ratio — ✗ TESTED NEGATIVE (2026-03-28)
+
+**Result: redundant with VIX_MAX_FILTER.** The two most extreme P/C days (April 4, 2025: ratio=4.11, z=7.9; August 5, 2024: ratio=3.68, z=6.7) are already skipped by `VIX_MAX_FILTER = 35` since their VIX was 45 and 38 respectively.
+
+All moderate-high P/C days (ratio 2.0–3.0, VIX < 35) turned out to be **profitable trading days**, not crash signals. These are quarter-end / month-end mechanical hedging events where institutions roll put hedges regardless of market direction.
+
+| Threshold | Days | P&L on those days |
+|---|---|---|
+| P/C > 3.5 | 2 | $0 (already skipped by VIX_MAX_FILTER) |
+| P/C > 2.5 | 6 | $1,920 profit forfeited |
+| P/C > 2.0 | 30 | $11,956 profit forfeited |
+
+Skipping based on P/C ratio at any threshold either costs P&L on safe days or adds no protection on days already caught by VIX filter.
+
+### Prior-Day VIX % Change — ✗ TESTED NEGATIVE (2026-03-28)
+
+**Result: opposite of expected.** Days following a large prior-day VIX spike are some of the *best* trading days, not the worst.
+
+| Prior-Day VIX Chg | Days | Win Rate | Avg P&L |
+|---|---|---|---|
+| 5–10% | 100 | 90.0% | $728 |
+| 10–15% | 49 | 83.7% | $683 |
+| 15–20% | 24 | 75.0% | $662 |
+| **> 20%** | **13** | **92.3%** | **$927** ← best bucket |
+
+After a VIX shock day, the market tends to be range-bound or slowly recovering — MIN_OTM_DISTANCE=30 keeps strikes safely OTM. Aug 6, 2024 (after 65% VIX spike): +$884. Dec 19, 2024 (after 74% VIX spike): +$1,060. Skipping these days would cost P&L, not save it. `DAY_FILTER_VIX_CHG_MAX` remains `None`.
+
+### VIX Intraday Spike Circuit Breaker — ✗ TESTED NEGATIVE (2026-03-28)
+
+**Result: negative, same pattern.** Days with the largest intraday VIX spikes are above-average trading days.
+
+| Intraday Spike Threshold | Days Affected | Avg P&L | Outcome |
+|---|---|---|---|
+| >= 20% | 19 days | $826 | Would cost P&L |
+| >= 30% | 6 days | $821 | Would cost P&L |
+| >= 40% | 3 days | $1,016 | Would cost P&L |
+| >= 50% | 1 day | $1,080 | Would cost P&L |
+
+Key finding: the Dec 18, 2024 VIX spike (57% intraday) first crossed 20% at 15:04 PM — *after the 12:45 entry window closed*. All entries were already placed and expired profitably at $1,080. The genuinely dangerous spike days (April 2025, VIX open >35) are already caught by `VIX_MAX_FILTER = 35`. MIN_OTM_DISTANCE=30 provides enough buffer to survive intraday VIX spikes that don't also blow out the absolute VIX level above 35.
 
 ---
 
