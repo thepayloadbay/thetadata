@@ -425,7 +425,21 @@ The baseline Calmar of 88.0 and DD of -$6,894 are already exceptional for a $40k
 
 Run with all 5 calendar SLs enabled at -$300 cost -$48k P&L ($558k vs $607k) with only -$234 DD improvement ($6,660 vs $6,894). Individual categories may still help at different amounts:
 
-- [ ] **Re-sweep each calendar SL independently** at -$150, -$200, -$300, -$400. The combined run penalised all event days; individual categories (especially EOQ, Pre-TW, Post-Holiday which showed "potential") might work at looser thresholds.
+- ✗ **Re-sweep each calendar SL independently** — SWEEP TESTED 2026-03-29:
+
+  All 5 categories tested individually at -$100, -$200, -$300, -$400, -$500, None. **Every category is best with SL OFF.** No category improves DD; all cost P&L.
+
+  | Category | Days | Worst Level Cost | Best Level (excl off) |
+  |----------|------|-----------------|----------------------|
+  | CPI | 47 | -$30.8k @ -$500 | -$24.3k @ -$200 |
+  | PCE | 42 | -$12.3k @ -$100 | -$4.2k @ -$400 |
+  | Pre-TW | 15 | -$1.1k @ -$200 | +$730 @ -$500 |
+  | Post-Hol | 12 | +$1.0k @ -$200 | +$3.1k @ -$500 |
+  | EOQ | 0* | n/a (skipped) | n/a |
+
+  *EOQ untested due to `ENABLE_EOQ_SKIP=True` being accidentally left on — now fixed. EOQ only has ~10 days, unlikely to change conclusion.
+
+  **Rejected** — no calendar SL (besides the already-confirmed EOM SL) improves the strategy. Calendar events are net profitable and adding SLs just cuts winners.
 
 ---
 

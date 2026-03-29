@@ -99,6 +99,7 @@ Backtest and optimize a **Multi-Entry Directional Spreads (MEDS)** strategy trad
 - **Intraday VIX spike circuit breaker**: same pattern — large intraday VIX spikes average $826/day above baseline; Dec 18 2024 spike (57%) hit 20% threshold at 15:04 PM after entry window closed; dangerous days already caught by VIX_MAX_FILTER
 - **VRP (Variance Risk Premium) half-sizing**: Q1→Q5 gradient exists ($553→$726/day) but too weak — half-sizing bottom 20% costs -$61k P&L to reduce DD by only $776; negative VRP days (premium "cheap") still avg $781/day with 86.7% WR
 - **VIX 15-20 dynamic SL** (all levels -$1,500/-$3,000/-$5,000): catastrophic — costs $99k-$173k P&L, DD worsens. Zone has 2,871 trades at 97.8% WR; any SL fires on too many winning days
+- **Calendar SLs (CPI/PCE/Pre-TW/Post-Hol)**: all 5 categories best with SL OFF at every tested level (-$100 to -$500). CPI costs up to -$31k, PCE -$12k. Calendar events are net profitable; SLs just cut winners. Only EOM SL confirmed positive.
 
 ---
 

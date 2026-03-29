@@ -1003,7 +1003,7 @@ PRESSURE_VIX_SWEEP_THRESHOLDS = [None, 20.0, 22.0, 25.0, 27.0, 28.0, 30.0]  # No
 # -- Calendar Risk SL Sweep --
 # Tests each recurring-date SL category independently to identify which ones
 # are net positive (save more than they cost on winning days).
-RUN_CALENDAR_RISK_SL_SWEEP   = True
+RUN_CALENDAR_RISK_SL_SWEEP   = False
 CALENDAR_RISK_SL_SWEEP_FILE  = _out("meds_calendar_risk_sl_sweep.csv")
 CALENDAR_RISK_SL_SWEEP_LEVELS = [-100, -200, -300, -400, -500, None]
 
@@ -1040,7 +1040,7 @@ ENABLE_PCE_SKIP         = False    # skip all entries on PCE days entirely
 
 ENABLE_EOQ_SL        = False
 EOQ_SL_AMOUNT        = -300.0   # tighter SL on last trading day of each quarter
-ENABLE_EOQ_SKIP      = True    # skip all entries on EOQ days entirely
+ENABLE_EOQ_SKIP      = True    # skip all entries on EOQ days entirely - new baseline
 
 ENABLE_PRE_TW_SL        = False
 PRE_TW_SL_AMOUNT        = -300.0   # tighter SL on the trading day before Triple Witching (normal VIX)
