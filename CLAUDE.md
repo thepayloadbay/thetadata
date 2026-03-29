@@ -60,6 +60,8 @@ Backtest and optimize a **Multi-Entry Directional Spreads (MEDS)** strategy trad
 | `ENABLE_CALENDAR_FILTER` | `False` | All calendar events net profitable — skipping costs money |
 | `ENABLE_KELLY_SIZING` | `False` (locked) | Requires ~$80k BP; current account ~$40k |
 | `MARKET_HOLIDAYS` | FOMC and Triple Witching removed | Skipping FOMC costs $23,512; Triple Witching costs $12,212 |
+| `DAILY_SL` | `-20000` | Black swan protection — never fired in 4yr backtest (worst day -$6,118); zero P&L cost |
+| `VIX_MAX_FILTER` | `35.0` | Black swan protection — skips days VIX > 35; only 8 days in 4yr backtest; **marathon cost TBD** |
 
 ---
 
@@ -87,6 +89,11 @@ Backtest and optimize a **Multi-Entry Directional Spreads (MEDS)** strategy trad
 - **Skip VIX 25–30**: P&L -$10k vs baseline, max DD unchanged — not worth it
 - **All direction alternatives** (RSI, MACD, gap, SMA200, momentum, stochastic): negative P&L, not statistically significant
 - **EOM skip (no trades)**: costs -$5,774 P&L — EOM days are net positive so skipping them is worse than trading them with a SL
+- **Pressure filter** (`ENABLE_PRESSURE_FILTER`): blocks entries when any short strike is within 27 pts of spot — costs -$50k P&L; same failure mode as Bayesian gate (fires on win-day positions that are OTM but nearby)
+- **P/C OI ratio skip filter**: redundant with VIX_MAX_FILTER — the only extreme-ratio days (Aug 5 2024, Apr 4 2025) already had VIX > 35; moderate-ratio days are profitable quarter-end mechanical hedging
+- **Prior-day VIX % change filter**: opposite of expected — days after large VIX spikes (>20%) have 92.3% WR and $927 avg P&L (best bucket); MIN_OTM_DISTANCE=30 provides sufficient buffer
+- **Intraday VIX spike circuit breaker**: same pattern — large intraday VIX spikes average $826/day above baseline; Dec 18 2024 spike (57%) hit 20% threshold at 15:04 PM after entry window closed; dangerous days already caught by VIX_MAX_FILTER
+- **VRP (Variance Risk Premium) half-sizing**: Q1→Q5 gradient exists ($553→$726/day) but too weak — half-sizing bottom 20% costs -$61k P&L to reduce DD by only $776; negative VRP days (premium "cheap") still avg $781/day with 86.7% WR
 
 ---
 

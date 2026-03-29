@@ -297,49 +297,88 @@ In the main sweet spot (VIX 15–25, 4,096 trades), ratio has zero predictive po
 
 ---
 
-### [6] Intraday Jump Detection — Pre-Entry Risk Screen
+### [6] Intraday Jump Detection — Pre-Entry Risk Screen ✗ TESTED NEGATIVE (2026-03-29)
 
-Use 1-minute SPX bars to detect statistically significant jumps in the pre-market or first 30 minutes. If a jump is detected before the entry window, skip all entries that session — intraday jumps propagate vol risk across the session and 0DTE gamma exposure becomes unmanageable.
+Use 1-minute SPX bars to detect statistically significant jumps in the pre-market or first 30 minutes. If a jump is detected before the entry window, skip all entries that session.
 
-**Method:** Bipower variation vs. realized variance ratio (Barndorff-Nielsen & Shephard 2004). If ratio implies a significant jump (p < 0.05), skip the session.
+**Method:** Bipower variation vs. realized variance ratio (Barndorff-Nielsen & Shephard 2004). Skip if p < 0.05.
 
-**Paper:** Božović (2025), SSRN #5223127 — "Intraday Jumps and 0DTE Options: Pricing and Hedging Implications." Shows standard delta hedging fails dramatically when intraday jumps occur — pricing error is systematic and large. Oxford JRSSSC (2025) — new jump detection method validated on S&P 500.
+**Result: negative, same pattern as all volatility filters.** Jump days outperform no-jump days.
+
+| | Days | Avg P&L | Win Rate |
+|---|---|---|---|
+| Jump detected (p<0.05) | 167 | $654 | 89.2% |
+| No jump (p≥0.05) | 783 | $623 | 86.6% |
+
+Skipping at p<0.05 costs -$109k. Skipping at p<0.01 costs -$53k. The signal fires most often on high-volatility sessions where MIN_OTM_DISTANCE=30 still provides enough buffer to expire OTM.
+
+**Paper:** Božović (2025), SSRN #5223127 — "Intraday Jumps and 0DTE Options: Pricing and Hedging Implications."
 
 ---
 
-### [7] Variance Risk Premium (VRP) — Daily Position-Sizing Signal
+### [7] Variance Risk Premium (VRP) — Daily Position-Sizing Signal ✗ TESTED NEGATIVE (2026-03-29)
 
 VRP = VIX² − expected realized variance (from rolling realized vol forecast). When VRP is high (implied vol expensive vs. expected): collecting above-average premium. When VRP is low (implied vol cheap): reduce size or skip.
 
-**What to test:** Halve size when VRP is in the bottom quintile of rolling 252-day history; allow full size in the top quintile. Use as a complement to the VIX-change direction signal.
+**Result: negative.** VRP quintile gradient exists but is too weak to act on.
+
+| VRP Quintile | Days | Avg P&L/day | Win Rate |
+|---|---|---|---|
+| Q1 (cheapest) | 185 | $553 | 86.5% |
+| Q2 | 180 | $502 | 88.3% |
+| Q3 | 182 | $640 | 86.3% |
+| Q4 | 184 | $700 | 89.7% |
+| Q5 (richest) | 180 | $726 | 86.1% |
+
+Half-sizing in the bottom 20% VRP quintile costs -$60,797 P&L to reduce max DD from -$6,894 to -$6,118 — a terrible tradeoff. Even negative VRP days (realized vol > implied vol, premium literally cheap) averaged $781/day with 86.7% WR — *above* the positive VRP average. The strategy earns from theta decay on 30+ pt OTM strikes regardless of how expensive implied vol is relative to realized.
 
 **Paper:** Bollerslev, Tauchen & Zhou (2009), *Review of Financial Studies* — VRP predicts short-term equity returns. Papagelis (2025), *Journal of Futures Markets* — overnight VRP component specifically predicts short-horizon returns (most relevant for 0DTE).
 
 ---
 
-### [8] HAR-RV (Heterogeneous Autoregressive Realized Volatility) — Danger Zone Filter
+### [8] HAR-RV (Heterogeneous Autoregressive Realized Volatility) — Danger Zone Filter ✗ TESTED NEGATIVE (2026-03-29)
 
-Models next-day realized vol using daily + weekly + monthly SPX realized vol components. HAR-RV doesn't predict direction — it predicts the *magnitude* of upcoming volatility. Use as a risk-scaling factor: reduce size when 1-day-ahead forecast exceeds the 90th-percentile rolling threshold AND VIX is in the 15–25 zone.
+Models next-day realized vol using daily + weekly + monthly SPX realized vol components. Proposed use: reduce size when forecast in top quintile.
 
-**Paper:** Corsi (2009), *Journal of Financial Econometrics* 7(2) — "A Simple Approximate Long-Memory Model of Realized Volatility." 2,100+ citations; the workhorse of realized vol forecasting.
+**Result: negative — gradient is backwards.** High HAR-RV forecast days are the best, not worst, trading days.
+
+| HAR-RV Quintile | Days | Avg P&L | Win Rate |
+|---|---|---|---|
+| Q1 (low vol forecast) | 134 | $320 | 86.6% |
+| Q2 | 135 | $458 | 85.9% |
+| Q3 | 134 | $607 | 90.3% |
+| Q4 | 134 | $874 | 97.8% ← best |
+| Q5 (high vol forecast) | 133 | $720 | 85.7% |
+
+Half-sizing on high-vol forecast days costs -$28k to -$44k. The Q1→Q4 gradient ($320→$874) is strong and would justify *increasing* size on high-forecast days — but account is already at 97% BP. Revisit when Kelly sizing is unlocked (~$80k account).
+
+**Paper:** Corsi (2009), *Journal of Financial Econometrics* 7(2) — "A Simple Approximate Long-Memory Model of Realized Volatility."
 
 ---
 
-### [9] Markov-Switching GARCH (MS-GARCH) — Regime-Aware Sizing
+### [9] Markov-Switching GARCH (MS-GARCH) — Regime-Aware Sizing ✗ TESTED NEGATIVE (2026-03-29)
 
-Replace the hand-coded VIX zone map with a 2–3 state MS-GARCH model fitted to daily SPX returns. The model learns latent vol states and transition probabilities without imposing manual thresholds. Use posterior P(high-vol state) to scale qty — reduce proportionally when P > 0.6.
+Replace hand-coded VIX zone map with a 2-state GMM regime model. Use P(high-vol state) to scale qty down when regime probability exceeds threshold.
 
-Advantage over fixed VIX bins: current zones were calibrated in-sample. MS-GARCH detects regime shifts dynamically and outperforms single-regime GARCH for VaR at horizons under 1 week.
+**Result: negative — superseded by VIX zone mapping.** GMM probabilities max out at 0.39; no day exceeds 0.5 threshold. The quartile gradient exists ($707→$444/day from low→high-vol quartile) but is already captured more cleanly by the existing VIX zone map. The `KELLY_ZONE_QTY` with explicit VIX thresholds is simpler, more interpretable, and already implemented. MS-GARCH adds complexity without adding new information.
 
 **Paper:** Hamilton (1989), *Econometrica* 57(2); Dueker (1997) GARCH extension; MSGARCH R package — *Journal of Statistical Software* 91(4), 2019.
 
 ---
 
-### [10] CVaR / Expected Shortfall Optimization — Tail-Risk-Correct Position Sizing
+### [10] CVaR / Expected Shortfall Optimization — Tail-Risk-Correct Position Sizing ✗ TESTED NEGATIVE (2026-03-29)
 
-Replace Kelly (maximizes expected log-utility, indifferent to tail severity) with CVaR-minimizing sizing per VIX regime. Kelly allows ruinous drawdowns as long as geometric mean is optimal — exactly the problem for short-vol strategies (thin right tail, fat left tail). CVaR explicitly prices the tail.
+Replace Kelly with CVaR-minimizing sizing per VIX regime.
 
-**What to test:** Using the 947-day backtest P&L series, compute the CVaR-optimal quantity for each VIX regime separately. Minimize 5% CVaR subject to a minimum expected return constraint (solvable as a linear program). Compare to Kelly-optimal sizes — difference will be largest in the VIX 25–30 zone.
+**Result: negative — linear scaling makes CVaR optimization trivial.** Since both E[P&L] and CVaR scale linearly with qty, the return/risk ratio (Sharpe) is identical at any fixed qty. CVaR minimization simply recommends qty=1 everywhere — cutting P&L in half without improving the Sharpe ratio at all.
+
+| Sizing Method | P&L | Max DD | CVaR (5%) | Sharpe |
+|---|---|---|---|---|
+| Flat qty=2 (current) | $596,788 | -$6,894 | -$1,357 | 14.16 |
+| CVaR-min (qty=1) | $298,394 | -$3,447 | -$678 | 14.16 (identical) |
+| Kelly zones | $1,130,372 | -$12,236 | -$2,186 | 14.75 |
+
+Kelly actually improves Sharpe (14.75 vs 14.16) by concentrating size in best VIX zones. The paper's concern about "ruinous drawdowns" from Kelly doesn't apply here — max DD is -$6,894 on a $40k account, already tiny. CVaR adds no value beyond what Kelly + dynamic SL already provide.
 
 **Paper:** Rockafellar & Uryasev (2000), *Journal of Risk* — "Optimization of Conditional Value-at-Risk."
 
