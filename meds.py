@@ -84,6 +84,9 @@ PILOT_YEAR_END   = "2026-03-25"
 MCP_URL          = "http://127.0.0.1:25503/mcp/sse"
 USE_LOCAL_DATA   = True    # True → read local parquet files; False → live ThetaData MCP
 DATA_DIR         = "data"  # root of local parquet cache (used when USE_LOCAL_DATA=True)
+QUOTE_DISK_CACHE = "data/quote_disk_cache.parquet"  # persistent cross-run quote cache
+                                                     # populated at end of run, loaded at start
+                                                     # eliminates parquet index lookups on repeat runs
 
 # Unique timestamp stamped on every output file so runs never overwrite each other.
 from datetime import datetime as _dt
@@ -921,7 +924,7 @@ EOM_SL_SWEEP_FILE   = _out("meds_eom_sl_sweep.csv")
 EOM_SL_SWEEP_LEVELS = [-200, -300, -400, -500, -600, None]
 
 # ── Per-Position Fixed SL Sweep ──
-RUN_PER_POS_SL_SWEEP    = True
+RUN_PER_POS_SL_SWEEP    = False
 PER_POS_SL_SWEEP_FILE   = _out("meds_per_pos_sl_sweep.csv")
 PER_POS_SL_SWEEP_LEVELS = [None, -200, -300, -400, -500, -600]  # None = baseline (no per-pos SL)
 
@@ -953,13 +956,18 @@ CALENDAR_RISK_SL_SWEEP_LEVELS = [-100, -200, -300, -400, -500, None]
 #   End of quarter:        3 related losses   (Jun 27 '24, Sep 30 '24, Oct 1 '25)
 #   Day before TW:         2 losses           (Jun 15 '23, Sep 15 '22)
 #   Post-major-holiday:    2 losses           (Sep 2 '25 Labor Day, Jan 6 '25 New Year)
+
+# ENABLE_CPI_SL = $571,200.00 PNL
+# ENABLE_PCE_SL = $585,056.00 PNL
+
+
 ENABLE_CPI_SL        = False
 CPI_SL_AMOUNT        = -300.0   # tighter SL on CPI release days
 
 ENABLE_PCE_SL        = False
 PCE_SL_AMOUNT        = -300.0   # tighter SL on PCE release days
 
-ENABLE_EOQ_SL        = False
+ENABLE_EOQ_SL        = True
 EOQ_SL_AMOUNT        = -300.0   # tighter SL on last trading day of each quarter
 
 ENABLE_PRE_TW_SL     = False
@@ -1579,6 +1587,62 @@ def clear_day_cache():
     """Call once at the start of each day to discard stale quotes."""
     global _quote_cache
     _quote_cache.clear()
+
+
+def load_quote_disk_cache() -> None:
+    """Load the persistent quote cache from disk into _quote_cache at startup.
+
+    Skips parquet index lookups for all previously seen (date, right, strike, bar_time)
+    tuples — eliminates redundant I/O on repeat runs and sweeps.
+    """
+    global _quote_cache
+    path = pathlib.Path(QUOTE_DISK_CACHE)
+    if not path.exists():
+        return
+    try:
+        df = pd.read_parquet(path)
+        loaded = 0
+        for row in df.itertuples(index=False):
+            key = (row.date_str, row.right, row.strike, row.bar_time_str)
+            if key not in _quote_cache:
+                _quote_cache[key] = {"bid": row.bid, "ask": row.ask, "mid": row.mid} if not pd.isna(row.bid) else None
+                loaded += 1
+        logger.info(f"[quote cache] Loaded {loaded:,} entries from {path} ({len(_quote_cache):,} total in cache)")
+    except Exception as e:
+        logger.warning(f"[quote cache] Failed to load disk cache: {e}")
+
+
+def save_quote_disk_cache() -> None:
+    """Persist _quote_cache to disk after a run so the next run can skip re-fetching.
+
+    Only writes entries where the quote is not None (missing quotes are re-fetched naturally).
+    Merges with any existing cache file so entries accumulate across runs.
+    """
+    if not _quote_cache:
+        return
+    path = pathlib.Path(QUOTE_DISK_CACHE)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    rows = []
+    for (date_str, right, strike, bar_time_str), q in _quote_cache.items():
+        if q is not None:
+            rows.append((date_str, right, strike, bar_time_str, q["bid"], q["ask"], q["mid"]))
+    if not rows:
+        return
+    new_df = pd.DataFrame(rows, columns=["date_str", "right", "strike", "bar_time_str", "bid", "ask", "mid"])
+    if path.exists():
+        try:
+            existing = pd.read_parquet(path)
+            combined = pd.concat([existing, new_df], ignore_index=True)
+            combined = combined.drop_duplicates(subset=["date_str", "right", "strike", "bar_time_str"], keep="last")
+            combined.to_parquet(path, index=False)
+            added = len(combined) - len(existing)
+            logger.info(f"[quote cache] Saved {len(combined):,} entries to {path} (+{added} new)")
+        except Exception as e:
+            logger.warning(f"[quote cache] Failed to merge with existing cache: {e} — writing fresh")
+            new_df.to_parquet(path, index=False)
+    else:
+        new_df.to_parquet(path, index=False)
+        logger.info(f"[quote cache] Created {path} with {len(new_df):,} entries")
 
 
 async def fetch_quote_cached(
@@ -5768,7 +5832,7 @@ async def run_per_pos_sl_sweep():
             pnl    = m["total_pnl"]
             dd     = m["max_drawdown"]
             calmar = pnl / abs(dd) if dd != 0 else float("inf")
-            wr     = m["win_rate"] * 100
+            wr     = m["win_rate"]
 
             if base_pnl is None:
                 base_pnl  = pnl
@@ -8215,6 +8279,8 @@ if __name__ == "__main__":
     if _any_filter_active:
         _DAILY_INDICATORS.update(_build_daily_indicators())
 
+    load_quote_disk_cache()
+
     if _args.marathon:
         asyncio.run(run())
     elif RUN_MAX_BP_SWEEP:
@@ -8275,3 +8341,5 @@ if __name__ == "__main__":
         asyncio.run(run())
         if RUN_BASELINE_COMPARISON:
             asyncio.run(run_baseline_comparison())
+
+    save_quote_disk_cache()

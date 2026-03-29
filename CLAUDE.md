@@ -81,6 +81,7 @@ Backtest and optimize a **Multi-Entry Directional Spreads (MEDS)** strategy trad
 - **Gap-down CALL SL (-$300)**: DD improved but P&L dropped -$69k
 - **Month/direction SL rules**: costs -$49k vs baseline
 - **Per-position trailing stop**: all combos worse than baseline; 93%+ expiry WR means trailing stops just cut winning premium
+- **Per-position fixed SL** (-$200 to -$600 sweep): all levels rejected — same root cause. Costs $276k–$436k P&L and worsens DD. Positions that temporarily go negative mostly recover by EOD.
 - **Premium buyback exit** ($0.10/$0.05): costs -$64k; freed BP almost never enables a new entry — positions hit threshold after 12:45 entry window closes, so capital resets at EOD anyway
 - **Intraday Bayesian entry gate** (all thresholds $0–-$400): all worse than baseline; B/A spread noise floor (~-$150 to -$200) causes false fires on win days
 - **Low/mid-VIX half sizing**: Sharpe improved slightly but cost -$3,902 P&L; not worth it

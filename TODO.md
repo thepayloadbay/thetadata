@@ -162,8 +162,19 @@ For VIX 15–20 days specifically, stop new entries earlier (e.g. 11:30 instead 
 ### Option 3c — Untested: Tighter per-trade SL when day is already negative (future research)
 Apply a tighter per-position stop-loss only once total daily P&L is already negative (e.g. once down -$500 on the day, subsequent positions use -$150 SL instead of the standard dynamic SL). Targets the mixed-result days (6W/4L, 3W/7L) where early winners were wiped out by larger late-day losses. Unlike global EOM SL, this is dynamic and applies on any day that turns red. Risk: may over-tighten on days that recover.
 
-### Option 3d — Untested: Per-position fixed SL for late-day losses (future research)
-Close an individual position when its own MTM loss exceeds a threshold (e.g. -$400), independent of total daily P&L. On 2023-10-09, the 11:00 entry lost -$2,834 — a per-position SL of -$400 would have capped it. Note: "per-position trailing stop" was tested negative (CLAUDE.md), but a fixed SL is different and untested. Risk: 93%+ expiry WR means most positions that temporarily go negative ultimately recover — a per-position SL may clip recoveries.
+### Option 3d — ✗ TESTED NEGATIVE: Per-position fixed SL (2026-03-29)
+Sweep tested -$200 / -$300 / -$400 / -$500 / -$600 thresholds. All levels rejected.
+
+| SL | P&L | P&L Delta | Max DD | Calmar | Sharpe |
+|---|---|---|---|---|---|
+| None (baseline) | $596,918 | — | -$6,894 | 86.6 | 14.05 |
+| -$200 | $160,654 | -$436k | -$8,928 | 18.0 | 3.05 |
+| -$300 | $211,548 | -$385k | -$10,714 | 19.8 | 3.56 |
+| -$400 | $248,848 | -$348k | -$11,560 | 21.5 | 3.86 |
+| -$500 | $293,058 | -$304k | -$9,880 | 29.7 | 4.53 |
+| -$600 | $320,220 | -$277k | -$13,114 | 24.4 | 4.70 |
+
+Same failure mode as per-position trailing stop — 93%+ expiry WR means positions that go temporarily negative mostly recover by EOD. Every threshold locks in the loss and misses the recovery, costing $276k–$436k P&L while making DD worse.
 
 ### Option 3e — Untested: Tighter daily SL for late-day entries (future research)
 After a certain time of day (e.g. after 11:30), apply a tighter daily SL (e.g. -$2,000) to limit damage from positions that have less time to recover. The current DAILY_SL = -$20,000 is intentionally loose (black swan protection only). A tighter mid/late-day variant could cap days like 2026-03-10 where 10 entries are open by 14:15 with large unrealized losses. Risk: may fire on normal intraday volatility that resolves before EOD.
@@ -730,3 +741,30 @@ Every year profitable. Sharpe never below 11.83. Strongest evidence of robustnes
 | Permutation p-value (split significance) | p=0.007 |
 
 **Conclusion:** The strategy is primarily a **theta decay engine** — both PUT and CALL days are highly profitable with nearly identical 89.5–89.6% win rates. The VIX direction signal adds ~$19k of incremental value (statistically significant, p=0.016), but the dominant driver is theta. The larger PUT day P&L ($674 vs $562) reflects the well-known **volatility risk premium**: PUT sellers consistently capture a structural premium. The VIX signal correctly assigns PUT on 59% of days (when VIX fell = calmer next day = PUT spread safer). Flipping the signal only costs ~$19k over 4 years — the strategy would remain highly profitable even with inverted direction logic.
+
+---
+
+## Engineering — Persistent Quote Cache
+
+**Problem:** Every run (marathon or sweep) re-fetches all historical options quote data from the Thetadata API. A 4-year backtest makes thousands of API calls per run. Sweeps multiply this — a 6-level sweep makes 6× the calls. This is the main bottleneck for iteration speed.
+
+**Proposed solution: disk-based persistent quote cache**
+
+Save each day's fetched quote data to disk on first access. On subsequent runs, load from disk instead of hitting the API. Since historical data never changes, the cache is permanent and never needs invalidation.
+
+**Implementation options:**
+
+| Option | Speed | Complexity | Notes |
+|--------|-------|------------|-------|
+| **Parquet per day** | Fast | Low | Matches existing VIX data pattern; one file per trading day in `data/quote_cache/YYYYMMDD.parquet` |
+| **SQLite** | Medium | Medium | Single file, queryable; good for ad-hoc analysis but slower than parquet for bulk reads |
+| **Redis** | Fastest | High | True in-memory; survives between runs but requires a running server |
+
+**Recommended: parquet per day** — zero new infrastructure, same pattern as VIX data already in the repo.
+
+**Expected impact:**
+- First run: same speed as today (fetches and writes cache)
+- Subsequent runs: near-instant data load — all API calls replaced by local disk reads
+- Sweeps: 6-level sweep would run at the same speed as a single run today
+
+**Where to hook in:** `fetch_quotes_for_strikes_cached()` — check for a cached parquet file before calling the API. If found, load from disk. If not, fetch from API and write to disk.
