@@ -234,7 +234,17 @@ All max drawdown comes from the CALL side.
 - ✓ **P&L for econ dates** — IMPLEMENTED. `print_econ_date_analysis()` added: 13 event types (Normal, CPI, PPI, PCE, NFP, FOMC, Triple Witch, Monthly OPEX, EOM, EOQ, Pre-TW, Post-Holiday, Full Moon) in both terminal and RESULTS.md.
 - ✓ **P&L by entry time** — IMPLEMENTED. `print_entry_time_analysis()` added: P&L, max DD, W/L, WR% per entry time slot in both terminal and RESULTS.md.
 - **Consecutive day loss patterns** — is there a pattern where Monday loss → Tuesday loss, Tuesday loss → Wednesday loss, etc.? Run statistics and check if a sequential model exists. (Untested)
-- **"Gap" rule: after batch SL fires, wait 60 min before re-entering** — TESTED POSITIVE (2026-03-29). Marathon result: **+$5,388 P&L** ($607,424 → $612,812), Max DD improved ($-6,894 → $-6,356), Sharpe 13.99 → 14.12, WR 92.3% → 92.8%, +105 re-entry trades net positive. Config: `ENABLE_SL_GAP_REENTRY = True`, `SL_GAP_MINUTES = 60`. Currently left OFF (default=False) pending decision on whether to adopt. The 105 extra trades on days where SL fired early are net positive — market does partially recover after the initial stop. Modest but real improvement with no degradation. **DECISION NEEDED**: enable as new baseline?
+- **"Gap" rule: after batch SL fires, wait 60 min before re-entering** — TESTED POSITIVE (2026-03-29). Sweep result across gap durations:
+
+  | Gap | Trades | WR% | P&L | Delta | Sharpe |
+  |---|---|---|---|---|---|
+  | None (baseline) | 6,929 | 93.1% | $607,554 | — | 13.90 |
+  | 30 min | 7,114 | 92.4% | $611,914 | +$4,360 | 14.07 |
+  | **60 min ✓** | **7,042** | **92.7%** | **$612,012** | **+$4,458** | **14.15** |
+  | 90 min | 6,995 | 92.9% | $610,150 | +$2,596 | 14.04 |
+  | 120 min | 6,957 | 93.0% | $607,802 | +$248 | 13.89 |
+
+  Max DD identical (-$6,356) at all levels — re-entry does not worsen drawdown. **60 min is optimal**: highest P&L and Sharpe. Config: `ENABLE_SL_GAP_REENTRY = True`, `SL_GAP_MINUTES = 60`. ✓ **ADOPTED AS NEW BASELINE** (2026-03-29). New confirmed baseline: $612,012 P&L, DD -$6,356, Sharpe 14.15, WR 92.7%, 7,042 trades.
 - ✗ **Daily circuit breaker: 2 intraday STOP_LOSSes → halt remaining entries** — NOT VIABLE (2026-03-29). Simulation initially showed +$54,842 but was flawed. Timing analysis revealed: in the batch-SL architecture, ALL positions close at the SAME BAR when cumulative P&L hits the threshold. The "2nd STOP_LOSS close" happens simultaneously with all others — by the time you detect it, entries 3-N were already opened before that bar. 0 of 76 affected days had the trigger close BEFORE the next entry. Same root cause as Option 3a: batch closes mean you can never detect loss N and block entry N+1 in real time. The only path forward is per-position unrealized monitoring (Bayesian gate / pressure filter territory — both rejected). "Skip next day" variant also rejected: next-day WR is 74.4%, $408 avg P&L, skipping costs -$35,108.
 
 ### Intraday Trend Reversal Detection (VIX 15–20 loss day problem)

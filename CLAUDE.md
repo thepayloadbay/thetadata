@@ -18,7 +18,7 @@ Backtest and optimize a **Multi-Entry Directional Spreads (MEDS)** strategy trad
 - Direction signal: prior-day VIX change (`dVixChgPct`). VIX fell → PUT spread; VIX rose → CALL spread
 - Signal is locked in for the whole day (no intraday update)
 - Main backtest file: `meds.py`
-- Confirmed baseline (2022-01-03 → 2026-03-25): $606,832 P&L, DD -$6,894, Sharpe 13.99, Calmar 88.0, WR 92.3%, 6,937 trades
+- Confirmed baseline (2022-01-03 → 2026-03-25): $612,012 P&L, DD -$6,356, Sharpe 14.15, WR 92.7%, 7,042 trades
 
 ---
 
@@ -62,6 +62,7 @@ Backtest and optimize a **Multi-Entry Directional Spreads (MEDS)** strategy trad
 | `MARKET_HOLIDAYS` | FOMC and Triple Witching removed | Skipping FOMC costs $23,512; Triple Witching costs $12,212 |
 | `DAILY_SL` | `-20000` | Black swan protection — never fired in 4yr backtest (worst day -$6,118); zero P&L cost |
 | `VIX_MAX_FILTER` | `35.0` | Black swan protection — skips days VIX > 35; only 8 days in 4yr backtest; **marathon cost TBD** |
+| `ENABLE_SL_GAP_REENTRY` | `True`, `60 min` | After batch SL fires, wait 60 min then allow re-entry; sweep confirmed 60 min optimal (+$4,458, Sharpe 14.15); DD unchanged |
 
 ---
 
