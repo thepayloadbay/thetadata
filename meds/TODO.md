@@ -81,7 +81,7 @@ Save each day's fetched quote data to disk on first access. On subsequent runs, 
 
 ### Periodic Regression Test (every 5 sessions)
 - [ ] Run full marathon with current config
-- [ ] Compare P&L, Max DD, Sharpe, WR, trade count against baseline ($612,012 / -$6,356 / 14.15 / 92.7% / 7,042)
+- [ ] Compare P&L, Max DD, Sharpe, WR, trade count against baseline ($615,220 / -$6,356 / 14.55 / 93.4% / 6,950)
 - [ ] If any metric drifts >1%, investigate before proceeding
 
 ---

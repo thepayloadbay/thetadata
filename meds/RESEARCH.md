@@ -14,12 +14,12 @@ SPXW 0DTE credit spreads (20-pt wide, qty=2), entries every 20 min from 9:35–1
 
 | Metric | Value |
 |---|---|
-| Total P&L | $612,012 |
+| Total P&L | $615,220 |
 | Max Drawdown | -$6,356 |
-| Sharpe | 14.15 |
-| Calmar | 96.3 |
-| Win Rate | 92.7% |
-| Trades | 7,042 |
+| Sharpe | 14.55 |
+| Calmar | 96.8 |
+| Win Rate | 93.4% |
+| Trades | 6,950 |
 
 VIX change is the only statistically significant direction signal (p=0.0). All alternatives (RSI, MACD, gap direction, SMA200, momentum, stochastic) show negative P&L.
 
