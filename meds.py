@@ -129,10 +129,6 @@ MIN_OTM_DISTANCE  = 30.0   # minimum OTM distance (pts) for short strike at entr
                            # None/10/15/20/25 all had net-negative or near-zero P&L at those levels.
                            # 30pt floor transformed baseline from ~$62k → $320k by eliminating
                            # close-in, low-OTM entries on dangerous days. 35–50 skip too many trades.
-# Raised OTM floor specifically for VIX 15–20 days. Analysis of worst 15 loss days showed
-# failure mode #1 (late-day losses) clusters in entries with dist 29–39 at entry in this zone.
-# None = use global MIN_OTM_DISTANCE for all VIX ranges.
-MIN_OTM_DISTANCE_VIX_15_20: float | None = 40.0
 PUT_ONLY       = False  # legacy flag — use DIRECTION_MODE instead
 DIRECTION_MODE = "vix_change"  # "vix_change" | "always_put" | "always_call" | "ema"
 # vix_change: VIX falling → PUT spread (bullish); VIX rising → CALL spread (bearish)
@@ -205,10 +201,20 @@ PRESSURE_FILTER_VIX_MIN: float | None = 15.0   # only active when VIX >= this (N
 PRESSURE_FILTER_VIX_MAX: float | None = 20.0   # only active when VIX <  this (None = no upper bound)
 
 # ── VIX-Range Entry Cap ──
-# Caps max daily entries when VIX is in the 15–20 reversal-day danger zone.
+# Caps max daily entries when VIX is in a specific range (reversal-day danger zone).
 # Big losses always come from entries #5–10 on those days; early entries are mostly winners.
 # None = use global MAX_TRADES_DAY for all VIX ranges.
-MAX_TRADES_DAY_VIX_15_20: int | None = None
+MAX_TRADES_DAY_VIX_LO_HI: int | None = None
+
+# ── VIX-Range OTM Distance Floor ──
+# Raises the minimum OTM distance floor for entries within a specific VIX range.
+# Analysis of worst 15 loss days showed failure mode #1 (late-day losses) clusters in entries
+# with dist 29–39 at entry in the VIX 15–20 zone.
+# None = use global MIN_OTM_DISTANCE for all VIX ranges.
+ENABLE_OTM_DISTANCE_VIX_RANGE    = False   # True = apply raised floor only within VIX range below
+MIN_OTM_DISTANCE_VIX_RANGE_LO    = 15.0   # lower bound (inclusive)
+MIN_OTM_DISTANCE_VIX_RANGE_HI    = 20.0   # upper bound (exclusive)
+MIN_OTM_DISTANCE_VIX_LO_HI: float | None = 40.0   # raised floor when filter is active
 
 # ── Calendar Event Date Sets ──
 # Used by run_calendar_event_sweep() to test each event type independently.
@@ -2105,9 +2111,9 @@ async def _simulate_day(
                         break
 
         _max_trades = MAX_TRADES_DAY
-        if (MAX_TRADES_DAY_VIX_15_20 is not None and vix_level is not None
+        if (MAX_TRADES_DAY_VIX_LO_HI is not None and vix_level is not None
                 and 15.0 <= vix_level < 20.0):
-            _max_trades = MAX_TRADES_DAY_VIX_15_20
+            _max_trades = MAX_TRADES_DAY_VIX_LO_HI
         can_enter = in_window and on_interval and not stopped_today and daily_trades < _max_trades and not econ_skip_entries and bayesian_gate_ok and not is_under_pressure
 
         if not can_enter:
@@ -2172,9 +2178,10 @@ async def _simulate_day(
             credit_threshold = min_credit if min_credit is not None else MIN_NET_CREDIT
             credit_cap      = max_credit if max_credit is not None else MAX_NET_CREDIT
             otm_floor = min_otm_distance if min_otm_distance is not None else MIN_OTM_DISTANCE
-            if (MIN_OTM_DISTANCE_VIX_15_20 is not None and vix_level is not None
-                    and 15.0 <= vix_level < 20.0):
-                otm_floor = max(otm_floor or 0, MIN_OTM_DISTANCE_VIX_15_20)
+            if (ENABLE_OTM_DISTANCE_VIX_RANGE and MIN_OTM_DISTANCE_VIX_LO_HI is not None
+                    and vix_level is not None
+                    and MIN_OTM_DISTANCE_VIX_RANGE_LO <= vix_level < MIN_OTM_DISTANCE_VIX_RANGE_HI):
+                otm_floor = max(otm_floor or 0, MIN_OTM_DISTANCE_VIX_LO_HI)
             short_strike = long_strike = short_q = long_q = credit = None
             for offset in range(200, 0, -5):
                 if otm_floor is not None and offset < otm_floor:
@@ -2926,12 +2933,8 @@ def append_results_md(all_trades: list, date_list) -> None:
     all_years = sorted(month_pnl.keys())
 
     # ── Large loss days ───────────────────────────────────────────────────────
-    loss_day_pnl: dict[str, float] = {}
-    loss_day_trades: dict[str, int] = {}
-    for t in all_trades:
-        d2 = t["entry_date"]
-        loss_day_pnl[d2]    = loss_day_pnl.get(d2, 0.0) + t["pnl_earned"]
-        loss_day_trades[d2] = loss_day_trades.get(d2, 0) + 1
+    loss_day_pnl, loss_day_trades, loss_day_vix, loss_day_wins, loss_day_losses = \
+        _aggregate_loss_days(all_trades)
     worst_15 = sorted([(pnl, d2) for d2, pnl in loss_day_pnl.items() if pnl < 0])[:15]
 
     # ── Build markdown ────────────────────────────────────────────────────────
@@ -2942,6 +2945,18 @@ def append_results_md(all_trades: list, date_list) -> None:
         "\n---\n",
         f"## Run: {run_ts}",
         f"**Period:** {period}  |  **Days traded:** {days_traded}  |  **Total trades:** {n}",
+        "",
+        "### Returns",
+        "| Metric | Value |",
+        "|--------|-------|",
+        f"| Total P&L (net) | ${total_pnl:,.2f} |",
+        f"| Gross premium collected | ${gross_premium:,.2f} |",
+        f"| Premium capture rate | {prem_capture_pct:.1f}% |",
+        f"| CAGR | {cagr:.1f}% |",
+        f"| Avg profit/trade | ${avg_win:,.2f} |",
+        f"| Avg loss/trade | ${avg_loss:,.2f} |",
+        f"| Expectancy/trade | ${expectancy:,.2f} |",
+        f"| Profit factor | {profit_factor:.2f}x |",
         "",
         "### Key Config",
         "| Parameter | Value |",
@@ -2958,18 +2973,6 @@ def append_results_md(all_trades: list, date_list) -> None:
         f"| EOQ SL | {'on $'+str(int(EOQ_SL_AMOUNT)) if ENABLE_EOQ_SL else 'off'} |",
         f"| Pre-TW SL | {'on $'+str(int(PRE_TW_SL_AMOUNT)) if ENABLE_PRE_TW_SL else 'off'} |",
         f"| Post-holiday SL | {'on $'+str(int(POST_HOL_SL_AMOUNT)) if ENABLE_POST_HOL_SL else 'off'} |",
-        "",
-        "### Returns",
-        "| Metric | Value |",
-        "|--------|-------|",
-        f"| Total P&L (net) | ${total_pnl:,.2f} |",
-        f"| Gross premium collected | ${gross_premium:,.2f} |",
-        f"| Premium capture rate | {prem_capture_pct:.1f}% |",
-        f"| CAGR | {cagr:.1f}% |",
-        f"| Avg profit/trade | ${avg_win:,.2f} |",
-        f"| Avg loss/trade | ${avg_loss:,.2f} |",
-        f"| Expectancy/trade | ${expectancy:,.2f} |",
-        f"| Profit factor | {profit_factor:.2f}x |",
         "",
         "### Risk",
         "| Metric | Value |",
@@ -3097,11 +3100,15 @@ def append_results_md(all_trades: list, date_list) -> None:
 
     # Large loss days
     L += ["", "### Largest Loss Days (worst 15)"]
-    L.append("| Date | Trades | Day P&L |")
-    L.append("|------|-------:|--------:|")
+    L.append("| Date | VIX | Trades | W/L | Day P&L |")
+    L.append("|------|----:|-------:|----:|--------:|")
     for pnl, d2 in worst_15:
-        date_fmt = f"{d2[:4]}-{d2[4:6]}-{d2[6:]}"
-        L.append(f"| {date_fmt} | {loss_day_trades[d2]} | ${pnl:,.2f} |")
+        date_fmt  = f"{d2[:4]}-{d2[4:6]}-{d2[6:]}"
+        vix_val   = loss_day_vix.get(d2)
+        vix_str   = f"{vix_val:.1f}" if vix_val is not None else "?"
+        w         = loss_day_wins.get(d2, 0)
+        l         = loss_day_losses.get(d2, 0)
+        L.append(f"| {date_fmt} | {vix_str} | {loss_day_trades[d2]} | {w}W/{l}L | ${pnl:,.2f} |")
 
     L.append("")
 
@@ -3485,28 +3492,47 @@ def print_spy_comparison(all_trades: list) -> None:
 # ─────────────────────────────────────────────
 #  LARGE LOSS DAYS
 # ─────────────────────────────────────────────
-def print_large_loss_days(all_trades: list, n: int = 15) -> None:
+def _aggregate_loss_days(all_trades: list):
+    """Return (day_pnl, day_trades, day_vix, day_wins, day_losses) dicts keyed by YYYYMMDD."""
     day_pnl: dict[str, float] = {}
     day_trades: dict[str, int] = {}
+    day_vix: dict[str, float] = {}
+    day_wins: dict[str, int] = {}
+    day_losses: dict[str, int] = {}
     for t in all_trades:
         d = t["entry_date"]
-        day_pnl[d] = day_pnl.get(d, 0.0) + t["pnl_earned"]
+        day_pnl[d]    = day_pnl.get(d, 0.0) + t["pnl_earned"]
         day_trades[d] = day_trades.get(d, 0) + 1
+        if d not in day_vix and t.get("vix_level"):
+            try:
+                day_vix[d] = float(t["vix_level"])
+            except (ValueError, TypeError):
+                pass
+        day_wins[d]   = day_wins.get(d, 0) + int(t.get("win", 0) or 0)
+        day_losses[d] = day_losses.get(d, 0) + int(t.get("loss", 0) or 0)
+    return day_pnl, day_trades, day_vix, day_wins, day_losses
 
+
+def print_large_loss_days(all_trades: list, n: int = 15) -> None:
+    day_pnl, day_trades, day_vix, day_wins, day_losses = _aggregate_loss_days(all_trades)
     loss_days = sorted([(pnl, d) for d, pnl in day_pnl.items() if pnl < 0])
     if not loss_days:
         return
 
     top_n = loss_days[:n]
-    sep = "─" * 52
+    sep = "─" * 62
     logger.info(sep)
     logger.info(f"  LARGEST LOSS DAYS  (worst {n})")
     logger.info(sep)
-    logger.info(f"  {'Date':<12} {'Trades':>7} {'Day P&L':>12}")
+    logger.info(f"  {'Date':<12} {'VIX':>5}  {'Trades':>6}  {'W/L':<7} {'Day P&L':>12}")
     logger.info(sep)
     for pnl, d in top_n:
         date_fmt = f"{d[:4]}-{d[4:6]}-{d[6:]}"
-        logger.info(f"  {date_fmt:<12} {day_trades[d]:>7} {pnl:>12,.2f}")
+        vix_val  = day_vix.get(d)
+        vix_str  = f"{vix_val:.1f}" if vix_val is not None else "?"
+        w  = day_wins.get(d, 0)
+        l  = day_losses.get(d, 0)
+        logger.info(f"  {date_fmt:<12} {vix_str:>5}  {day_trades[d]:>6}  {w}W/{l}L{'':<2} {pnl:>12,.2f}")
     logger.info(sep)
 
 
