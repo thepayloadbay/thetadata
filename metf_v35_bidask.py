@@ -190,7 +190,7 @@ ECON_DATES = {
 
 # ── Pressure Filter ──
 # Stops from opening anymore positions if dist < threshold
-ENABLE_PRESSURE_FILTER = True
+ENABLE_PRESSURE_FILTER = False
 PRESSURE_DISTANCE_THRESHOLD = 27.0 # Stop entering if price is within X pts of any short strike
 
 # ── Calendar Event Date Sets ──
