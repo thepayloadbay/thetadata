@@ -118,6 +118,7 @@ All max drawdown comes from the CALL side.
 - add pnl for econ dates
 - is there a pattern where if monday is a loss, tuesday could be a loss, 
 - is there ap attern where if a tuesday is a loss, wednesday is a loss? check statistics. is there a statistical model?
+- add stats for pnl by entry times
 
 ### Intraday Trend Reversal Detection (VIX 15–20 loss day problem)
 
