@@ -1841,9 +1841,6 @@ async def _simulate_day(
         dt         = datetime.fromisoformat(times[i].replace('Z', ''))
         curr_time  = dt.time()
         curr_price = closes[i]
-
-        sides_to_enter = []
-
         bar_time   = curr_time.strftime("%H:%M:%S")
         bar_label  = f"{date_str[:4]}-{date_str[4:6]}-{date_str[6:]} {bar_time}"
         ai         = offset + i  # index into all_closes (seed + today)
@@ -1851,21 +1848,6 @@ async def _simulate_day(
         is_eod        = (curr_time == market_close_time(date_str))
         is_sample_bar = (curr_time.minute % pnl_sample_interval == 0)
         should_mtm    = is_sample_bar or is_eod
-
-        # --- 1. THE "HEALTH CHECK" (MUST BE AT THE TOP) ---
-        # Count trades that already closed as a loss
-        closed_losses = sum(1 for p in day_trades_log if p.get('pnl_earned', 0) < 0)
-        
-        # Count active positions that are currently failing (past the 25pt mark)
-        active_losses = 0
-        for pos in active_positions:
-            if pos['option_type'] == 'PUT' and curr_price <= (pos['short_strike'] - 25):
-                active_losses += 1
-            elif pos['option_type'] == 'CALL' and curr_price >= (pos['short_strike'] + 25):
-                active_losses += 1
-
-        total_strikes = closed_losses + active_losses
-        is_at_loss_limit = (total_strikes >= 2)
 
         # ── 3. Mark-to-market ──
         if active_positions and should_mtm:
@@ -2062,7 +2044,7 @@ async def _simulate_day(
                     is_under_pressure = True
                     break
 
-        can_enter = in_window and on_interval and not stopped_today and daily_trades < MAX_TRADES_DAY and not econ_skip_entries and bayesian_gate_ok and not is_under_pressure and not is_at_loss_limit 
+        can_enter = in_window and on_interval and not stopped_today and daily_trades < MAX_TRADES_DAY and not econ_skip_entries and bayesian_gate_ok and not is_under_pressure 
         # can_enter   = in_window and on_interval and not stopped_today and daily_trades < MAX_TRADES_DAY and not econ_skip_entries and bayesian_gate_ok
 
         if not can_enter:
@@ -2109,133 +2091,131 @@ async def _simulate_day(
                 logger.debug(f"[{bar_label}] Opening skew @ {otm}pt OTM — PUT={_skew_put} CALL={_skew_call} ratio={_skew_ratio}")
             except Exception as e:
                 logger.debug(f"[{bar_label}] Opening skew compute failed: {e}")
-        
-        # This is the final gate. If we have 2 strikes, this will be False.
-        if not is_at_loss_limit:
-            for opt_type, right in sides_to_enter:
-                logger.info(f"[{bar_label}] Entry attempt | spot={curr_price:.2f} EMA13={e13:.2f} EMA48={e48:.2f} | {opt_type}")
 
-                # Fetch strikes from 10 OTM out to (200 + spread_width) OTM so the long leg
-                # is always in the chain regardless of spread width.
-                otm_min, otm_max = 10, 200 + int(spread_width)
+        for opt_type, right in sides_to_enter:
+            logger.info(f"[{bar_label}] Entry attempt | spot={curr_price:.2f} EMA13={e13:.2f} EMA48={e48:.2f} | {opt_type}")
+
+            # Fetch strikes from 10 OTM out to (200 + spread_width) OTM so the long leg
+            # is always in the chain regardless of spread width.
+            otm_min, otm_max = 10, 200 + int(spread_width)
+            if opt_type == "PUT":
+                lo, hi = curr_price - otm_max, curr_price - otm_min
+            else:
+                lo, hi = curr_price + otm_min, curr_price + otm_max
+            candidate_strikes = [s for s in all_strikes if lo <= s <= hi]
+
+            chain = await fetch_quotes_for_strikes_cached(session, date_str, expiry, right, candidate_strikes, bar_time)
+
+            # Loop from 200 OTM down by 5 until we find a spread with credit >= min_credit threshold
+            credit_threshold = min_credit if min_credit is not None else MIN_NET_CREDIT
+            credit_cap      = max_credit if max_credit is not None else MAX_NET_CREDIT
+            otm_floor = min_otm_distance if min_otm_distance is not None else MIN_OTM_DISTANCE
+            short_strike = long_strike = short_q = long_q = credit = None
+            for offset in range(200, 0, -5):
+                if otm_floor is not None and offset < otm_floor:
+                    break  # don't enter closer than min OTM distance
                 if opt_type == "PUT":
-                    lo, hi = curr_price - otm_max, curr_price - otm_min
+                    s = int(round((curr_price - offset) / 5.0) * 5)
+                    l = s - int(spread_width)
                 else:
-                    lo, hi = curr_price + otm_min, curr_price + otm_max
-                candidate_strikes = [s for s in all_strikes if lo <= s <= hi]
+                    s = int(round((curr_price + offset) / 5.0) * 5)
+                    l = s + int(spread_width)
+                sq = chain.get(s)
+                lq = chain.get(l)
+                if not sq or not lq:
+                    continue
+                c = sq["bid"] - lq["ask"]  # real entry: sell short at bid, buy long at ask
+                if c >= credit_threshold:
+                    if credit_cap is not None and c > credit_cap:
+                        logger.debug(f"[{bar_label}] Skipping offset={offset}: credit={c:.3f} exceeds cap={credit_cap}")
+                        break  # closest qualifying strike already exceeds cap — skip entry
+                    short_strike, long_strike, short_q, long_q, credit = s, l, sq, lq, c
+                    logger.info(f"[{bar_label}] Found spread at offset={offset}: {s}/{l} credit={c:.3f} (bid-ask)")
+                    break
 
-                chain = await fetch_quotes_for_strikes_cached(session, date_str, expiry, right, candidate_strikes, bar_time)
+            if short_strike is None:
+                logger.warning(f"[{bar_label}] No spread found with credit >= {credit_threshold} — skipping.")
+                continue
 
-                # Loop from 200 OTM down by 5 until we find a spread with credit >= min_credit threshold
-                credit_threshold = min_credit if min_credit is not None else MIN_NET_CREDIT
-                credit_cap      = max_credit if max_credit is not None else MAX_NET_CREDIT
-                otm_floor = min_otm_distance if min_otm_distance is not None else MIN_OTM_DISTANCE
-                short_strike = long_strike = short_q = long_q = credit = None
-                for offset in range(200, 0, -5):
-                    if otm_floor is not None and offset < otm_floor:
-                        break  # don't enter closer than min OTM distance
-                    if opt_type == "PUT":
-                        s = int(round((curr_price - offset) / 5.0) * 5)
-                        l = s - int(spread_width)
-                    else:
-                        s = int(round((curr_price + offset) / 5.0) * 5)
-                        l = s + int(spread_width)
-                    sq = chain.get(s)
-                    lq = chain.get(l)
-                    if not sq or not lq:
-                        continue
-                    c = sq["bid"] - lq["ask"]  # real entry: sell short at bid, buy long at ask
-                    if c >= credit_threshold:
-                        if credit_cap is not None and c > credit_cap:
-                            logger.debug(f"[{bar_label}] Skipping offset={offset}: credit={c:.3f} exceeds cap={credit_cap}")
-                            break  # closest qualifying strike already exceeds cap — skip entry
-                        short_strike, long_strike, short_q, long_q, credit = s, l, sq, lq, c
-                        logger.info(f"[{bar_label}] Found spread at offset={offset}: {s}/{l} credit={c:.3f} (bid-ask)")
-                        break
+            # ── Net delta check ──
+            current_net_delta = sum(
+                approx_spread_delta(curr_price, p["short_strike"], p["long_strike"])
+                for p in active_positions
+            )
+            new_delta = approx_spread_delta(curr_price, short_strike, long_strike)
+            projected_delta = current_net_delta + new_delta
+            logger.debug(f"[{bar_label}] Net delta: current={current_net_delta:.3f} new={new_delta:.3f} projected={projected_delta:.3f} limit=±{NET_DELTA_LIMIT}")
+            if ENABLE_DELTA_LIMIT and abs(projected_delta) > NET_DELTA_LIMIT:
+                logger.warning(f"[{bar_label}] Net delta limit breached ({projected_delta:.3f}) — skipping {opt_type} spread.")
+                continue
 
-                if short_strike is None:
-                    logger.warning(f"[{bar_label}] No spread found with credit >= {credit_threshold} — skipping.")
+            # ── Buying power cap: dynamically reduce qty to stay within budget ──
+            entry_qty = trade_qty
+            if max_buying_power is not None:
+                committed_bp  = sum((p["spread_width"] - p["credit_received"]) * p["qty"] * 100 for p in active_positions)
+                available_bp  = max_buying_power - committed_bp
+                bp_per_contract = (spread_width - credit) * 100
+                max_qty = int(available_bp // bp_per_contract) if bp_per_contract > 0 else 0
+                entry_qty = min(trade_qty, max_qty)
+                if entry_qty <= 0:
+                    logger.warning(f"[{bar_label}] Buying power limit (${max_buying_power:,.0f}) reached — skipping entry.")
                     continue
 
-                # ── Net delta check ──
-                current_net_delta = sum(
-                    approx_spread_delta(curr_price, p["short_strike"], p["long_strike"])
-                    for p in active_positions
-                )
-                new_delta = approx_spread_delta(curr_price, short_strike, long_strike)
-                projected_delta = current_net_delta + new_delta
-                logger.debug(f"[{bar_label}] Net delta: current={current_net_delta:.3f} new={new_delta:.3f} projected={projected_delta:.3f} limit=±{NET_DELTA_LIMIT}")
-                if ENABLE_DELTA_LIMIT and abs(projected_delta) > NET_DELTA_LIMIT:
-                    logger.warning(f"[{bar_label}] Net delta limit breached ({projected_delta:.3f}) — skipping {opt_type} spread.")
+            # ── Price change % from prior close filter ──
+            if prior_close and (price_chg_pct_min is not None or price_chg_pct_max is not None):
+                chg_pct = (curr_price - prior_close) / prior_close * 100
+                if price_chg_pct_min is not None and chg_pct < price_chg_pct_min:
+                    logger.warning(f"[{bar_label}] Price chg {chg_pct:.2f}% < min {price_chg_pct_min}% — skipping entry.")
+                    continue
+                if price_chg_pct_max is not None and chg_pct > price_chg_pct_max:
+                    logger.warning(f"[{bar_label}] Price chg {chg_pct:.2f}% > max {price_chg_pct_max}% — skipping entry.")
                     continue
 
-                # ── Buying power cap: dynamically reduce qty to stay within budget ──
-                entry_qty = trade_qty
-                if max_buying_power is not None:
-                    committed_bp  = sum((p["spread_width"] - p["credit_received"]) * p["qty"] * 100 for p in active_positions)
-                    available_bp  = max_buying_power - committed_bp
-                    bp_per_contract = (spread_width - credit) * 100
-                    max_qty = int(available_bp // bp_per_contract) if bp_per_contract > 0 else 0
-                    entry_qty = min(trade_qty, max_qty)
-                    if entry_qty <= 0:
-                        logger.warning(f"[{bar_label}] Buying power limit (${max_buying_power:,.0f}) reached — skipping entry.")
+            # ── Price change in standard deviations from prior close ──
+            # daily_sigma = prior_close × (VIX/100) / √252 (VIX-implied 1-day 1σ move)
+            if prior_close and vix_level and (price_chg_sd_min is not None or price_chg_sd_max is not None):
+                daily_sigma = prior_close * (vix_level / 100.0) / math.sqrt(252)
+                if daily_sigma > 0:
+                    chg_sd = (curr_price - prior_close) / daily_sigma
+                    if price_chg_sd_min is not None and chg_sd < price_chg_sd_min:
+                        logger.warning(f"[{bar_label}] Price chg {chg_sd:.2f}σ < min {price_chg_sd_min}σ — skipping entry.")
+                        continue
+                    if price_chg_sd_max is not None and chg_sd > price_chg_sd_max:
+                        logger.warning(f"[{bar_label}] Price chg {chg_sd:.2f}σ > max {price_chg_sd_max}σ — skipping entry.")
                         continue
 
-                # ── Price change % from prior close filter ──
-                if prior_close and (price_chg_pct_min is not None or price_chg_pct_max is not None):
-                    chg_pct = (curr_price - prior_close) / prior_close * 100
-                    if price_chg_pct_min is not None and chg_pct < price_chg_pct_min:
-                        logger.warning(f"[{bar_label}] Price chg {chg_pct:.2f}% < min {price_chg_pct_min}% — skipping entry.")
-                        continue
-                    if price_chg_pct_max is not None and chg_pct > price_chg_pct_max:
-                        logger.warning(f"[{bar_label}] Price chg {chg_pct:.2f}% > max {price_chg_pct_max}% — skipping entry.")
-                        continue
+            # ── Price change % from day open to entry bar ──
+            if day_open and (open_chg_pct_min is not None or open_chg_pct_max is not None):
+                open_chg = (curr_price - day_open) / day_open * 100
+                if open_chg_pct_min is not None and open_chg < open_chg_pct_min:
+                    logger.warning(f"[{bar_label}] Open chg {open_chg:.2f}% < min {open_chg_pct_min}% — skipping entry.")
+                    continue
+                if open_chg_pct_max is not None and open_chg > open_chg_pct_max:
+                    logger.warning(f"[{bar_label}] Open chg {open_chg:.2f}% > max {open_chg_pct_max}% — skipping entry.")
+                    continue
 
-                # ── Price change in standard deviations from prior close ──
-                # daily_sigma = prior_close × (VIX/100) / √252 (VIX-implied 1-day 1σ move)
-                if prior_close and vix_level and (price_chg_sd_min is not None or price_chg_sd_max is not None):
-                    daily_sigma = prior_close * (vix_level / 100.0) / math.sqrt(252)
-                    if daily_sigma > 0:
-                        chg_sd = (curr_price - prior_close) / daily_sigma
-                        if price_chg_sd_min is not None and chg_sd < price_chg_sd_min:
-                            logger.warning(f"[{bar_label}] Price chg {chg_sd:.2f}σ < min {price_chg_sd_min}σ — skipping entry.")
-                            continue
-                        if price_chg_sd_max is not None and chg_sd > price_chg_sd_max:
-                            logger.warning(f"[{bar_label}] Price chg {chg_sd:.2f}σ > max {price_chg_sd_max}σ — skipping entry.")
-                            continue
-
-                # ── Price change % from day open to entry bar ──
-                if day_open and (open_chg_pct_min is not None or open_chg_pct_max is not None):
-                    open_chg = (curr_price - day_open) / day_open * 100
-                    if open_chg_pct_min is not None and open_chg < open_chg_pct_min:
-                        logger.warning(f"[{bar_label}] Open chg {open_chg:.2f}% < min {open_chg_pct_min}% — skipping entry.")
-                        continue
-                    if open_chg_pct_max is not None and open_chg > open_chg_pct_max:
-                        logger.warning(f"[{bar_label}] Open chg {open_chg:.2f}% > max {open_chg_pct_max}% — skipping entry.")
-                        continue
-
-                strike_dist = round(abs(short_strike - curr_price), 2)
-                logger.info(f"[{bar_label}] ENTERING {opt_type} spread {short_strike}/{long_strike} credit={credit:.3f} (bid-ask) x {entry_qty} x 100 = ${credit*entry_qty*100:.2f} | net_delta={projected_delta:.3f} | strike_dist={strike_dist:.1f}pts")
-                active_positions.append({
-                    "entry_date": date_str, "entry_time": bar_time,
-                    "option_type": opt_type,
-                    "short_strike": short_strike, "long_strike": long_strike,
-                    "width": spread_width, "spread_width": spread_width, "credit_received": credit,
-                    "entry_short_bid": short_q["bid"], "entry_short_ask": short_q["ask"], "entry_short_mid": short_q["mid"],
-                    "entry_long_bid":  long_q["bid"],  "entry_long_ask":  long_q["ask"],  "entry_long_mid":  long_q["mid"],
-                    "profit_target": DAILY_TP, "stop_loss": daily_sl if daily_sl is not None else "none",
-                    "ema13": round(e13, 2), "ema48": round(e48, 2),
-                    "qty": entry_qty, "vix_level": round(vix_level, 2) if vix_level is not None else "",
-                    "strike_distance": strike_dist,
-                    "opening_put_credit":  _skew_put   if _skew_put  is not None else "",
-                    "opening_call_credit": _skew_call  if _skew_call is not None else "",
-                    "pc_skew_ratio":       _skew_ratio if _skew_ratio is not None else "",
-                    "pnl_earned": 0.0, "peak_pnl": 0.0, "last_short_ask": short_q["ask"], "last_long_bid": long_q["bid"],
-                    "stale_bars": 0,
-                    "outcome": "", "profit_price": None,
-                    "win": 0, "loss": 0, "close_date": "", "close_time": "", "profit_date_time": "",
-                })
-                daily_trades += 1
+            strike_dist = round(abs(short_strike - curr_price), 2)
+            logger.info(f"[{bar_label}] ENTERING {opt_type} spread {short_strike}/{long_strike} credit={credit:.3f} (bid-ask) x {entry_qty} x 100 = ${credit*entry_qty*100:.2f} | net_delta={projected_delta:.3f} | strike_dist={strike_dist:.1f}pts")
+            active_positions.append({
+                "entry_date": date_str, "entry_time": bar_time,
+                "option_type": opt_type,
+                "short_strike": short_strike, "long_strike": long_strike,
+                "width": spread_width, "spread_width": spread_width, "credit_received": credit,
+                "entry_short_bid": short_q["bid"], "entry_short_ask": short_q["ask"], "entry_short_mid": short_q["mid"],
+                "entry_long_bid":  long_q["bid"],  "entry_long_ask":  long_q["ask"],  "entry_long_mid":  long_q["mid"],
+                "profit_target": DAILY_TP, "stop_loss": daily_sl if daily_sl is not None else "none",
+                "ema13": round(e13, 2), "ema48": round(e48, 2),
+                "qty": entry_qty, "vix_level": round(vix_level, 2) if vix_level is not None else "",
+                "strike_distance": strike_dist,
+                "opening_put_credit":  _skew_put   if _skew_put  is not None else "",
+                "opening_call_credit": _skew_call  if _skew_call is not None else "",
+                "pc_skew_ratio":       _skew_ratio if _skew_ratio is not None else "",
+                "pnl_earned": 0.0, "peak_pnl": 0.0, "last_short_ask": short_q["ask"], "last_long_bid": long_q["bid"],
+                "stale_bars": 0,
+                "outcome": "", "profit_price": None,
+                "win": 0, "loss": 0, "close_date": "", "close_time": "", "profit_date_time": "",
+            })
+            daily_trades += 1
 
     day_pnl = sum(t["pnl_earned"] for t in day_trades_log)
     logger.info(f"Day complete: {len(day_trades_log)} trades | day P&L=${day_pnl:.2f}")
