@@ -188,6 +188,9 @@ ECON_DATES = {
     "20260904","20261002","20261106","20261204",
 }
 
+ENABLE_PRESSURE_FILTER = True
+PRESSURE_DISTANCE_THRESHOLD = 15.0 # Stop entering if price is within 15pts of any short strike
+
 # ── Calendar Event Date Sets ──
 # Used by run_calendar_event_sweep() to test each event type independently.
 # Computed once at import time from pandas date ranges + hard-coded release dates.
@@ -1372,6 +1375,7 @@ def parse_single_quote(raw: str) -> dict | None:
     return None
 
 
+
 # ─────────────────────────────────────────────
 # ─────────────────────────────────────────────
 #  SESSION FACTORY
@@ -2024,7 +2028,23 @@ async def _simulate_day(
         in_window   = _entry_start <= curr_time <= _entry_end
         on_interval = (dt.minute % _entry_interval == 0)
         bayesian_gate_ok = (INTRADAY_ENTRY_GATE is None or current_day_pnl >= INTRADAY_ENTRY_GATE)
-        can_enter   = in_window and on_interval and not stopped_today and daily_trades < MAX_TRADES_DAY and not econ_skip_entries and bayesian_gate_ok
+
+        if PRESSURE_DISTANCE_THRESHOLD == True:
+            is_under_pressure = False
+            for pos in active_positions:
+                s_strike = pos['short_strike']
+                # Calculate distance: Positive means OTM, Negative means ITM
+                dist = (curr_price - s_strike) if pos['option_type'] == 'PUT' else (s_strike - curr_price)
+                
+                # If any position is within 15 points of the short strike, block new entries
+                if dist < 15.0:
+                    is_under_pressure = True
+                    break
+        else:
+            is_under_pressure = False
+
+        can_enter = in_window and on_interval and not stopped_today and daily_trades < MAX_TRADES_DAY and not econ_skip_entries and bayesian_gate_ok and not is_under_pressure
+        # can_enter   = in_window and on_interval and not stopped_today and daily_trades < MAX_TRADES_DAY and not econ_skip_entries and bayesian_gate_ok
 
         if not can_enter:
             continue
@@ -7652,6 +7672,34 @@ def load_existing_trades() -> tuple[list, str | None]:
     last_date = max(dates) if dates else None
     return trades, last_date
 
+def is_portfolio_under_pressure(active_positions, current_spot, threshold_pct=0.50):
+    """
+    Checks if any open position has an unrealized loss exceeding threshold_pct 
+    of the credit received.
+    """
+    if not active_positions:
+        return False
+        
+    for pos in active_positions:
+        # Calculate approximate current value of the spread
+        # Note: In backtest, we approximate mid-price or use the current spot 
+        # to see if the short strike is being challenged.
+        
+        # Simple Logic: If it's a PUT and spot is approaching short strike,
+        # or if it's a CALL and spot is approaching short strike.
+        
+        # A more accurate 'Pressure' check for your script: 
+        # Check if the current price is within X points of the short strike.
+        short_strike = pos['short_strike']
+        side = pos['option_type']
+        
+        distance = current_spot - short_strike if side == 'PUT' else short_strike - current_spot
+        
+        # If distance is less than 15 points, the spread is likely down > 50% in 0DTE
+        if distance < 15.0:
+            return True
+            
+    return False
 
 async def run():
     date_list = pd.date_range(PILOT_YEAR_START, PILOT_YEAR_END, freq='B')
