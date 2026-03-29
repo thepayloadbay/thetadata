@@ -98,6 +98,7 @@ Backtest and optimize a **Multi-Entry Directional Spreads (MEDS)** strategy trad
 - **Prior-day VIX % change filter**: opposite of expected — days after large VIX spikes (>20%) have 92.3% WR and $927 avg P&L (best bucket); MIN_OTM_DISTANCE=30 provides sufficient buffer
 - **Intraday VIX spike circuit breaker**: same pattern — large intraday VIX spikes average $826/day above baseline; Dec 18 2024 spike (57%) hit 20% threshold at 15:04 PM after entry window closed; dangerous days already caught by VIX_MAX_FILTER
 - **VRP (Variance Risk Premium) half-sizing**: Q1→Q5 gradient exists ($553→$726/day) but too weak — half-sizing bottom 20% costs -$61k P&L to reduce DD by only $776; negative VRP days (premium "cheap") still avg $781/day with 86.7% WR
+- **VIX 15-20 dynamic SL** (all levels -$1,500/-$3,000/-$5,000): catastrophic — costs $99k-$173k P&L, DD worsens. Zone has 2,871 trades at 97.8% WR; any SL fires on too many winning days
 
 ---
 

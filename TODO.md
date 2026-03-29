@@ -361,7 +361,16 @@ The baseline Calmar of 88.0 and DD of -$6,894 are already exceptional for a $40k
 **Potential mitigations (untested):**
 - [ ] **Intraday momentum filter for VIX 15–20**: if SPX has moved >0.5% against spread direction since open, suppress entries. Targets V-shape days where early entries are fine but late entries open into the rally.
 - [ ] **Strike distance decay signal** (Option 2 above): at 11:00 the existing positions' avg OTM had already shrunk 10+ pts. Could have blocked the worst entry (-$2,834).
-- [ ] **VIX 15-20 dynamic SL**: currently no SL in this zone. A loose SL (e.g. -$1,500 to -$2,000) might cap this day from -$6,118 to ~-$3,000 without costing much P&L on normal days. Needs sweep.
+- ✗ **VIX 15-20 dynamic SL** — MARATHON TESTED 2026-03-29:
+
+  | SL Level | P&L | Max DD | Sharpe | WR |
+  |----------|-----|--------|--------|----|
+  | Baseline | $612,012 | -$6,356 | 14.15 | 92.7% |
+  | -$1,500 | $439,018 | -$6,596 | 7.72 | 87.1% |
+  | -$3,000 | $485,198 | -$9,956 | 7.65 | 90.3% |
+  | -$5,000 | $512,866 | -$10,800 | 7.83 | 91.5% |
+
+  **Rejected** — catastrophic at all levels. VIX 15-20 has 2,871 trades at 97.8% WR; any SL here fires on too many normal winning days. P&L loss $99k–$173k, DD actually worsens at looser levels. This zone is unsolvable with a blanket SL — would need a surgical intraday signal.
 
 ---
 
@@ -437,8 +446,17 @@ Run with all 5 calendar SLs enabled at -$300 cost -$48k P&L ($558k vs $607k) wit
 
 $7,012 P&L but -$6,382 DD = 0.91 Calmar for this zone alone. Carries 93% of portfolio max DD for only 1.2% of total P&L.
 
-- [ ] **Tighter dynamic SL for VIX <13**: currently -$800. Test -$500, -$400. The zone is marginally profitable — tighter SL might preserve P&L while cutting DD significantly.
-- [ ] **Skip VIX <12 entirely**: only ~20 days in 4yr backtest. Previously noted as potential mitigation in the low-VIX structural gap section.
+- ✗ **Tighter dynamic SL for VIX <13** — MARATHON TESTED 2026-03-29:
+
+  | SL Level | P&L | Max DD | Sharpe | WR |
+  |----------|-----|--------|--------|----|
+  | -$800 (baseline) | $612,012 | -$6,356 | 14.15 | 92.7% |
+  | -$500 | $612,818 | -$7,952 | 14.47 | 93.2% |
+  | -$400 | $614,146 | -$7,028 | 14.60 | 93.1% |
+
+  **Rejected** — both tighter levels WORSEN max DD (-$7k to -$8k vs -$6.4k baseline). P&L gain is marginal (+$800–$2k). The tighter SL fires more frequently on VIX <13 days, but the days that survive the looser SL at -$800 recover enough to keep DD lower. Same pattern as per-position SL: tighter = locks in more losses.
+
+- ✗ **Skip VIX <12 entirely** — MARATHON TESTED 2026-03-29: P&L $610,988 (-$1,024), DD -$6,356 (unchanged), Sharpe 14.63 (+0.48), WR 93.5%. 34 days skipped. **Rejected** — same pattern as skip 13–13.5. Cosmetic Sharpe gain, no DD improvement, small P&L cost. Max DD source is NOT in VIX <12 zone.
 
 ---
 
@@ -1044,3 +1062,35 @@ Save each day's fetched quote data to disk on first access. On subsequent runs, 
 - Sweeps: 6-level sweep would run at the same speed as a single run today
 
 **Where to hook in:** `fetch_quotes_for_strikes_cached()` — check for a cached parquet file before calling the API. If found, load from disk. If not, fetch from API and write to disk.
+
+---
+
+## Maintenance & Process
+
+### Periodic Regression Test (every 5 sessions)
+- [ ] Run full marathon with current config and verify results match confirmed baseline
+- [ ] Compare P&L, Max DD, Sharpe, WR, trade count against CLAUDE.md baseline numbers
+- [ ] If any metric drifts >1% from baseline, investigate before proceeding with new experiments
+- [ ] Check for unintended side effects from recent config changes
+- **Why:** Ensures code changes and experiments haven't accidentally degraded the confirmed baseline
+- **Frequency:** Every ~5 Claude Code sessions or after any major code refactoring
+
+### Code Refactoring — AGGRESSIVE
+- [ ] **Split `meds.py` into modules** — 8,900+ lines is unmaintainable. Target structure:
+  - `config.py` — all constants, flags, date sets, CLI args
+  - `indicators.py` — `_build_daily_indicators()`, `_build_calendar_event_dates()`, indicator helpers
+  - `simulation.py` — `_simulate_day()`, `_get_effective_sl()`, position management, MTM logic
+  - `sweeps.py` — all `run_*_sweep()` functions (20+ sweep runners share 90% identical code -> generic framework)
+  - `reports.py` — `print_performance_report()`, `append_results_md()`, `print_econ_date_analysis()`, all analysis/output functions
+  - `main.py` — entry point, CLI dispatch, `process_day()`, `run()`
+- [ ] **Delete dead code** — remove all disabled/rejected sweep runners and config blocks that will never be re-enabled (per-pos SL, pressure filter variants, premium buyback, etc.)
+- [ ] **Fix all Pylance warnings** — clean up unused variables (`elapsed`, `sep2`, `losses`, `d_str`, `sma20_direction`, `threshold_pct`, etc.)
+- [ ] **Generic sweep framework** — one `run_sweep(param_name, levels, ...)` function instead of 20 copy-pasted sweep runners
+- [ ] **Remove stale comments** — old sweep results embedded in comments are outdated; results belong in TODO.md/RESULTS.md, not inline
+- **When:** Next major session after current investigation round completes
+
+### Break Down Large Sections for Speed
+- [ ] **Split long functions into smaller pieces** — `_simulate_day()`, `print_performance_report()`, `_get_effective_sl()`, and `run()` are hundreds of lines each. Smaller functions = faster context loading, quicker edits, less risk of breaking unrelated code.
+- [ ] **Modularize sweep runners** — each sweep reads the entire file to find its function. If sweeps lived in `sweeps.py`, edits would be faster and wouldn't touch the core simulation.
+- [ ] **Separate report generation** — reporting/analysis functions are interleaved with simulation code. Isolating them speeds up both development and debugging.
+- **Why:** With 8,900+ lines in a single file, every edit requires reading large amounts of context. Smaller sections = faster Claude Code iterations.

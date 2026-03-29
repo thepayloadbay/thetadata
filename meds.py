@@ -924,8 +924,16 @@ VIX_SUB12_SL_LEVELS      = [-100, -150, -200, -250, -300, -350, -400, -500, None
 VIX_SUB12_THRESHOLD      = 13.0   # apply tighter SL only when VIX < this
 
 # -- VIX Sub-13 Tighter SL (live) --
-ENABLE_VIX_SUB12_SL  = True
-VIX_SUB12_SL_AMOUNT  = -400.0  # tighter SL on VIX < threshold days
+ENABLE_VIX_SUB12_SL  = False
+VIX_SUB12_SL_AMOUNT  = -300.0  # tighter SL on VIX < threshold days
+
+# -- VIX 15-20 Loose SL (live) --
+# The "safe zone" (VIX 15-20) has no dynamic SL, but Oct 9 2023 (-$6,118, VIX 17.7)
+# is the single largest loss day and defines max DD. A loose SL here caps tail losses
+# without strangling the 97.8% WR normal days in this zone.
+ENABLE_VIX_MID_SAFE_SL   = False
+VIX_MID_SAFE_SL_AMOUNT   = -1500.0  # loose SL for VIX 15-20 zone
+VIX_MID_SAFE_SL_RANGE    = (15.0, 20.0)
 
 # -- EOM SL Sweep --
 # Tests applying a tighter daily SL exclusively on the last trading day of each month.
@@ -2527,6 +2535,14 @@ def _get_effective_sl(day_data: dict, date_str: str) -> "float | None":
             gap_pct = ind.get("dGapPercent")
             if gap_pct is not None and gap_pct < 0:
                 effective_sl = GAP_CALL_SL_AMOUNT
+
+    if ENABLE_VIX_MID_SAFE_SL and vix is not None:
+        if VIX_MID_SAFE_SL_RANGE[0] <= vix < VIX_MID_SAFE_SL_RANGE[1]:
+            candidate = VIX_MID_SAFE_SL_AMOUNT
+            if effective_sl is None:
+                effective_sl = candidate
+            else:
+                effective_sl = max(effective_sl, candidate)
 
     if ENABLE_VIX_SUB12_SL and day_data.get("vix_level") is not None:
         vix = day_data["vix_level"]
