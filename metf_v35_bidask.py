@@ -435,7 +435,7 @@ KELLY_ZONE_QTY = [           # (vix_lo_inclusive, vix_hi_exclusive, qty)
 # ── VIX Day Filter ──
 # Set to a float to skip trading days outside this VIX range. None = no filter.
 VIX_MIN_FILTER = None
-VIX_MAX_FILTER = None   # no cap — vix_change direction adapts to any VIX regime
+VIX_MAX_FILTER = 35.0   # skip days where VIX > 35 — black swan protection. Only 8 days in 4yr backtest (2022–2026).
 
 VIX_ANALYSIS_FILE = _out("metf_v35_bidask_vix_analysis.csv")
 
@@ -472,11 +472,12 @@ DAY_FILTER_SKIP_VIX_RISE_DECEL = False  # True = skip days where VIX rising but 
 DAILY_TP       = None  # SWEEP RESULT: None wins. $750 cap was cutting winners short.
                        # Full-run sweep: None=$607k, $900=$512k, $800=$487k, $750=$466k baseline.
                        # Same MaxDD (-$9,922) and better Sharpe (12.35 vs 11.40). Keep None.
-DAILY_SL       = -20000   # Need to consider putting a large DAILY_SL to prevent blackswan events.
+DAILY_SL       = -20000   # Black swan protection. -20000 never fired in 4yr backtest (worst day -$6,118) — zero P&L cost.
                             # -5000 DAILY_SL resulted in $365,580.00 PNL
-                            # -10000 DAIL_SL resulted in $497,722.00 PNL
+                            # -10000 DAILY_SL resulted in $497,722.00 PNL
                             # -15000 DAILY_SL resulted in $578,172.00 PNL
-                            # None DAILY_SL resulted in $606,832.00 PNL
+                            # -20000 DAILY_SL resulted in $606,832.00 PNL (same as None — free insurance)
+                            # None   DAILY_SL resulted in $606,832.00 PNL
 
 # ── Dynamic Stop Loss ──
 # Danger zones:
