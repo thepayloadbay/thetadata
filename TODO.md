@@ -112,13 +112,130 @@ All max drawdown comes from the CALL side.
 ## Open Ideas
 
 - **Net unusual premiums** — large institutional options sweeps/block prints as a pre-entry signal. Requires separate options flow data source. Most plausible remaining confluence candidate given VIX change is already the direction signal.
+
+### Risk Management & Position Sizing Ideas (2026-03-29)
+
+#### Category A: Bankroll & Bet Sizing
+
+11. **"Unit" System** — Define 1 Unit = standard risk ($200 stop-loss). Track P&L in Units (+5U, -2U) instead of dollars to remove emotional weight and evaluate system execution independently of account size. Operational/psychological discipline for live trading.
+
+12. **Closing Line Value (CLV)** — After each entry, check if your credit received is higher or lower than the mid-price 15 min later. Consistently selling below mid = you're paying too much "vig" and your timing is poor. Actionable metric to track fill quality in live trading. Already partially addressed: backtest uses bid fills throughout; mid fills estimated to add $80-100k.
+
+13. **"Chop" Rule — Close at 80% max profit with 2+ hrs remaining** — If a spread has captured 80% of max credit and gamma risk is rising with 2h+ to expiry, close early to lock in gains. Similar to DAILY_TP but triggered by % capture rather than dollar amount. All fixed TP levels already tested and rejected (removing $750 cap added +$140k). Would need to check if 80% capture + time filter is more targeted. Untested.
+
+14. **EV over Results** — Evaluate trades on rule-adherence (EMA/VIX signal followed) not just outcome. A loss that followed every rule = "Good Loss." A win that broke rules = "Bad Win." Operational/scoring discipline for live trading.
+
+15. **Bankroll Segregation** — Keep trading capital and personal finances in separate institutions. Never trade with money needed for living expenses. Live trading operational rule.
+
+16. **Monthly "Re-buy" Limit** — If account drawdown hits -10% in a month, stop trading, backtest what went wrong, return with paper trading or smaller sizing. Essentially a monthly DAILY_SL equivalent. At $40k that's a -$4,000/month circuit breaker. Currently worst month in 4yr backtest was -$X — need to check if this would ever fire.
+
+#### Category B: Table Selection / Market Conditions
+
+17. **"Muck" Rule — Skip low-probability VIX dead zone days** — Related to VIX_MIN_FILTER idea (idea #3 above). If VIX is neither trending nor spiked, skip the day. Overlaps with the low-VIX cluster finding: VIX <12 has 87% zero-win rate. Testable as `VIX_MIN_FILTER = 12.0`.
+
+18. **Institutional Steam Detection** — Watch for unusual SPX volume indicating large institutional flow. Don't sell spreads against a powerful institutional directional move. Requires real-time flow data; not backtest-able with current data.
+
+19. **Vig Management — Bid/ask spread quality filter** — If the bid/ask spread on the spread itself has widened significantly (e.g., net credit bid < 0.40 vs mid 0.60), skip the entry — you're paying too much rake. `MIN_NET_CREDIT = 0.55` already partially implements this. Could tighten further on wide-spread days. Untested.
+
+#### Category C: Psychology & Tilt Control
+
+20. **"Backer" Mindset** — Trade as if a rules-strict backer is watching. No revenge trades, no discretionary overrides. Operational discipline for live trading. The June 2024 cluster is the canonical example: systematic adherence would have held the course.
+
+21. **Prop Bet Incubation** — Test new ideas with a 1-lot "shadow" position for 30 days before scaling up. Operational discipline for live testing of strategy changes.
+
+22. **"Walk Away" Number — Stop after $2k profit before noon** — Related to DAILY_TP. Already tested: removing $750/day cap added +$140k over 4 years. A pre-noon walk-away would cut the best mornings. Likely costly but untested with this specific framing.
+
+23. **Tilt Sensor Checklist** — Before each entry: "Am I trading the signal or trading emotion?" Operational/live trading discipline.
+
+24. **Sunk Cost Trap** — Don't hold a losing spread just because you paid for it. If signal says exit, exit. Currently handled by STOP_LOSS mechanisms. Operational reminder for live overrides.
+
+#### Category D: Execution Nuances
+
+25. **GTO vs. Exploitative** — Exploit known calendar/regime patterns more aggressively (e.g., adjust strikes on known soft/hard days based on DOW or seasonal data). The seasonality report now added to the run output enables this. Untested as a strategy parameter.
+
+26. **Variance Insurance — Buy OTM puts with 5% of weekly profits** — Hedge against tail risk using a small premium budget. Operational money-management idea. Complements existing VIX_MAX_FILTER black-swan protection.
+
+27. **Minimum Sample Size — 100+ trades before evaluating a rule change** — Our backtest has 6,949 trades over 4 years; any rule change should have meaningful sample size to evaluate. Currently enforced implicitly by marathon testing.
+
+28. **Correlation Check — Avoid stacking correlated positions** — Only trading SPXW so no cross-asset correlation risk. Relevant if strategy ever expands to NQ/RUT spreads simultaneously.
+
+29. **Physical Game State** — Sleep, nutrition, and focus quality affect live execution speed on stop-losses. Operational discipline for live trading.
+
+#### Category I: Tactical Execution
+
+30. **"Wonging" Entry — Wait for 0.3% adverse move before entering** — Instead of fixed entry times (9:40, 10:00...), wait until SPX moves 0.3% against the intended spread direction before entering. Gets better credit at the peak of the noise. Implementation: at each entry bar, check if SPX has moved ≥0.3% against our direction since open; only enter if so. Untested — needs implementation and marathon run.
+
+31. **"Middle" Strategy — Open Iron Condor on winning Put spread** — If an open Put spread is winning significantly, open a Call spread to form an Iron Condor and lock in profit on the middle zone. Requires real-time position monitoring and "both sides" entry logic. Partially overlaps with existing `both_sides` baseline mode. Untested in hybrid form.
+
+32. **Mid-point + $0.05 fill discipline** — Use limit orders at mid + $0.05, wait 60 sec, cancel if unfilled. Reduces "vig" paid on bid/ask spread. Backtest uses bid fills throughout; improving to mid fills estimated to add $80-100k. Live trading execution improvement, not a backtest parameter.
+
+33. **Bid/ask spread width filter ("Prop Player Filter")** — If bid/ask spread on a strike is >$0.15, skip the entry — market maker is widening spreads and the "rake" is too high. Could be implemented as a per-entry credit quality check. Untested.
+
+34. **Pot Odds filter — Minimum credit/width ratio** — Only enter if net credit ≥ 3.5% of spread width (e.g., ≥$0.70 for a 20-wide spread). Currently MIN_NET_CREDIT=0.55 ($0.55/$20 = 2.75%). Raising this would tighten the filter. Related to existing MIN_NET_CREDIT sweep. Untested at 3.5% threshold.
+
+#### Category II: Mental Game (Live Trading)
+
+35. **"C-Game" Rules** — If feeling off, trade 1 contract only. Still collects data without full exposure. Operational live-trading discipline.
+
+36. **"Quiet Room" Audit — Monthly panic-exit review** — Review all closes monthly; flag any "Tilt Exits" (trades closed within 5 min of what would have been a recovery). Operational review process for live trading.
+
+37. **"Dead Money" Indicator — Fade retail panic** — When social media/news shows parabolic SPX calls/puts from retail, that's inflated premium — best time to sell the opposite spread. Qualitative signal; not backtest-able.
+
+38. **Post-game "Muck" Review — Log skipped trades** — Keep a log of considered-but-skipped entries. If skips are consistently winners, risk aversion is too high. Relevant for live trading discretionary overrides.
+
+39. **Bankroll Milestone Reward** — Every $25k profit, withdraw $1k as a personal reward. Keeps money feeling real and prevents treating account as "play money." Personal finance discipline.
+
+#### Category III: Statistical Advantage
+
+40. **Standard Deviation / N-Zero** — At 92% WR, need ~40 trades to confirm a strategy change vs. luck. Never evaluate a rule change on fewer than 40-100 trades. Already enforced by marathon testing practice.
+
+41. **"Semi-Bluff" Half-Size Entry on near-EMA-cross** — If EMA13 is close to crossing EMA48, enter half-size as a semi-bluff. Add second half if cross completes; exit with small loss if it fails. EMA alignment already tested as a filter (rejected); this uses it as a sizing trigger rather than a gate. Untested.
+
+42. **XSP vs. SPX line shopping** — Compare XSP (mini-SPX) bid/ask vs SPX before each entry. XSP is $1/10 of SPX and may have tighter relative spreads due to different market participants. Live execution alpha; not backtest-able without XSP quote data.
+
+43. **"Steam Move" volume filter** — If SPX volume spikes 300%+ in 5 minutes, skip entry — institutional directional flow is moving the market. Requires intraday volume data; untested.
+
+44. **Risk of Ruin ceiling** — Account must withstand worst-day loss × 10 without dropping below 50% equity. Worst day in 4yr backtest: -$6,118. × 10 = -$61,180. At $40k account that's -153% — impossible. Means the account is technically under-capitalised for pure RoR math. Resolved when Kelly unlock at $80k+.
+
+#### Category IV: Environmental & Lifestyle
+
+45. **Session Duration Management** — Morning entries (9:40-10:00) have highest mean profit ($91). Consider setting a personal "clock out" to maintain mental sharpness for next session. Entry time analysis now in the report; can track this empirically.
+
+46. **Safety Net Reserve** — Keep 1 year of living expenses in a separate account. Never trade with scared money. Operational personal finance rule.
+
+47. **"Final Table" Mentality** — On max-loss days (like June 2024 cluster), be most robotic. Don't override the system. The June 2024 low-VIX regime is documented as a known structural gap — staying systematic is the correct response.
+
+48. **Advantage Networking** — Swap logs weekly with another 0DTE trader to normalise variance perception. Operational community/peer review.
+
+49. **"Level Up" sizing by Units** — Increase qty by 1 lot for every 100 Units of profit (1 Unit = $200). Only increase size after the "house's money" funds it. Aligned with Kelly unlock philosophy: don't increase qty until BP supports it.
+
+1. **"Win Goal" / Weekly Profit Stop** — Stop trading for the week once weekly P&L hits a target (e.g. +$3,000). Prevents giving back a good week to a late-week market shift. Caution: our best weeks often extend well beyond $3k — a hard cap could cut large winning streaks. Needs a weekly-P&L sweep to find optimal threshold vs cost.
+
+2. **"Pit Boss" Audit** — Every Sunday, review losses and classify as "Good Loss" (followed all rules, market didn't cooperate) vs "Bad Loss" (late entry, wrong size, ignored signal). Process/operational improvement, not a backtest item. Implement as a manual weekly checklist.
+
+3. **"Table Selection" VIX Filter** — Don't trade if VIX < 12 or VIX > 30. Low VIX = insufficient premium for the risk; high VIX = price swings too wide for standard stops. NOTE: VIX_MAX_FILTER=35 already handles the upper bound. The lower bound (VIX <12) overlaps with the low-VIX cluster finding — 13 of 15 VIX-<13 loss days are 0-win wipeouts. Worth testing VIX_MIN_FILTER=12.0 as a skip rule. Very few days affected (~20 days over 4 years).
+
+4. **"Anti-Martingale" Sizing** — After a losing week, cut qty to 1 for the next 5 trades. After a winning week, keep qty the same. Caution: our per-position WR is 92%+ — a "losing week" is usually noise, not strategy failure. Cutting qty after a bad week likely just misses the recovery. Similar to per-week Kelly sizing. Untested.
+
+5. **"Three-of-a-Kind" Directional Cap** — After 3 consecutive PUT-day losses, forbid new PUT entries for 48 hours. Hypothesis: persistent downtrend the VIX signal isn't catching. Caution: consecutive same-direction losses are rare (most loss clusters are mixed direction). Needs frequency analysis before implementing.
+
+6. **"Clock Out" Rule — No new entries after 1:00 PM ET** — Gamma accelerates late-day, leaving less time to recover if entries move against you. NOTE: we already have `ENTRY_END = 12:45`. This would tighten to 13:00 (or earlier). The VIX entry cutoff sweep (Option 3b) already covers this — run that sweep first.
+
+7. **"House Money" Buffer — Monthly profit reserve** — At month-end, move 50% of the month's profits to a savings account. Operational/money-management rule, not a strategy parameter. Implement as a personal finance discipline rather than a backtest item.
+
+8. **"Tilt" Test — Psychological stop after large loss** — After any single day loss > $300, step away from the computer for 30 min before the next session. No automated revenge trading. Operational/behavioral rule. Relevant for live trading; not a backtest parameter.
+
+9. **Variable Sizing by Setup Grade** — Grade days A/B/C based on signal strength (EMA 13/48 alignment + VIX stability). A-setup = full qty; C-setup = quarter qty or skip. Similar to Kelly zone sizing but using EMA alignment as an additional dimension. EMA alignment was tested as a direction signal and rejected (flat P&L), but hasn't been tested as a *sizing* modifier. Untested.
+
+10. **"Ruin Probability" Ceiling — 1-2% account risk per trade** — Max loss per trade should not exceed 1-2% of account equity. At $40k, that's $400-$800 per position. Our current dynamic SL of $-800 per position at qty=2 ($1,600 total) is 4% of $40k — above this threshold. NOTE: this is a live-trading risk-management guideline, not directly a backtest parameter. Relevant when account is smaller. At $80k+ (Kelly unlock threshold), $1,600 = 2% — within bounds.
 - **Black swan / tail-risk protection** — ✓ IMPLEMENTED 2026-03-28. See research log below.
 - ✗ **Stop after 2 consecutive loss days in a week** — TESTED NEGATIVE (2026-03-29). 14 of 220 weeks (6.4%) had 2+ consecutive loss days. Rule only ever triggers on the 4 three-consecutive-loss weeks. Net impact: saves $2,448 on 4 loss days but misses $6,830 on 7 win days = **-$4,382 net**. Market tends to recover after two loss days — stopping locks in the loss and misses the bounce. Clusters: 7 weeks in VIX 25–30 (2022 high-vol regime), 5 weeks in VIX 11–13 (Jun–Jul 2024 low-vol regime). Same structural gaps as 0-win day analysis — no new protection angle here.
 - ✓ **Seasonality data in report** — IMPLEMENTED. `print_seasonality_analysis()` added: P&L by day-of-week and by month in both terminal and RESULTS.md.
 - ✓ **P&L for econ dates** — IMPLEMENTED. `print_econ_date_analysis()` added: 13 event types (Normal, CPI, PPI, PCE, NFP, FOMC, Triple Witch, Monthly OPEX, EOM, EOQ, Pre-TW, Post-Holiday, Full Moon) in both terminal and RESULTS.md.
 - ✓ **P&L by entry time** — IMPLEMENTED. `print_entry_time_analysis()` added: P&L, max DD, W/L, WR% per entry time slot in both terminal and RESULTS.md.
 - **Consecutive day loss patterns** — is there a pattern where Monday loss → Tuesday loss, Tuesday loss → Wednesday loss, etc.? Run statistics and check if a sequential model exists. (Untested)
-- **Daily circuit breaker: 2 intraday STOP_LOSSes → halt remaining entries** — SIMULATED POSITIVE (2026-03-29). After 2 confirmed STOP_LOSS closes on the same day, block all further entries that day. Result on full 4yr trade log: **+$54,842** ($607,424 → $662,266). Fires on 87 days (7.9%). Blocks 264 losing vs 3 winning entries (98.9% accuracy). Works because confirmed STOP_LOSS = market has broken against the direction signal with no noise floor (unlike Bayesian gate which used noisy unrealized MTM). Biggest gains in VIX 25–30 (42 days, $33k saved) — dynamic SL closes existing positions but doesn't block NEW entries; this does. **Needs full marathon backtest to confirm.** "24-hour" variant (also skip next day) doesn't work — next day after trigger has 74.4% WR and $408 avg P&L, skipping costs -$35,108. Config: `STOP_LOSS_CIRCUIT_BREAKER = True`. Not yet implemented.
+- **"Gap" rule: after batch SL fires, wait 60 min before re-entering** — TESTED POSITIVE (2026-03-29). Marathon result: **+$5,388 P&L** ($607,424 → $612,812), Max DD improved ($-6,894 → $-6,356), Sharpe 13.99 → 14.12, WR 92.3% → 92.8%, +105 re-entry trades net positive. Config: `ENABLE_SL_GAP_REENTRY = True`, `SL_GAP_MINUTES = 60`. Currently left OFF (default=False) pending decision on whether to adopt. The 105 extra trades on days where SL fired early are net positive — market does partially recover after the initial stop. Modest but real improvement with no degradation. **DECISION NEEDED**: enable as new baseline?
+- ✗ **Daily circuit breaker: 2 intraday STOP_LOSSes → halt remaining entries** — NOT VIABLE (2026-03-29). Simulation initially showed +$54,842 but was flawed. Timing analysis revealed: in the batch-SL architecture, ALL positions close at the SAME BAR when cumulative P&L hits the threshold. The "2nd STOP_LOSS close" happens simultaneously with all others — by the time you detect it, entries 3-N were already opened before that bar. 0 of 76 affected days had the trigger close BEFORE the next entry. Same root cause as Option 3a: batch closes mean you can never detect loss N and block entry N+1 in real time. The only path forward is per-position unrealized monitoring (Bayesian gate / pressure filter territory — both rejected). "Skip next day" variant also rejected: next-day WR is 74.4%, $408 avg P&L, skipping costs -$35,108.
 
 ### Intraday Trend Reversal Detection (VIX 15–20 loss day problem)
 

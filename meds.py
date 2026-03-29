@@ -586,16 +586,6 @@ INTRADAY_ENTRY_GATE  = None          # keep disabled — see above
 ENABLE_PER_POS_SL  = False
 PER_POS_SL_AMOUNT  = -400.0   # close position if MTM loss exceeds this (e.g. -400 = -$400)
 
-# ── Intraday Stop-Loss Circuit Breaker ──
-# After N confirmed STOP_LOSS closes on the same day, block all further entries.
-# Simulation on full 4yr trade log: STOP_LOSS_CB_COUNT=2 → +$54,842 P&L improvement
-# ($607,424 → $662,266). Fires on 87 days; blocks 264 losing vs 3 winning entries
-# (98.9% accuracy). Works because confirmed intraday stops = market has broken against
-# the direction signal. Different from Bayesian gate (unrealized MTM, noisy) — this
-# uses closed trade outcomes. NOTE: needs full marathon backtest to verify.
-ENABLE_STOP_LOSS_CB  = False   # True = enable circuit breaker
-STOP_LOSS_CB_COUNT   = 2       # number of intraday STOP_LOSS closes that triggers halt
-
 SKIP_VIX_RANGE       = None          # (lo, hi) → skip day entirely when VIX is in this range.
                                      # TESTED: (25.0, 30.0) — full marathon backtest result:
                                      #   P&L: $607,034 → $597,112  (-$9,922, -1.6%)
@@ -963,6 +953,22 @@ VIX_ENTRY_CUTOFF_VIX_HI       = 20.0   # apply cutoff when VIX <  this
 # ── EOM SL (live) ──
 ENABLE_EOM_SL  = True
 EOM_SL_AMOUNT  = -200.0  # tighter SL applied on last trading day of each month
+
+# ── SL Gap Re-entry ──
+# After the batch STOP_LOSS fires, instead of blocking all further entries for the day
+# (current behaviour), wait SL_GAP_MINUTES then allow new entries to resume.
+# Hypothesis: volatility clusters dissipate after ~60 min; re-entering lets us
+# capture any intraday recovery. Only applies to STOP_LOSS (not PROFIT_TARGET or
+# TRAILING_STOP — those keep stopped_today=True). Affects 49 of 89 batch-SL days
+# (SL fires before 11:40, leaving at least one entry slot after the gap).
+# NOTE: untested — needs full marathon run to verify.
+ENABLE_SL_GAP_REENTRY = False   # tested: +$5,388 P&L, DD -$6,356 vs -$6,894 baseline; 105 re-entry trades net positive
+SL_GAP_MINUTES        = 60
+
+# ── SL Gap Re-entry Sweep ──
+RUN_SL_GAP_SWEEP       = True
+SL_GAP_SWEEP_FILE      = _out("meds_sl_gap_sweep.csv")
+SL_GAP_SWEEP_LEVELS    = [None, 30, 60, 90, 120]  # None = baseline (no re-entry; stopped_today forever)
 
 # ── Pressure Filter VIX Sweep ──
 # Tests conditional pressure filter: only activates when VIX >= threshold.
@@ -1953,6 +1959,7 @@ async def _simulate_day(
     pressure_vix_max: float | None = "USE_GLOBAL",
     enable_pressure_filter: bool | None = None,
     per_pos_sl: float | None = "USE_GLOBAL",
+    sl_gap_minutes: int | None = "USE_GLOBAL",
 ) -> tuple:
     """Run the intraday simulation using the pre-populated quote cache.
 
@@ -1998,13 +2005,13 @@ async def _simulate_day(
     prior_close       = day_data.get("prior_close")
     day_open          = day_data.get("day_open")
 
-    day_trades_log   = []
-    active_positions = []
-    stopped_today    = False
-    daily_trades     = 0
-    current_day_pnl  = 0.0
-    intraday_sl_count = 0   # counts confirmed STOP_LOSS closes today (circuit breaker)
-    peak_day_pnl     = 0.0  # highest portfolio P&L seen this day (for trailing stop)
+    day_trades_log    = []
+    active_positions  = []
+    stopped_today     = False
+    sl_gap_resume_time = None  # set when SL gap re-entry is active; None = no gap pending
+    daily_trades      = 0
+    current_day_pnl   = 0.0
+    peak_day_pnl      = 0.0  # highest portfolio P&L seen this day (for trailing stop)
     # Opening skew — computed once at the first entry bar, stamped on all trades
     _skew_put   = None  # credit for PUT spread at OPENING_SKEW_OTM distance
     _skew_call  = None  # credit for CALL spread at OPENING_SKEW_OTM distance
@@ -2221,7 +2228,12 @@ async def _simulate_day(
                 })
                 day_trades_log.append(pos)
             active_positions = []
-            if outcome != "EXPIRATION":
+            _gap_mins = (SL_GAP_MINUTES if ENABLE_SL_GAP_REENTRY else None) if sl_gap_minutes == "USE_GLOBAL" else sl_gap_minutes
+            if outcome == "STOP_LOSS" and _gap_mins is not None:
+                # Pause for _gap_mins then allow re-entry; don't set stopped_today
+                _bar_dt = datetime.strptime(f"{date_str} {bar_time}", "%Y%m%d %H:%M:%S")
+                sl_gap_resume_time = (_bar_dt + pd.Timedelta(minutes=_gap_mins)).time()
+            elif outcome != "EXPIRATION":
                 stopped_today = True
 
         # ── 5. Entry ──
@@ -2254,7 +2266,8 @@ async def _simulate_day(
         if (MAX_TRADES_DAY_VIX_LO_HI is not None and vix_level is not None
                 and 15.0 <= vix_level < 20.0):
             _max_trades = MAX_TRADES_DAY_VIX_LO_HI
-        can_enter = in_window and on_interval and not stopped_today and daily_trades < _max_trades and not econ_skip_entries and bayesian_gate_ok and not is_under_pressure
+        sl_gap_ok = (sl_gap_resume_time is None or curr_time >= sl_gap_resume_time)
+        can_enter = in_window and on_interval and not stopped_today and sl_gap_ok and daily_trades < _max_trades and not econ_skip_entries and bayesian_gate_ok and not is_under_pressure
 
         if not can_enter:
             continue
@@ -6193,6 +6206,109 @@ async def run_per_pos_sl_sweep():
 
 
 # ─────────────────────────────────────────────
+#  SL GAP RE-ENTRY SWEEP RUNNER
+# ─────────────────────────────────────────────
+async def run_sl_gap_sweep():
+    """Sweep SL gap re-entry cooldown periods: None (baseline), 30, 60, 90, 120 minutes.
+
+    None = current behaviour (stopped_today forever after batch SL).
+    30/60/90/120 = wait that many minutes after SL fires, then allow re-entry.
+    """
+    logger.info("=" * 70)
+    logger.info("MEDS: SL GAP RE-ENTRY SWEEP")
+    logger.info(f"Levels (min)  : {SL_GAP_SWEEP_LEVELS}  (None=baseline/no-reentry)")
+    logger.info(f"Output        : {SL_GAP_SWEEP_FILE}")
+    logger.info("=" * 70)
+
+    date_list = pd.date_range(PILOT_YEAR_START, PILOT_YEAR_END, freq="B")
+    day_pool: dict[str, dict] = {}
+    async with _get_session() as session:
+        for d in date_list:
+            d_str = d.strftime("%Y%m%d")
+            if d_str in MARKET_HOLIDAYS:
+                continue
+            if ENABLE_ECON_FILTER and d_str in ECON_DATES:
+                continue
+            day_data = await _fetch_day_data(session, d_str)
+            if day_data is not None:
+                day_pool[d_str] = day_data
+    logger.info(f"Pre-fetched {len(day_pool)} qualifying days.")
+
+    cols = ["gap_minutes", "num_trades", "win_rate_pct",
+            "total_pnl", "pnl_delta", "max_drawdown", "dd_delta", "calmar", "sharpe"]
+    rows = []
+    base_pnl = None
+    base_dd  = None
+
+    async with _get_session() as session:
+        for gap in SL_GAP_SWEEP_LEVELS:
+            label = "none" if gap is None else str(gap)
+            all_trades: list = []
+
+            for d_str, day_data in day_pool.items():
+                effective_sl = _get_effective_sl(day_data, d_str)
+                in_danger    = effective_sl is not None
+                sample_interval = DANGER_PNL_SAMPLE_INTERVAL if in_danger else PNL_SAMPLE_INTERVAL
+                direction    = _get_baseline_mode(d_str)
+                trades, _ = await _simulate_day(
+                    session, day_data, effective_sl,
+                    baseline_mode=direction,
+                    pnl_sample_interval=sample_interval,
+                    sl_gap_minutes=gap,
+                )
+                all_trades.extend(trades)
+
+            m      = compute_metrics(all_trades)
+            pnl    = m["total_pnl"]
+            dd     = m["max_drawdown"]
+            calmar = pnl / abs(dd) if dd != 0 else float("inf")
+            wr     = m["win_rate"]
+
+            if base_pnl is None:
+                base_pnl  = pnl
+                base_dd   = dd
+                pnl_delta = "—"
+                dd_delta  = "—"
+            else:
+                pnl_delta = f"{pnl - base_pnl:+.2f}"
+                dd_delta  = f"{dd - base_dd:+.2f}"
+
+            rows.append({
+                "gap_minutes":  label,
+                "num_trades":   len(all_trades),
+                "win_rate_pct": f"{wr:.1f}",
+                "total_pnl":    f"{pnl:.2f}",
+                "pnl_delta":    pnl_delta,
+                "max_drawdown": f"{dd:.2f}",
+                "dd_delta":     dd_delta,
+                "calmar":       f"{calmar:.2f}",
+                "sharpe":       f"{m['sharpe']:.2f}",
+            })
+            logger.info(f"  gap={label:>4} min  trades={len(all_trades):>5}  P&L=${pnl:>10,.2f}  DD=${dd:>9,.2f}  Calmar={calmar:.2f}  Sharpe={m['sharpe']:.2f}")
+
+    with open(SL_GAP_SWEEP_FILE, "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=cols)
+        w.writeheader()
+        w.writerows(rows)
+
+    sep = "─" * 100
+    logger.info("")
+    logger.info("═" * 100)
+    logger.info(f"  {'GAP(min)':>8} | {'TRADES':>7} | {'WIN%':>5} | {'TOTAL_PNL':>12} | "
+                f"{'PNL_DELTA':>10} | {'MAX_DD':>10} | {'DD_DELTA':>10} | {'CALMAR':>8} | {'SHARPE':>7}")
+    logger.info(sep)
+    for row in rows:
+        logger.info(
+            f"  {row['gap_minutes']:>8} | {row['num_trades']:>7} | {row['win_rate_pct']:>4}% | "
+            f"${float(row['total_pnl']):>11,.2f} | {row['pnl_delta']:>10} | "
+            f"${float(row['max_drawdown']):>9,.2f} | {row['dd_delta']:>10} | "
+            f"{row['calmar']:>8} | {row['sharpe']:>7}"
+        )
+    logger.info("═" * 100)
+    logger.info(f"  Full results: {SL_GAP_SWEEP_FILE}")
+
+
+# ─────────────────────────────────────────────
 #  VIX-RANGE ENTRY CUTOFF SWEEP RUNNER
 # ─────────────────────────────────────────────
 async def run_vix_entry_cutoff_sweep():
@@ -8760,6 +8876,8 @@ if __name__ == "__main__":
         asyncio.run(run_eom_sl_sweep())
     elif RUN_PER_POS_SL_SWEEP:
         asyncio.run(run_per_pos_sl_sweep())
+    elif RUN_SL_GAP_SWEEP:
+        asyncio.run(run_sl_gap_sweep())
     elif RUN_VIX_ENTRY_CUTOFF_SWEEP:
         asyncio.run(run_vix_entry_cutoff_sweep())
     elif RUN_CALENDAR_RISK_SL_SWEEP:
