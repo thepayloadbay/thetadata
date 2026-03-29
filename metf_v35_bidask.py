@@ -467,7 +467,11 @@ DAY_FILTER_SKIP_VIX_RISE_DECEL = False  # True = skip days where VIX rising but 
 DAILY_TP       = None  # SWEEP RESULT: None wins. $750 cap was cutting winners short.
                        # Full-run sweep: None=$607k, $900=$512k, $800=$487k, $750=$466k baseline.
                        # Same MaxDD (-$9,922) and better Sharpe (12.35 vs 11.40). Keep None.
-DAILY_SL       = -5000.0
+DAILY_SL       = None   # Need to consider putting a large DAILY_SL to prevent blackswan events.
+                            # -5000 DAILY_SL resulted in $365,580.00 PNL
+                            # -10000 DAIL_SL resulted in $497,722.00 PNL
+                            # -15000 DAILY_SL resulted in $578,172.00 PNL
+                            # None DAILY_SL resulted in $606,832.00 PNL
 
 # ── Dynamic Stop Loss ──
 # Danger zones:
