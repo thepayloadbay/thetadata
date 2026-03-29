@@ -192,6 +192,9 @@ ECON_DATES = {
 # Stops from opening anymore positions if dist < threshold
 ENABLE_PRESSURE_FILTER = False
 PRESSURE_DISTANCE_THRESHOLD = 27.0 # Stop entering if price is within X pts of any short strike
+# When set, the pressure filter only activates on days where VIX >= this value.
+# None = always active (original behavior). Use e.g. 25.0 to gate to high-VIX days only.
+PRESSURE_FILTER_VIX_MIN: float | None = None
 
 # ── Calendar Event Date Sets ──
 # Used by run_calendar_event_sweep() to test each event type independently.
@@ -457,7 +460,7 @@ KELLY_ZONE_QTY = [           # (vix_lo_inclusive, vix_hi_exclusive, qty)
 VIX_MIN_FILTER = None
 VIX_MAX_FILTER = 35.0   # skip days where VIX > 35 — black swan protection (see analysis above)
 
-VIX_ANALYSIS_FILE = _out("metf_v35_bidask_vix_analysis.csv")
+VIX_ANALYSIS_FILE = _out("meds_vix_analysis.csv")
 
 # ── Daily Bar Indicator Filters ──
 # Applied to PRIOR day's indicators before deciding to trade today.
@@ -611,7 +614,7 @@ TOUCH_EXIT_PCT     = None   # e.g. 0.5 = exit when 0.5% OTM; -1.0 = exit when 1%
 RUN_TOUCH_SWEEP    = False
 SWEEP_TOUCH_DOLLARS = [-20, -10, -5, -2, 0, 2, 5, 10, 20, 30]  # None added programmatically as baseline
 SWEEP_TOUCH_PCT     = [-2.0, -1.0, -0.5, -0.25, 0, 0.25, 0.5, 1.0, 1.5, 2.0]
-TOUCH_SWEEP_FILE    = _out("metf_v35_bidask_touch_sweep.csv")
+TOUCH_SWEEP_FILE    = _out("meds_touch_sweep.csv")
 
 # ── Stop Loss Sweep ──
 # Set RUN_SL_SWEEP = True to run a parameter sweep instead of the normal single backtest.
@@ -629,14 +632,14 @@ SWEEP_SAVE_FILE = _out("meft_v35_bidask_sl_sweep.csv")
 #   Higher TP always wins. None best — same MaxDD (-$9,922), Sharpe 12.35 vs 11.40.
 RUN_DAILY_TP_SWEEP    = False
 SWEEP_DAILY_TP_LEVELS = [500.0, 550.0, 600.0, 650.0, 700.0, 750.0, 800.0, 900.0, 1100.0, None]  # None = no daily TP
-DAILY_TP_SWEEP_FILE   = _out("metf_v35_bidask_daily_tp_sweep.csv")
+DAILY_TP_SWEEP_FILE   = _out("meds_daily_tp_sweep.csv")
 
 # ── PnL Sample Interval Sweep ──
 # Sweeps how frequently (in minutes) the MTM check runs to evaluate open positions.
 # Lower = more responsive (catches moves faster); higher = fewer checks per day.
 RUN_PNL_SAMPLE_SWEEP    = False
 SWEEP_PNL_SAMPLE_INTERVALS = [1, 2, 3, 5, 10, 15]  # minutes between MTM checks
-PNL_SAMPLE_SWEEP_FILE   = _out("metf_v35_bidask_pnl_sample_sweep.csv")
+PNL_SAMPLE_SWEEP_FILE   = _out("meds_pnl_sample_sweep.csv")
 
 # ── Max Buying Power Sweep ──
 # Caps total committed buying power across all open positions at once.
@@ -645,7 +648,7 @@ PNL_SAMPLE_SWEEP_FILE   = _out("metf_v35_bidask_pnl_sample_sweep.csv")
 MAX_BUYING_POWER     = None   # active single-run setting (None = no cap)
 RUN_MAX_BP_SWEEP     = False
 SWEEP_MAX_BP_LEVELS  = [5_000, 10_000, 15_000, 20_000, 25_000, 30_000, 40_000, None]
-MAX_BP_SWEEP_FILE    = _out("metf_v35_bidask_max_bp_sweep.csv")
+MAX_BP_SWEEP_FILE    = _out("meds_max_bp_sweep.csv")
 
 # ── Daily Bar Indicator Filter Sweep ──
 # Tests each indicator independently across threshold levels.
@@ -701,7 +704,7 @@ SWEEP_DAY_FILTERS = {
     "dIvRank_min":      [20, 30, 40, 50, 60],           # prior day IV Rank >= X (avoid low-IV)
     "dIvRank_max":      [40, 50, 60, 70, 80],           # prior day IV Rank <= X (avoid high-IV)
 }
-DAY_FILTER_SWEEP_FILE = _out("metf_v35_bidask_day_filter_sweep.csv")
+DAY_FILTER_SWEEP_FILE = _out("meds_day_filter_sweep.csv")
 
 # ── EMA Parameter Sweep ──
 # Set RUN_EMA_SWEEP = True to sweep all (fast, slow) EMA combinations.
@@ -709,7 +712,7 @@ DAY_FILTER_SWEEP_FILE = _out("metf_v35_bidask_day_filter_sweep.csv")
 RUN_EMA_SWEEP       = False
 SWEEP_EMA_FAST      = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
 SWEEP_EMA_SLOW      = [18, 20, 22, 24, 26, 40, 45, 50, 55]
-EMA_SWEEP_SAVE_FILE = _out("metf_v35_bidask_ema_sweep.csv")
+EMA_SWEEP_SAVE_FILE = _out("meds_ema_sweep.csv")
 
 # ── Trailing Stop Sweep ──
 # When enabled, runs the backtest for each trailing stop level.
@@ -718,7 +721,7 @@ EMA_SWEEP_SAVE_FILE = _out("metf_v35_bidask_ema_sweep.csv")
 # daily stop loss still applies. None = no trailing stop.
 RUN_TRAILING_STOP_SWEEP  = False
 SWEEP_TS_LEVELS          = [50, 100, 150, 200, 300, 400, 500, 600, None]
-TRAILING_STOP_SWEEP_FILE = _out("metf_v35_bidask_trailing_stop_sweep.csv")
+TRAILING_STOP_SWEEP_FILE = _out("meds_trailing_stop_sweep.csv")
 
 # ── Per-Position Trailing Stop Sweep ──
 # When enabled, sweeps all (activation%, pullback%) combos for a per-position
@@ -728,7 +731,7 @@ TRAILING_STOP_SWEEP_FILE = _out("metf_v35_bidask_trailing_stop_sweep.csv")
 RUN_POS_TRAIL_SWEEP        = False
 SWEEP_POS_TRAIL_ACTIVATION = [50, 60, 70, 80, 90]   # % of credit to activate trail
 SWEEP_POS_TRAIL_PULLBACK   = [5, 10, 15, 20, 25]    # % of credit pullback to close
-POS_TRAIL_SWEEP_FILE       = _out("metf_v35_bidask_pos_trail_sweep.csv")
+POS_TRAIL_SWEEP_FILE       = _out("meds_pos_trail_sweep.csv")
 
 # ── Minimum Net Credit Sweep ──
 # When enabled, sweeps the minimum credit required to enter a spread.
@@ -736,7 +739,7 @@ POS_TRAIL_SWEEP_FILE       = _out("metf_v35_bidask_pos_trail_sweep.csv")
 # but smaller credits. Results are sorted by total_pnl descending.
 RUN_MIN_CREDIT_SWEEP    = False
 SWEEP_MIN_CREDIT_LEVELS = [0.25, 0.30, 0.40, 0.50, 0.60, 0.75, 1.00]
-MIN_CREDIT_SWEEP_FILE   = _out("metf_v35_bidask_min_credit_sweep.csv")
+MIN_CREDIT_SWEEP_FILE   = _out("meds_min_credit_sweep.csv")
 
 # ── Max Net Credit Sweep ──
 # Sweeps an upper bound on credit collected. If the best qualifying spread gives
@@ -744,14 +747,14 @@ MIN_CREDIT_SWEEP_FILE   = _out("metf_v35_bidask_min_credit_sweep.csv")
 # None means no cap (baseline behaviour).
 RUN_MAX_CREDIT_SWEEP    = False
 SWEEP_MAX_CREDIT_LEVELS = [None, 0.60, 0.65, 0.70, 0.75, 0.80, 0.90, 1.00]
-MAX_CREDIT_SWEEP_FILE   = _out("metf_v35_bidask_max_credit_sweep.csv")
+MAX_CREDIT_SWEEP_FILE   = _out("meds_max_credit_sweep.csv")
 
 # ── Min OTM Distance Sweep ──
 # Sweeps the minimum OTM distance (pts) the short strike must be from spot at entry.
 # Trades where the nearest qualifying spread is closer than this are skipped.
 RUN_MIN_OTM_SWEEP    = False
 SWEEP_MIN_OTM_LEVELS = [None, 10, 15, 20, 25, 30, 35, 40, 50]
-MIN_OTM_SWEEP_FILE   = _out("metf_v35_bidask_min_otm_sweep.csv")
+MIN_OTM_SWEEP_FILE   = _out("meds_min_otm_sweep.csv")
 
 # ── Spread Width Sweep ──
 # When enabled, runs the full backtest across each spread width (distance between
@@ -759,24 +762,24 @@ MIN_OTM_SWEEP_FILE   = _out("metf_v35_bidask_min_otm_sweep.csv")
 # width — no extra API calls. Results are sorted by total_pnl descending.
 RUN_SPREAD_WIDTH_SWEEP  = False
 SWEEP_SPREAD_WIDTHS     = [10, 15, 20, 30, 40, 50]
-SPREAD_WIDTH_SWEEP_FILE = _out("metf_v35_bidask_spread_width_sweep.csv")
+SPREAD_WIDTH_SWEEP_FILE = _out("meds_spread_width_sweep.csv")
 
 # ── Naive Baseline Comparison ──
 # When True, re-runs the same date range after the main backtest with three naive baselines
 # and prints/saves a side-by-side summary. Ignored when RUN_SL_SWEEP = True.
 RUN_BASELINE_COMPARISON  = False
-BASELINE_COMPARISON_FILE = _out("metf_v35_bidask_baseline_comparison.csv")
+BASELINE_COMPARISON_FILE = _out("meds_baseline_comparison.csv")
 
 # ── Strike Distance Analysis ──
 # When True, buckets trades by short-strike distance from spot at entry and reports
 # trade count, win rate, avg P&L, and total P&L per bucket.
 RUN_STRIKE_DISTANCE_ANALYSIS  = True
-STRIKE_DISTANCE_ANALYSIS_FILE = _out("metf_v35_bidask_strike_distance_analysis.csv")
+STRIKE_DISTANCE_ANALYSIS_FILE = _out("meds_strike_distance_analysis.csv")
 
 # ── PUT vs CALL Split Analysis ──
 # When True, groups trades by spread type and reports key metrics for each.
 RUN_PUT_CALL_ANALYSIS  = True
-PUT_CALL_SPLIT_FILE    = _out("metf_v35_bidask_put_call_split.csv")
+PUT_CALL_SPLIT_FILE    = _out("meds_put_call_split.csv")
 
 # ── Combo Sweep ──
 # Set RUN_COMBO_SWEEP = True to run a full cross-parameter grid search.
@@ -793,7 +796,7 @@ COMBO_SL_LEVELS      = [None]
 COMBO_MIN_CREDITS    = [0.56]
 COMBO_TS_LEVELS      = [None]   # trailing stop levels for mega combo sweep
 COMBO_TP_LEVELS      = [None]   # daily TP levels for mega combo sweep
-COMBO_SWEEP_FILE     = _out("metf_v35_bidask_combo_sweep.csv")
+COMBO_SWEEP_FILE     = _out("meds_combo_sweep.csv")
 
 # ── Entry Time Sweep ──
 # Sweeps all combinations of entry_start × entry_interval (entry_end is fixed).
@@ -803,8 +806,8 @@ RUN_ENTRY_TIME_SWEEP   = False
 ENTRY_TIME_STARTS      = [time(9, 30), time(9, 45), time(10, 0), time(10, 30), time(11, 0)]
 ENTRY_TIME_ENDS        = [time(12, 45), time(13, 30), time(14, 0)]
 ENTRY_TIME_INTERVALS   = [5, 10, 15, 20, 30]            # minutes between entry attempts
-ENTRY_TIME_SWEEP_FILE  = _out("metf_v35_bidask_entry_time_sweep.csv")
-ENTRY_TIME_DOW_FILE    = _out("metf_v35_bidask_entry_time_dow.csv")
+ENTRY_TIME_SWEEP_FILE  = _out("meds_entry_time_sweep.csv")
+ENTRY_TIME_DOW_FILE    = _out("meds_entry_time_dow.csv")
 
 # ── Direction × Time Sweep ──
 # Compares PUT-only, CALL-only, and Both-Sides at each entry time slot to find
@@ -814,8 +817,8 @@ DIRECTION_TIME_SLOTS = [                              # individual slots to test
     time(9, 35), time(9, 55), time(10, 15), time(10, 35), time(10, 55),
     time(11, 15), time(11, 35), time(11, 55), time(12, 15), time(12, 35),
 ]
-DIRECTION_TIME_SWEEP_FILE = _out("metf_v35_bidask_direction_time_sweep.csv")
-DIRECTION_TIME_DOW_FILE   = _out("metf_v35_bidask_direction_time_dow.csv")
+DIRECTION_TIME_SWEEP_FILE = _out("meds_direction_time_sweep.csv")
+DIRECTION_TIME_DOW_FILE   = _out("meds_direction_time_dow.csv")
 
 # ── Master Sweep ──
 # Set RUN_MASTER_SWEEP = True to run ALL sweeps (SL, EMA, trailing stop, spread
@@ -832,21 +835,21 @@ RUN_MASTER_SWEEP = False
 # and the full backtest is re-run. The delta vs. baseline shows whether
 # skipping those days would have hurt or improved P&L.
 RUN_CALENDAR_SWEEP  = False
-CALENDAR_SWEEP_FILE = _out("metf_v35_bidask_calendar_sweep.csv")
+CALENDAR_SWEEP_FILE = _out("meds_calendar_sweep.csv")
 
 # ── CALL-Side SL Sweep ──
 # Tests a dedicated stop-loss applied only on CALL spread days (VIX rose → sell calls).
 # PUT days continue to use _get_effective_sl() (dynamic VIX-based SL) unchanged.
 # Motivation: all max drawdown in the baseline comes from CALL spreads (-$9,922 CALL vs -$5,982 PUT).
 RUN_CALL_SL_SWEEP   = False
-CALL_SL_SWEEP_FILE  = _out("metf_v35_bidask_call_sl_sweep.csv")
+CALL_SL_SWEEP_FILE  = _out("meds_call_sl_sweep.csv")
 CALL_SL_SWEEP_LEVELS = [-100, -200, -300, -400, -500, -600, -700, -800, -1000, -1500, None]
 
 # ── VIX Magnitude Filter Sweep ──
 # Skips days where |dVixChgPct| is below a threshold (signal too weak to be directional).
 # Analysis shows 0–1% VIX change days have only 83.5% win rate vs 93%+ for larger moves.
 RUN_VIX_MAG_SWEEP   = False
-VIX_MAG_SWEEP_FILE  = _out("metf_v35_bidask_vix_mag_sweep.csv")
+VIX_MAG_SWEEP_FILE  = _out("meds_vix_mag_sweep.csv")
 VIX_MAG_THRESHOLDS  = [0.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0, 2.5, 3.0]  # skip if |dVixChgPct| < threshold
 
 # ── Gap-Down CALL SL Sweep ──
@@ -854,7 +857,7 @@ VIX_MAG_THRESHOLDS  = [0.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0, 2.5, 3.0]  # s
 # Theory: intraday gap-fill rallies can threaten CALL strikes on gap-down days.
 # Tests adding a tighter SL exclusively on days where gap < 0 AND direction is CALL.
 RUN_GAP_CALL_SL_SWEEP   = False
-GAP_CALL_SL_SWEEP_FILE  = _out("metf_v35_bidask_gap_call_sl_sweep.csv")
+GAP_CALL_SL_SWEEP_FILE  = _out("meds_gap_call_sl_sweep.csv")
 GAP_CALL_SL_LEVELS      = [-100, -200, -300, -400, -500, -600, -700, -800, -1000, None]
 
 # ── Gap-Down CALL Day SL (live) ──
@@ -872,7 +875,7 @@ GAP_CALL_SL_AMOUNT  = -300.0  # tighter SL applied on gap-down CALL days
 # vs 6,954 full run), all levels flat. June 2024 is a regime anomaly, not a structural
 # SL sizing problem. No change warranted — keep existing -$500 dynamic SL.
 RUN_VIX_SUB12_SL_SWEEP   = False
-VIX_SUB12_SL_SWEEP_FILE  = _out("metf_v35_bidask_vix_sub12_sl_sweep.csv")
+VIX_SUB12_SL_SWEEP_FILE  = _out("meds_vix_sub12_sl_sweep.csv")
 VIX_SUB12_SL_LEVELS      = [-100, -150, -200, -250, -300, -350, -400, -500, None]
 VIX_SUB12_THRESHOLD      = 13.0   # apply tighter SL only when VIX < this
 
@@ -885,18 +888,27 @@ VIX_SUB12_SL_AMOUNT  = -300.0  # tighter SL on VIX < threshold days
 # EOM days have 74% WR and $105/day avg vs 93% WR and $618/day for normal days.
 # Top 4 single-day losses (-$7k, -$7k, -$4.3k, -$2.5k) all fell on EOM dates.
 RUN_EOM_SL_SWEEP    = False
-EOM_SL_SWEEP_FILE   = _out("metf_v35_bidask_eom_sl_sweep.csv")
+EOM_SL_SWEEP_FILE   = _out("meds_eom_sl_sweep.csv")
 EOM_SL_SWEEP_LEVELS = [-200, -300, -400, -500, -600, None]
 
 # ── EOM SL (live) ──
 ENABLE_EOM_SL  = True
 EOM_SL_AMOUNT  = -200.0  # tighter SL applied on last trading day of each month
 
+# ── Pressure Filter VIX Sweep ──
+# Tests conditional pressure filter: only activates when VIX >= threshold.
+# Baseline row (filter disabled entirely) establishes the current P&L floor.
+# The globally-rejected flat filter (-$50k) corresponds to threshold=None.
+# Goal: find if gating to high-VIX days (25+) recovers P&L while cutting DD.
+RUN_PRESSURE_VIX_SWEEP      = False
+PRESSURE_VIX_SWEEP_FILE     = _out("meds_pressure_vix_sweep.csv")
+PRESSURE_VIX_SWEEP_THRESHOLDS = [None, 20.0, 22.0, 25.0, 27.0, 28.0, 30.0]  # None = active at all VIX levels
+
 # ── Calendar Risk SL Sweep ──
 # Tests each recurring-date SL category independently to identify which ones
 # are net positive (save more than they cost on winning days).
 RUN_CALENDAR_RISK_SL_SWEEP   = False
-CALENDAR_RISK_SL_SWEEP_FILE  = _out("metf_v35_bidask_calendar_risk_sl_sweep.csv")
+CALENDAR_RISK_SL_SWEEP_FILE  = _out("meds_calendar_risk_sl_sweep.csv")
 CALENDAR_RISK_SL_SWEEP_LEVELS = [-100, -200, -300, -400, -500, None]
 
 # ── Calendar Risk SL ──
@@ -927,7 +939,7 @@ POST_HOL_SL_AMOUNT   = -300.0   # tighter SL on first trading day after each mar
 # bearish signal → CALL spread.  Compares against always-PUT, always-CALL, and
 # intraday-EMA baselines.
 RUN_BIAS_SWEEP      = False
-BIAS_SWEEP_FILE     = _out("metf_v35_bidask_bias_sweep.csv")
+BIAS_SWEEP_FILE     = _out("meds_bias_sweep.csv")
 
 # ── Opening Skew ──
 # At the first entry bar (9:35) each day, fetch PUT and CALL credits at a fixed
@@ -1798,6 +1810,7 @@ async def _simulate_day(
     open_chg_pct_max: float | None = None,
     touch_exit_dollars: float | None = "USE_GLOBAL",
     touch_exit_pct: float | None = "USE_GLOBAL",
+    pressure_vix_min: float | None = "USE_GLOBAL",
 ) -> tuple:
     """Run the intraday simulation using the pre-populated quote cache.
 
@@ -2052,18 +2065,19 @@ async def _simulate_day(
         on_interval = (dt.minute % _entry_interval == 0)
         bayesian_gate_ok = (INTRADAY_ENTRY_GATE is None or current_day_pnl >= INTRADAY_ENTRY_GATE)
 
-        # PESSURE FILTER ---
+        # PRESSURE FILTER ---
         is_under_pressure = False
-        if ENABLE_PRESSURE_FILTER == True:
-            for pos in active_positions:
-                s_strike = pos['short_strike']
-                # Calculate distance: Positive means OTM, Negative means ITM
-                dist = (curr_price - s_strike) if pos['option_type'] == 'PUT' else (s_strike - curr_price)
-                
-                # If any position is within 15 points of the short strike, block new entries
-                if dist < PRESSURE_DISTANCE_THRESHOLD:
-                    is_under_pressure = True
-                    break
+        if ENABLE_PRESSURE_FILTER:
+            _pvix_min = PRESSURE_FILTER_VIX_MIN if pressure_vix_min == "USE_GLOBAL" else pressure_vix_min
+            _vix_gate_ok = (_pvix_min is None or (vix_level is not None and vix_level >= _pvix_min))
+            if _vix_gate_ok:
+                for pos in active_positions:
+                    s_strike = pos['short_strike']
+                    # Calculate distance: Positive means OTM, Negative means ITM
+                    dist = (curr_price - s_strike) if pos['option_type'] == 'PUT' else (s_strike - curr_price)
+                    if dist < PRESSURE_DISTANCE_THRESHOLD:
+                        is_under_pressure = True
+                        break
 
         can_enter = in_window and on_interval and not stopped_today and daily_trades < MAX_TRADES_DAY and not econ_skip_entries and bayesian_gate_ok and not is_under_pressure 
         # can_enter   = in_window and on_interval and not stopped_today and daily_trades < MAX_TRADES_DAY and not econ_skip_entries and bayesian_gate_ok
@@ -4651,7 +4665,7 @@ async def run_touch_sweep():
 # ─────────────────────────────────────────────
 #  DAILY BAR INDICATOR FILTER SWEEP RUNNER
 # ─────────────────────────────────────────────
-_DAY_FILTER_CHECKPOINT = os.path.join(LOGS_DIR, "metf_v35_bidask_day_filter_sweep_checkpoint.csv")
+_DAY_FILTER_CHECKPOINT = os.path.join(LOGS_DIR, "meds_day_filter_sweep_checkpoint.csv")
 
 
 async def run_day_filter_sweep():

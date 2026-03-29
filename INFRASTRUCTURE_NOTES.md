@@ -17,5 +17,5 @@
 
 ## METF Backtest Notes
 - Full year backtest: 2025-03-24 to 2026-03-21 (260 trading days)
-- Main script: `metf_v35_bidask.py`
+- Main script: `meds.py`
 - Key findings: Widen spreads to 50pt, CALL spreads outperform PUTs, avoid VIX 15-20 range

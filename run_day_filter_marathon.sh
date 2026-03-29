@@ -13,11 +13,11 @@
 set -e
 cd "$(dirname "$0")"
 
-patch() { sed -i '' "s/^$1[[:space:]]*=.*/$1 = $2/" metf_v35_bidask.py; }
-reset() { sed -i '' "s/^$1[[:space:]]*=.*/$1 = None/" metf_v35_bidask.py; }
+patch() { sed -i '' "s/^$1[[:space:]]*=.*/$1 = $2/" meds.py; }
+reset() { sed -i '' "s/^$1[[:space:]]*=.*/$1 = None/" meds.py; }
 
 # Disable sweep mode for marathon runs
-sed -i '' "s/^RUN_DAY_FILTER_SWEEP = .*/RUN_DAY_FILTER_SWEEP = False/" metf_v35_bidask.py
+sed -i '' "s/^RUN_DAY_FILTER_SWEEP = .*/RUN_DAY_FILTER_SWEEP = False/" meds.py
 
 run_filter() {
     local label="$1"
@@ -29,7 +29,7 @@ run_filter() {
     echo "  FILTER: $label"
     echo "============================================================"
     patch "$var" "$val"
-    python3 metf_v35_bidask.py --marathon 2>&1 | grep -E "Total P&L|Win rate|Max drawdown|Sharpe ratio|Calmar|Total trades"
+    python3 meds.py --marathon 2>&1 | grep -E "Total P&L|Win rate|Max drawdown|Sharpe ratio|Calmar|Total trades"
     reset "$var"
 }
 
@@ -38,7 +38,7 @@ echo ""
 echo "============================================================"
 echo "  BASELINE (no day filter)"
 echo "============================================================"
-python3 metf_v35_bidask.py --marathon 2>&1 | grep -E "Total P&L|Win rate|Max drawdown|Sharpe ratio|Calmar|Total trades"
+python3 meds.py --marathon 2>&1 | grep -E "Total P&L|Win rate|Max drawdown|Sharpe ratio|Calmar|Total trades"
 
 # ── Candidates ──
 run_filter "vix_min=20"              "VIX_MIN_FILTER"          "20.0"
@@ -50,7 +50,7 @@ run_filter "dAdx_min=40"             "DAY_FILTER_ADX_MIN"      "40"
 run_filter "dRsi_max=60"             "DAY_FILTER_RSI_MAX"      "60"
 
 # ── Restore ──
-sed -i '' "s/^RUN_DAY_FILTER_SWEEP = .*/RUN_DAY_FILTER_SWEEP = True/" metf_v35_bidask.py
+sed -i '' "s/^RUN_DAY_FILTER_SWEEP = .*/RUN_DAY_FILTER_SWEEP = True/" meds.py
 
 echo ""
 echo "All filters restored to None. RUN_DAY_FILTER_SWEEP restored to True."

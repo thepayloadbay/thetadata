@@ -42,12 +42,12 @@ from datetime import datetime
 
 # ── Load the main backtest module ─────────────────────────────────────────────
 print(f"\n{'='*60}")
-print("  Loading metf_v35_bidask.py ...")
+print("  Loading meds.py ...")
 print(f"{'='*60}")
 
-spec = importlib.util.spec_from_file_location("metf_v35_bidask", "metf_v35_bidask.py")
+spec = importlib.util.spec_from_file_location("meds", "meds.py")
 mod  = importlib.util.module_from_spec(spec)
-sys.modules["metf_v35_bidask"] = mod
+sys.modules["meds"] = mod
 spec.loader.exec_module(mod)
 
 # ── Date range ────────────────────────────────────────────────────────────────

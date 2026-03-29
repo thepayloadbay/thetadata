@@ -38,13 +38,13 @@ for combo in "${COMBOS[@]}"; do
     if [[ "$combo" == "none" ]]; then
         label="none"
         LOG="$PROJ/logs/vix_mid_sweep_none_${TS}.log"
-        $VENV -u "$PROJ/metf_v35_bidask.py" >> "$LOG" 2>&1 &
+        $VENV -u "$PROJ/meds.py" >> "$LOG" 2>&1 &
     else
         low=$(echo $combo | cut -d, -f1)
         high=$(echo $combo | cut -d, -f2)
         label="${low}-${high}"
         LOG="$PROJ/logs/vix_mid_sweep_${label}_${TS}.log"
-        $VENV -u "$PROJ/metf_v35_bidask.py" \
+        $VENV -u "$PROJ/meds.py" \
             --sl-vix-mid-low "$low" --sl-vix-mid-high "$high" >> "$LOG" 2>&1 &
     fi
     PIDS+=($!)

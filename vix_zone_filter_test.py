@@ -17,7 +17,7 @@ import sys
 import os
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import metf_v35_bidask as m
+import meds as m
 
 # ── Config ──────────────────────────────────────────────────────────────────
 # VIX sub-ranges to sweep (inclusive lower, exclusive upper)

@@ -52,7 +52,7 @@ pip install pandas numpy pyarrow mcp
 
 ### Configuration
 
-Key config flags in `metf_v35_bidask.py`:
+Key config flags in `meds.py`:
 ```python
 USE_LOCAL_DATA = True     # True = read local parquet; False = live ThetaData MCP
 PILOT_YEAR_START = "2022-01-03"
@@ -70,7 +70,7 @@ Local parquet data lives in `data/YYYY/` with subdirectories:
 
 ### Full backtest
 ```bash
-.venv/bin/python3 metf_v35_bidask.py
+.venv/bin/python3 meds.py
 ```
 
 ### Parameter sweeps
@@ -98,9 +98,9 @@ Splits the date range across 3 Mac Minis and merges results.
 
 All output files are timestamped and written to `logs/`:
 - `meft_v35_bidask_log_*.csv` — individual trade log
-- `metf_v35_bidask_vix_analysis_*.csv` — performance by VIX range
-- `metf_v35_bidask_put_call_split_*.csv` — PUT vs CALL breakdown
-- `metf_v35_bidask_strike_distance_analysis_*.csv` — performance by strike distance
+- `meds_vix_analysis_*.csv` — performance by VIX range
+- `meds_put_call_split_*.csv` — PUT vs CALL breakdown
+- `meds_strike_distance_analysis_*.csv` — performance by strike distance
 - `run_history.json` — persistent run history (last 10 runs)
 
 ## Key Research Findings

@@ -105,7 +105,7 @@ All max drawdown comes from the CALL side.
 - Full Kelly (max qty=4): P&L $1,168,607 (+92%), MaxDD -$19,844 (2×), Sharpe 13.18, Calmar 58.9
 - Zone map: VIX <13→1, 13–15→3, 15–20→4, 20–25→4, 25–30→1, >30→4
 - **Locked**: requires ~$77,720 peak BP; current account ~$40,000 (97% used at qty=2)
-- **Action**: set `ENABLE_KELLY_SIZING = True` in `metf_v35_bidask.py` when BP reaches ~$80,000+
+- **Action**: set `ENABLE_KELLY_SIZING = True` in `meds.py` when BP reaches ~$80,000+
 
 ---
 
@@ -241,7 +241,7 @@ Key finding: the Dec 18, 2024 VIX spike (57% intraday) first crossed 20% at 15:0
 
 - Full Kelly works (+92% P&L, $607k → $1,168k) but requires ~$77,720 peak BP
 - Current account has ~$40,000 (97% used at qty=2)
-- Enable `ENABLE_KELLY_SIZING = True` in `metf_v35_bidask.py` when account BP reaches ~$80,000+
+- Enable `ENABLE_KELLY_SIZING = True` in `meds.py` when account BP reaches ~$80,000+
 - Zone map: VIX <13→1, 13–15→3, 15–20→4, 20–25→4, 25–30→1, >30→4
 
 ---

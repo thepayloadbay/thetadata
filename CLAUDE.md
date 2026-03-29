@@ -17,7 +17,7 @@ Backtest and optimize a **Multi-Entry Directional Spreads (MEDS)** strategy trad
 - SPXW 0DTE credit spreads, entries every 20 min from 9:35–12:45
 - Direction signal: prior-day VIX change (`dVixChgPct`). VIX fell → PUT spread; VIX rose → CALL spread
 - Signal is locked in for the whole day (no intraday update)
-- Main backtest file: `metf_v35_bidask.py`
+- Main backtest file: `meds.py`
 - Confirmed baseline (2022-01-03 → 2026-03-25): $606,832 P&L, DD -$6,894, Sharpe 13.99, Calmar 88.0, WR 92.3%, 6,937 trades
 
 ---

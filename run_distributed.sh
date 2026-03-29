@@ -43,28 +43,28 @@ echo ""
 
 # ── Sync latest code to Mini 2 and Mini 3 ────────────────────────────────────
 echo "  [sync] Pushing latest code to Mini 2 and Mini 3..."
-rsync -az "$PROJ/metf_v35_bidask.py" "$MINI2:$PROJ/"
-rsync -az "$PROJ/metf_v35_bidask.py" "$MINI3:$PROJ/"
+rsync -az "$PROJ/meds.py" "$MINI2:$PROJ/"
+rsync -az "$PROJ/meds.py" "$MINI3:$PROJ/"
 echo "  [sync] Done."
 echo ""
 
 # ── Launch Mini 2 via nohup (detached — survives SSH disconnect) ──────────────
 echo "  [launch] Starting Mini 2 (detached)..."
-ssh "$MINI2" "cd $PROJ && nohup bash -c '$VENV -u metf_v35_bidask.py \
+ssh "$MINI2" "cd $PROJ && nohup bash -c '$VENV -u meds.py \
     --start 2023-07-03 --end 2024-12-31 \
     --out $MINI2_CSV \
     >> $MINI2_LOG 2>&1 && touch $MINI2_DONE' < /dev/null > /dev/null 2>&1 &"
 
 # ── Launch Mini 3 via nohup (detached) ───────────────────────────────────────
 echo "  [launch] Starting Mini 3 (detached)..."
-ssh "$MINI3" "cd $PROJ && nohup bash -c '$VENV -u metf_v35_bidask.py \
+ssh "$MINI3" "cd $PROJ && nohup bash -c '$VENV -u meds.py \
     --start 2025-01-02 --end 2026-03-25 \
     --out $MINI3_CSV \
     >> $MINI3_LOG 2>&1 && touch $MINI3_DONE' < /dev/null > /dev/null 2>&1 &"
 
 # ── Run Mini 1 locally ────────────────────────────────────────────────────────
 echo "  [launch] Starting Mini 1 (local)..."
-"$VENV" -u "$PROJ/metf_v35_bidask.py" \
+"$VENV" -u "$PROJ/meds.py" \
     --start 2022-01-03 --end 2023-06-30 \
     --out "$MINI1_CSV" \
     >> "$MINI1_LOG" 2>&1 &

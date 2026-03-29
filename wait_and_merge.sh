@@ -34,12 +34,12 @@ echo ""
 
 # ── Restart Mini 2 (kill any stale process first) ────────────────────────────
 echo "  [restart] Killing any stale metf process on Mini 2..."
-ssh "$MINI2" "pkill -f metf_v35_bidask || true"
+ssh "$MINI2" "pkill -f meds || true"
 sleep 2
 
 echo "  [restart] Launching Mini 2 (2023-07-03 → 2024-12-31, detached)..."
 ssh "$MINI2" "cd $PROJ && nohup bash -c \
-    '$VENV -u metf_v35_bidask.py --start 2023-07-03 --end 2024-12-31 \
+    '$VENV -u meds.py --start 2023-07-03 --end 2024-12-31 \
      >> $MINI2_LOG 2>&1 && touch $MINI2_DONE' \
     < /dev/null > /dev/null 2>&1 &"
 echo "  Mini 2 launched. Log: $MINI2_LOG"
@@ -60,7 +60,7 @@ done
 # ── Pull Mini 2 sweep CSV ─────────────────────────────────────────────────────
 echo ""
 echo "  [pull] Finding and pulling Mini 2 sweep CSV..."
-MINI2_REMOTE_CSV=$(ssh "$MINI2" "ls -t $PROJ/logs/metf_v35_bidask_day_filter_sweep_*.csv 2>/dev/null | head -1" 2>/dev/null)
+MINI2_REMOTE_CSV=$(ssh "$MINI2" "ls -t $PROJ/logs/meds_day_filter_sweep_*.csv 2>/dev/null | head -1" 2>/dev/null)
 if [[ -z "$MINI2_REMOTE_CSV" ]]; then
     echo "  [FAIL] No day_filter_sweep CSV found on Mini 2!"
     exit 1

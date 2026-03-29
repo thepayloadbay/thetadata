@@ -15,16 +15,16 @@ for tp in "${TP_LEVELS[@]}"; do
 
     # Patch DAILY_TP in the source
     if [ "$tp" = "None" ]; then
-        sed -i '' "s/^DAILY_TP       = .*/DAILY_TP       = None/" metf_v35_bidask.py
+        sed -i '' "s/^DAILY_TP       = .*/DAILY_TP       = None/" meds.py
     else
-        sed -i '' "s/^DAILY_TP       = .*/DAILY_TP       = ${tp}/" metf_v35_bidask.py
+        sed -i '' "s/^DAILY_TP       = .*/DAILY_TP       = ${tp}/" meds.py
     fi
 
-    python3 metf_v35_bidask.py 2>&1 | grep -E "Total P&L|Win rate|Max drawdown|Sharpe|Calmar|Trades"
+    python3 meds.py 2>&1 | grep -E "Total P&L|Win rate|Max drawdown|Sharpe|Calmar|Trades"
 done
 
 # Restore baseline TP
-sed -i '' "s/^DAILY_TP       = .*/DAILY_TP       = 750.0/" metf_v35_bidask.py
+sed -i '' "s/^DAILY_TP       = .*/DAILY_TP       = 750.0/" meds.py
 echo ""
 echo "Restored DAILY_TP = 750.0"
 echo ""
