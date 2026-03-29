@@ -189,12 +189,13 @@ ECON_DATES = {
 }
 
 # ── Pressure Filter ──
-# Stops from opening anymore positions if dist < threshold
-ENABLE_PRESSURE_FILTER = False
-PRESSURE_DISTANCE_THRESHOLD = 27.0 # Stop entering if price is within X pts of any short strike
-# When set, the pressure filter only activates on days where VIX >= this value.
-# None = always active (original behavior). Use e.g. 25.0 to gate to high-VIX days only.
-PRESSURE_FILTER_VIX_MIN: float | None = None
+# Stops from opening more positions if any active short strike is within PRESSURE_DISTANCE_THRESHOLD pts of spot.
+# VIX range gate: only activates on days where VIX_MIN <= VIX < VIX_MAX (None = no bound).
+# Motivation: 10 of 15 worst loss days are in VIX 15–20 (low-VIX complacency days with sudden intraday moves).
+ENABLE_PRESSURE_FILTER          = True
+PRESSURE_DISTANCE_THRESHOLD     = 27.0    # block new entries if any short strike is within X pts of spot
+PRESSURE_FILTER_VIX_MIN: float | None = 15.0   # only active when VIX >= this (None = no lower bound)
+PRESSURE_FILTER_VIX_MAX: float | None = 20.0   # only active when VIX <  this (None = no upper bound)
 
 # ── Calendar Event Date Sets ──
 # Used by run_calendar_event_sweep() to test each event type independently.
@@ -1538,7 +1539,7 @@ async def fetch_quotes_for_strikes(
 # ─────────────────────────────────────────────
 #  QUOTE CACHE  (lazy — populated during normal fetches)
 # ─────────────────────────────────────────────
-_quote_cache: dict = {}  # (right, strike, bar_time_str) -> dict | None
+_quote_cache: dict = {}  # (date_str, right, strike, bar_time_str) -> dict | None
 
 
 def clear_day_cache():
@@ -1550,8 +1551,13 @@ def clear_day_cache():
 async def fetch_quote_cached(
     session, date_str, expiry, right, strike, bar_time_str
 ) -> dict | None:
-    """fetch_quote_at_time with a cache layer — never fetches the same quote twice."""
-    key = (right, strike, bar_time_str)
+    """fetch_quote_at_time with a cache layer — never fetches the same quote twice.
+
+    date_str is included in the key so sweep runners (which simulate multiple days
+    from a pre-fetched pool without calling clear_day_cache between days) never
+    receive a cached quote from a different trading day.
+    """
+    key = (date_str, right, strike, bar_time_str)
     if key in _quote_cache:
         return _quote_cache[key]
     q = await fetch_quote_at_time(session, date_str, expiry, right, strike, bar_time_str)
@@ -1811,6 +1817,8 @@ async def _simulate_day(
     touch_exit_dollars: float | None = "USE_GLOBAL",
     touch_exit_pct: float | None = "USE_GLOBAL",
     pressure_vix_min: float | None = "USE_GLOBAL",
+    pressure_vix_max: float | None = "USE_GLOBAL",
+    enable_pressure_filter: bool | None = None,
 ) -> tuple:
     """Run the intraday simulation using the pre-populated quote cache.
 
@@ -2067,13 +2075,17 @@ async def _simulate_day(
 
         # PRESSURE FILTER ---
         is_under_pressure = False
-        if ENABLE_PRESSURE_FILTER:
+        _pressure_on = ENABLE_PRESSURE_FILTER if enable_pressure_filter is None else enable_pressure_filter
+        if _pressure_on:
             _pvix_min = PRESSURE_FILTER_VIX_MIN if pressure_vix_min == "USE_GLOBAL" else pressure_vix_min
-            _vix_gate_ok = (_pvix_min is None or (vix_level is not None and vix_level >= _pvix_min))
+            _pvix_max = PRESSURE_FILTER_VIX_MAX if pressure_vix_max == "USE_GLOBAL" else pressure_vix_max
+            _vix_gate_ok = (
+                (_pvix_min is None or (vix_level is not None and vix_level >= _pvix_min)) and
+                (_pvix_max is None or (vix_level is not None and vix_level <  _pvix_max))
+            )
             if _vix_gate_ok:
                 for pos in active_positions:
                     s_strike = pos['short_strike']
-                    # Calculate distance: Positive means OTM, Negative means ITM
                     dist = (curr_price - s_strike) if pos['option_type'] == 'PUT' else (s_strike - curr_price)
                     if dist < PRESSURE_DISTANCE_THRESHOLD:
                         is_under_pressure = True
@@ -5963,6 +5975,133 @@ async def run_call_sl_sweep():
 
 
 # ─────────────────────────────────────────────
+#  PRESSURE FILTER VIX SWEEP RUNNER
+# ─────────────────────────────────────────────
+async def run_pressure_vix_sweep():
+    """Sweep pressure filter with VIX-conditional gating.
+
+    Row 0 (baseline): pressure filter disabled — current confirmed config.
+    Row 1 (threshold=None): filter active at all VIX levels — previously -$50k globally.
+    Rows 2–N: filter active only when VIX >= threshold (20, 22, 25, 27, 28, 30).
+
+    Goal: find if restricting the filter to high-VIX days recovers P&L while
+    still cutting drawdown in the dangerous VIX 25-30 zone.
+    """
+    logger.info("=" * 70)
+    logger.info("MEDS: PRESSURE FILTER VIX SWEEP")
+    logger.info(f"Thresholds    : {PRESSURE_VIX_SWEEP_THRESHOLDS}  (None = all VIX levels)")
+    logger.info(f"Distance      : {PRESSURE_DISTANCE_THRESHOLD} pts")
+    logger.info(f"Output        : {PRESSURE_VIX_SWEEP_FILE}")
+    logger.info("=" * 70)
+
+    date_list = pd.date_range(PILOT_YEAR_START, PILOT_YEAR_END, freq="B")
+    day_pool: dict[str, dict] = {}
+    async with _get_session() as session:
+        for d in date_list:
+            d_str = d.strftime("%Y%m%d")
+            if d_str in MARKET_HOLIDAYS:
+                continue
+            if ENABLE_ECON_FILTER and d_str in ECON_DATES:
+                continue
+            day_data = await _fetch_day_data(session, d_str)
+            if day_data is not None:
+                day_pool[d_str] = day_data
+    logger.info(f"Pre-fetched {len(day_pool)} qualifying days.")
+
+    cols = ["label", "pressure_enabled", "vix_min", "num_trades", "win_rate_pct",
+            "total_pnl", "pnl_delta", "max_drawdown", "dd_delta", "calmar", "sharpe"]
+    rows = []
+    base_pnl = None
+    base_dd  = None
+
+    # Build sweep list: (label, enable_filter, vix_min)
+    sweep = [("baseline (off)", False, None)] + [
+        (f"vix>={t}" if t is not None else "all VIX", True, t)
+        for t in PRESSURE_VIX_SWEEP_THRESHOLDS
+    ]
+
+    async with _get_session() as session:
+        for label, enable_filter, vix_min in sweep:
+            all_trades: list = []
+
+            for d_str, day_data in day_pool.items():
+                effective_sl = _get_effective_sl(day_data, d_str)
+                in_danger = effective_sl is not None
+                sample_interval = DANGER_PNL_SAMPLE_INTERVAL if in_danger else PNL_SAMPLE_INTERVAL
+                direction = _get_baseline_mode(d_str)
+
+                trades, _ = await _simulate_day(
+                    session, day_data, effective_sl,
+                    baseline_mode=direction,
+                    pos_trail_activation=POS_TRAIL_ACTIVATION,
+                    pos_trail_pullback=POS_TRAIL_PULLBACK,
+                    min_otm_distance=MIN_OTM_DISTANCE,
+                    max_credit=MAX_NET_CREDIT,
+                    pnl_sample_interval=sample_interval,
+                    enable_pressure_filter=enable_filter,
+                    pressure_vix_min=vix_min,
+                    pressure_vix_max=None,
+                )
+                all_trades.extend(trades)
+
+            m      = compute_metrics(all_trades)
+            pnl    = m["total_pnl"]
+            dd     = m["max_drawdown"]
+            calmar = pnl / abs(dd) if dd != 0 else float("inf")
+
+            if base_pnl is None:
+                base_pnl  = pnl
+                base_dd   = dd
+                pnl_delta = "—"
+                dd_delta  = "—"
+            else:
+                pnl_delta = f"{pnl - base_pnl:+.2f}"
+                dd_delta  = f"{dd - base_dd:+.2f}"
+
+            rows.append({
+                "label":         label,
+                "pressure_enabled": str(enable_filter),
+                "vix_min":       str(vix_min) if vix_min is not None else "all" if enable_filter else "off",
+                "num_trades":    m["num_trades"],
+                "win_rate_pct":  f"{m['win_rate']:.1f}",
+                "total_pnl":     f"{pnl:.2f}",
+                "pnl_delta":     pnl_delta,
+                "max_drawdown":  f"{dd:.2f}",
+                "dd_delta":      dd_delta,
+                "calmar":        f"{calmar:.2f}",
+                "sharpe":        f"{m['sharpe']:.2f}",
+            })
+            logger.info(
+                f"  {label:<18} | trades={m['num_trades']:>5} | "
+                f"pnl=${pnl:>10,.2f} ({pnl_delta}) | dd=${dd:>9,.2f} ({dd_delta}) | "
+                f"calmar={calmar:.2f} | sharpe={m['sharpe']:.2f}"
+            )
+
+    with open(PRESSURE_VIX_SWEEP_FILE, "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=cols)
+        w.writeheader()
+        w.writerows(rows)
+
+    sep = "─" * 110
+    logger.info("")
+    logger.info("═" * 110)
+    logger.info("  PRESSURE FILTER VIX SWEEP RESULTS")
+    logger.info("═" * 110)
+    logger.info(f"  {'LABEL':<18} | {'TRADES':>7} | {'WIN%':>5} | {'TOTAL_PNL':>12} | "
+                f"{'PNL_DELTA':>10} | {'MAX_DD':>10} | {'DD_DELTA':>10} | {'CALMAR':>8} | {'SHARPE':>7}")
+    logger.info(sep)
+    for row in rows:
+        logger.info(
+            f"  {row['label']:<18} | {row['num_trades']:>7} | {row['win_rate_pct']:>4}% | "
+            f"${float(row['total_pnl']):>11,.2f} | {row['pnl_delta']:>10} | "
+            f"${float(row['max_drawdown']):>9,.2f} | {row['dd_delta']:>10} | "
+            f"{row['calmar']:>8} | {row['sharpe']:>7}"
+        )
+    logger.info("═" * 110)
+    logger.info(f"  Full results: {PRESSURE_VIX_SWEEP_FILE}")
+
+
+# ─────────────────────────────────────────────
 #  TRAILING STOP SWEEP RUNNER
 # ─────────────────────────────────────────────
 def _ts_label(ts) -> str:
@@ -7804,6 +7943,10 @@ async def run():
         return
 
     logger.info(f"DONE — {len(all_trades)} trades logged to {SAVE_FILE}")
+    _snapshot = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tradelogs_meds.csv")
+    import shutil
+    shutil.copy2(SAVE_FILE, _snapshot)
+    logger.info(f"Trade log snapshot → {_snapshot}")
     print_performance_report(all_trades, date_list)
     append_results_md(all_trades, date_list)
     print_dynamic_sl_vix_analysis(all_trades)
@@ -7932,6 +8075,8 @@ if __name__ == "__main__":
         asyncio.run(run_eom_sl_sweep())
     elif RUN_CALENDAR_RISK_SL_SWEEP:
         asyncio.run(run_calendar_risk_sl_sweep())
+    elif RUN_PRESSURE_VIX_SWEEP:
+        asyncio.run(run_pressure_vix_sweep())
     elif RUN_SPREAD_WIDTH_SWEEP:
         asyncio.run(run_spread_width_sweep())
     elif RUN_TRAILING_STOP_SWEEP:
