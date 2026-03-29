@@ -861,19 +861,25 @@ def append_results_md(all_trades: list, date_list) -> None:
     L.append("")
 
     results_path = os.path.join(os.path.dirname(__file__), "RESULTS.md")
+    header = "# MEDS Strategy -- Backtest Results\n\n"
     new_block = "\n".join(L)
+    max_runs = 3
+
+    # Parse existing runs (each starts with "## Run:")
+    existing_runs: list[str] = []
     if os.path.exists(results_path):
         existing = open(results_path).read()
-        # Strip the static header so we can re-prepend it cleanly
-        header = "# MEDS Strategy -- Backtest Results\n\n"
         body = existing[len(header):] if existing.startswith(header) else existing
-        with open(results_path, "w") as f:
-            f.write(header + new_block + "\n" + body)
-    else:
-        with open(results_path, "w") as f:
-            f.write("# MEDS Strategy -- Backtest Results\n\n" + new_block + "\n")
+        import re as _re
+        parts = _re.split(r'(?=^## Run:)', body, flags=_re.MULTILINE)
+        existing_runs = [p for p in parts if p.strip().startswith("## Run:")]
 
-    logger.info(f"  Results prepended to {results_path}")
+    # Keep only the most recent (max_runs - 1) existing runs, prepend the new one
+    all_runs = [new_block] + existing_runs[:max_runs - 1]
+    with open(results_path, "w") as f:
+        f.write(header + "\n".join(all_runs) + "\n")
+
+    logger.info(f"  Results written to {results_path} (latest {len(all_runs)} runs kept)")
 
 
 # ---------------------------------------------
