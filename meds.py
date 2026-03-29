@@ -530,8 +530,14 @@ DAILY_SL       = -20000   # Black swan protection. -20000 never fired in 4yr bac
 #   1. VIX < 13 or VIX 25–30 → apply SL (original rule)
 #   2. VIX 13–17 → apply SL (CALL spreads blow up in low-VIX bullish drift)
 # All other VIX levels use no stop loss (DAILY_SL = None).
+
+# ENABLE_DYNAMIC_SL = False = $621,380.00 PNL, but AVG loss is -$815.15
+# DYNAMIC_SL_AMOUNT = -500 = $596,788.00 PNL 
+# DYNAMIC_SL_AMOUNT = -200 = $570,204.00 PNL 
+
+
 ENABLE_DYNAMIC_SL    = True
-DYNAMIC_SL_AMOUNT    = -500.0        # stop loss applied on danger-zone days
+DYNAMIC_SL_AMOUNT    = -400.0        # stop loss applied on danger-zone days
 DYNAMIC_SL_VIX_LOW   = 13.0         # apply SL when VIX < this
 DYNAMIC_SL_VIX_HIGH  = (25.0, 30.0) # apply SL when VIX is in this range (inclusive)
 DYNAMIC_SL_VIX_MID   = (13.0, 13.5) # apply SL when VIX is in this range (low-VIX CALL blowup zone)
@@ -963,19 +969,21 @@ CALENDAR_RISK_SL_SWEEP_LEVELS = [-100, -200, -300, -400, -500, None]
 # ENABLE_PRE_TW_SL = $590,974.00 PNL
 # ENABLE_POST_HOL_SL = $593,580.00 PNL
 
+# Potential: EOQ, PRE_TW, and POST_HOL
+
 ENABLE_CPI_SL        = False
 CPI_SL_AMOUNT        = -300.0   # tighter SL on CPI release days
 
 ENABLE_PCE_SL        = False
 PCE_SL_AMOUNT        = -300.0   # tighter SL on PCE release days
 
-ENABLE_EOQ_SL        = True
+ENABLE_EOQ_SL        = False
 EOQ_SL_AMOUNT        = -300.0   # tighter SL on last trading day of each quarter
 
-ENABLE_PRE_TW_SL     = True
+ENABLE_PRE_TW_SL     = False
 PRE_TW_SL_AMOUNT     = -300.0   # tighter SL on the trading day before Triple Witching
 
-ENABLE_POST_HOL_SL   = True
+ENABLE_POST_HOL_SL   = False
 POST_HOL_SL_AMOUNT   = -300.0   # tighter SL on first trading day after each market holiday
 
 # ── Bias Sweep ──

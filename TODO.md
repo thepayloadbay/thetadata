@@ -114,6 +114,10 @@ All max drawdown comes from the CALL side.
 - **Net unusual premiums** — large institutional options sweeps/block prints as a pre-entry signal. Requires separate options flow data source. Most plausible remaining confluence candidate given VIX change is already the direction signal.
 - **Black swan / tail-risk protection** — ✓ IMPLEMENTED 2026-03-28. See research log below.
 - If 2 or loss days in a row, stop for the week? what does statistics say
+- add seasonality data to the performance report by day and by month
+- add pnl for econ dates
+- is there a pattern where if monday is a loss, tuesday could be a loss, 
+- is there ap attern where if a tuesday is a loss, wednesday is a loss? check statistics. is there a statistical model?
 
 ### Intraday Trend Reversal Detection (VIX 15–20 loss day problem)
 
