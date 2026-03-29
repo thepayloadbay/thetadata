@@ -1,6 +1,6 @@
 .venv/
 __pycache__/
 *.pyc
-logs/
+meds/logs/
 data/
-tradelogs_meds.csv
+meds/tradelogs_meds.csv

@@ -860,7 +860,7 @@ def append_results_md(all_trades: list, date_list) -> None:
 
     L.append("")
 
-    results_path = "RESULTS.md"
+    results_path = os.path.join(os.path.dirname(__file__), "RESULTS.md")
     new_block = "\n".join(L)
     if os.path.exists(results_path):
         existing = open(results_path).read()
@@ -1088,7 +1088,7 @@ def print_monthly_pnl_table(all_trades: list) -> None:
 # ---------------------------------------------
 #  SPY BENCHMARK COMPARISON
 # ---------------------------------------------
-SPY_CACHE_FILE = "spy_monthly_closes.csv"   # local cache: date (YYYY-MM-DD), close
+SPY_CACHE_FILE = os.path.join(os.path.dirname(__file__), "spy_monthly_closes.csv")
 
 def _get_spy_monthly_returns(first_year: int, last_year: int) -> "dict[tuple,float]":
     """Return {(year, month): pct_return} for SPY.

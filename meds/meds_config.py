@@ -79,20 +79,21 @@ def market_close_time(date_str: str) -> time:
 # ---------------------------------------------
 #  GLOBAL CONFIG
 # ---------------------------------------------
+import pathlib as _pathlib
+PROJECT_ROOT     = str(_pathlib.Path(__file__).resolve().parent.parent)
+
 PILOT_YEAR_START = "2022-01-03"
 PILOT_YEAR_END   = "2026-03-25"
 MCP_URL          = "http://127.0.0.1:25503/mcp/sse"
 USE_LOCAL_DATA   = True    # True -> read local parquet files; False -> live ThetaData MCP
-DATA_DIR         = "data"  # root of local parquet cache (used when USE_LOCAL_DATA=True)
-QUOTE_DISK_CACHE = "data/quote_disk_cache.parquet"  # persistent cross-run quote cache
-                                                     # populated at end of run, loaded at start
-                                                     # eliminates parquet index lookups on repeat runs
+DATA_DIR         = os.path.join(PROJECT_ROOT, "data")   # root of local parquet cache
+QUOTE_DISK_CACHE = os.path.join(PROJECT_ROOT, "data", "quote_disk_cache.parquet")
 
 # Unique timestamp stamped on every output file so runs never overwrite each other.
 from datetime import datetime as _dt
 _RUN_TS = _dt.now().strftime("%Y%m%d_%H%M%S")
 
-LOGS_DIR = "logs"
+LOGS_DIR = os.path.join(os.path.dirname(__file__), "logs")
 os.makedirs(LOGS_DIR, exist_ok=True)
 
 def _out(name: str) -> str:
