@@ -462,6 +462,127 @@ Half-sizing top 20% costs -$44k. The Q1→Q5 gradient ($353→$760) reinforces t
 
 ---
 
+### [16] Kalman Filter — ✗ SKIP
+
+**Concept:** Adaptive price trend smoother that adjusts to regime changes in real-time. Flat/choppy Kalman slope = ranging; steep slope = trending.
+
+**Verdict: do not test.** Every direction/trend signal tested (RSI, MACD, SMA200, momentum, stochastic) returned negative P&L. The strategy's VIX direction signal only adds ~$19k over 4 years — better trend filtering will not improve on that. Same failure mode as all prior direction alternatives.
+
+---
+
+### [17] Parkinson Volatility Estimator — ✗ SKIP
+
+**Concept:** Intraday volatility estimator using high-low range instead of close-to-close. More sensitive to intraday vol moves than standard realized variance.
+
+**Verdict: do not test.** Already covered by VRP [7], HAR-RV [8], and Realized GARCH [12] — all negative. High-volatility days are consistently *better* for this strategy (MIN_OTM_DISTANCE=30 provides structural buffer). A more accurate vol estimator won't change this finding.
+
+---
+
+### [18] Hurst Exponent — LOW PRIORITY
+
+**Concept:** Measures market regime — trending (H > 0.5), mean-reverting (H < 0.5), or random walk (H ≈ 0.5). H < 0.5 should theoretically favor credit spreads (choppy = less likely to move far).
+
+**Assessment:** Conceptually the most novel of the "regime filter" family — it classifies *type* of movement, not just magnitude. But the consistent empirical pattern across all regime filters tested is that the "dangerous" regime days are actually profitable. Low probability of a different outcome. Would test as a sizing signal (not a skip filter) after [13] and [15] are completed.
+
+---
+
+### [19] VVIX/VIX Ratio — WORTH TESTING
+
+**Concept:** VVIX measures volatility-of-volatility (how uncertain the market is about future VIX levels). The VVIX/VIX ratio captures instability of VIX itself relative to its current level. Readings above 6 = vol instability; below 4 = vol stability.
+
+**Why different:** This is the only signal in this group targeting *signal quality* rather than market regime. When VIX is itself unpredictable (high VVIX/VIX), the prior-day VIX change direction signal becomes less reliable — the day-to-day VIX reading is noisy. This hypothesis is mechanistically distinct from all prior tests.
+
+**Lead-lag refinement (2026-03-29):** Federal Reserve research confirms VVIX negatively predicts tail risk hedge returns 3–4 weeks ahead. More importantly, the key early warning pattern is **VVIX spiking while VIX is still subdued** — not just the ratio alone. When VVIX > 100 and VIX < 20, options traders are pricing in future vol stress before it hits the headline VIX number. Conversely, when VIX spikes WITHOUT a matching VVIX move, the vol tends to be transitory and fade quickly (no regime change). This means the combined condition (high VVIX + low VIX) is a stronger signal than VVIX/VIX ratio alone.
+
+**What to test:**
+1. VVIX/VIX ratio buckets: compare P&L on ratio >6 vs <4 days
+2. Combined condition: VVIX > 100 AND VIX < 20 (early warning flag) — skip or reduce
+3. Asymmetric VIX spike filter: VIX > 25 AND VVIX flat (transitory) → hold full size; VIX subdued AND VVIX spiking → reduce
+
+**Data needed:** Daily VVIX close — available free from CBOE (vvix_history.csv).
+
+**Feasibility:** High — one CSV download. Priority: test after [13]. Probability of finding something actionable: low given the consistent pattern, but the lead-lag refinement makes the hypothesis more precise.
+
+---
+
+### [20] GEX (Gamma Exposure) / Dealer Positioning — WORTH TESTING
+
+**Concept:** Net dealer gamma exposure (GEX) measures whether market makers are net long or net short gamma. When dealers are net long gamma (positive GEX), they hedge by fading price moves — selling rallies, buying dips — which makes markets mean-reverting. This is the ideal environment for credit spreads. When dealers are net short gamma (negative GEX), they must hedge by chasing moves, amplifying volatility — the worst environment for short premium.
+
+**Why different from all prior tests:** This is a market microstructure signal, not a volatility forecasting signal. It doesn't predict *how much* vol there will be — it predicts *how the market will behave* given the existing vol. All prior tests (VRP, HAR-RV, MS-GARCH, Hurst) measured volatility magnitude or regime; GEX measures the mechanical hedging behavior of the dominant liquidity providers.
+
+**What to test:** Bucket trading days by prior-day GEX sign (positive vs negative) and by GEX magnitude quintiles. Compare P&L, WR, and max DD. Test as a skip filter on deeply negative GEX days and as a sizing signal on strongly positive GEX days.
+
+**Data needed:** Daily GEX — published by SpotGamma (paid) or SqueezeMetrics (free tier available). Also computable from CBOE open interest data if available.
+
+**Feasibility:** Medium — depends on data source access. SpotGamma historical data requires subscription. SqueezeMetrics offers some free data. Priority: test after [13] and [19].
+
+---
+
+### [21] MOVE/VIX Ratio — WORTH TESTING
+
+**Concept:** MOVE index measures bond market implied volatility (equivalent of VIX for Treasuries). The MOVE/VIX ratio captures cross-asset vol divergence. When MOVE is elevated relative to VIX, bond markets are pricing in significantly more uncertainty than equity markets — historically, equity vol tends to catch up. High MOVE/VIX ratio = potential equity vol spike incoming.
+
+**Why different:** All prior signals were purely equity/options-based. MOVE is a cross-asset signal — it captures macro/rates uncertainty that can precede equity dislocations before they show up in VIX. LTCM (1998), GFC (2008), and COVID (2020) all saw MOVE spike before or alongside VIX.
+
+**What to test:** Compute prior-day MOVE/VIX ratio. Bucket trading days into quintiles. Compare P&L and WR across buckets. Test as a skip filter on extreme high-ratio days (top decile) and as a sizing reducer.
+
+**Data needed:** Daily MOVE index close — available free from FRED (BAMLMOVE index) or ICE/Bloomberg. VIX already available in existing parquet files.
+
+**Feasibility:** High — one FRED CSV download. Straightforward to merge with existing VIX data. Priority: test alongside [19] (both are one-file downloads).
+
+---
+
+### [22] QQQ/SPY Correlation — LOW PRIORITY
+
+**Concept:** Use the rolling correlation between QQQ (Nasdaq-100) and SPY (S&P 500) as a market internals regime signal. When correlation breaks down, sector rotation is occurring — potential instability. Also testable as a direction signal: QQQ outperforming SPY (tech leading) = risk-on = CALL spreads safer; SPY outperforming (defensive/value leading) = risk-off = PUT spreads safer.
+
+**Why weaker than [21]:**
+- SPY and ES are essentially the same instrument (~0.999 correlation) — no independent signal between them.
+- QQQ/SPY is within-equity. Equity-equity correlations *spike* during crises (everything sells off together), which is the opposite of a useful early warning signal.
+- [21] MOVE/VIX captures cross-asset divergence (bonds vs equities) — a fundamentally different and more macro information source.
+- Every directional alternative (RSI, MACD, gap, SMA200, momentum) already failed; QQQ/SPY ratio as a direction signal is unlikely to break that pattern.
+
+**What to test if pursued:** (a) Rolling 20-day QQQ/SPY correlation as a regime filter — skip or reduce on low-correlation days. (b) Prior-day QQQ/SPY return ratio as a direction signal — QQQ outperforming → CALL, underperforming → PUT.
+
+**Data needed:** Daily QQQ and SPY OHLC — freely available from Yahoo Finance or existing data sources.
+
+**Feasibility:** High — data easily sourced. But low priority given weak theoretical basis relative to [21] and consistent failure of within-equity regime signals. Test only after [13], [19], [20], and [21] are completed.
+
+---
+
+### [24] DSPX (Dispersion Index) — WORTH TESTING
+
+**Concept:** DSPX measures the spread between single-stock implied volatility and S&P 500 index implied volatility. When this spread is elevated, the "dispersion trade" is crowded — hedge funds are short index vol and long single-stock vol. When correlation suddenly spikes (all stocks move together), dispersion traders face rapid losses and are forced to unwind simultaneously, creating violent, self-reinforcing market moves. This is the mechanism behind Feb 2018 Volmageddon.
+
+**Key metric:** DSPX − VIX spread. Historical average: ~5–15 points. When spread exceeds 20 points (85th percentile), the trade is dangerously crowded. At these levels, any correlation shock can cascade into a vol spike far larger than the underlying macro event would justify.
+
+**Why different from all prior signals:** This is a market crowding / positioning signal, not a vol-forecasting or momentum signal. It captures structural fragility — the market is fine until it isn't. Mechanistically distinct from VRP [7], HAR-RV [8], VVIX [19], and GEX [20].
+
+**What to test:** Download daily DSPX and compute the DSPX−VIX spread. Bucket trading days by spread quintile. Test as a skip/reduce filter when spread > 20 (crowded) — specifically check if P&L degrades on high-spread days.
+
+**Data needed:** Daily DSPX close — published by CBOE. May require CBOE data subscription or Bloomberg. Check if freely available via CBOE website.
+
+**Feasibility:** Medium — data availability unclear (CBOE may not publish historical DSPX freely). Priority: investigate data access first, then test alongside [20] GEX. If data is paywalled, skip.
+
+---
+
+### [23] Intraday Price Action Signals — ✗ SKIP (Category Rejected)
+
+The following signals were evaluated and rejected as a category. All are intraday price/momentum-based and share the same failure mode as prior tested signals.
+
+| Signal | Concept | Reason to Skip |
+|---|---|---|
+| Minimum price swing | Only enter if SPX has moved ≥ X pts from open | Same failure mode as Bayesian entry gate — fires on win days, costs P&L |
+| Max retracement | Skip if market pulled back > X% from today's high | Pressure filter reframed — already cost -$50k |
+| Minimum volume spike | Require volume confirmation before entry | SPX index has no volume; ES/SPY proxy is noisy; 0DTE entries span 9:35–12:45 anyway |
+| Momentum score | Composite of RSI, MACD, momentum oscillator | Combination of individually-failed signals; redundant |
+| Max gap % of swing | Overnight gap as % of total daily range | Variation on gap direction signal — already tested negative |
+
+**Root cause:** The strategy's structural edge (theta decay + MIN_OTM_DISTANCE=30) is immune to intraday price-behavior filters. Every attempt to gate entries based on how the market is moving intraday results in filtering out winning positions. The premium in the spread IS the edge — preventing entry costs money.
+
+---
+
 ## Statistical Validation ✓ COMPLETED (2026-03-29)
 
 ### Completed Tests
