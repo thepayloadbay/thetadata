@@ -191,7 +191,7 @@ ECON_DATES = {
 # ── Pressure Filter ──
 # Stops from opening anymore positions if dist < threshold
 ENABLE_PRESSURE_FILTER = True
-PRESSURE_DISTANCE_THRESHOLD = 25.0 # Stop entering if price is within X pts of any short strike
+PRESSURE_DISTANCE_THRESHOLD = 27.0 # Stop entering if price is within X pts of any short strike
 
 # ── Calendar Event Date Sets ──
 # Used by run_calendar_event_sweep() to test each event type independently.
@@ -2045,12 +2045,24 @@ async def _simulate_day(
                     break
 
         # LOSS COUNT FILTER ---
-        losses_today = sum(1 for p in day_trades_log if p['pnl_earned'] < 0)
-        if losses_today >= 2:
-            # If we've already taken 2 losses, the market regime is likely unfavorable
-            continue
+        # 1. Count trades that already finished as a loss today
+        closed_losses = sum(1 for p in day_trades_log if p.get('pnl_earned', 0) < 0)
+        
+        # 2. Count active positions that have hit their stop loss price 
+        # (but maybe haven't been 'cleaned up' by the loop yet)
+        active_losses = 0
+        for pos in active_positions:
+            # Check if current price has breached the stop level
+            if pos['option_type'] == 'PUT' and curr_price <= (pos['short_strike'] - 25): # Example SL check
+                active_losses += 1
+            elif pos['option_type'] == 'CALL' and curr_price >= (pos['short_strike'] + 25):
+                active_losses += 1
 
-        can_enter = in_window and on_interval and not stopped_today and daily_trades < MAX_TRADES_DAY and not econ_skip_entries and bayesian_gate_ok and not is_under_pressure
+        # Total "Bad" trades today
+        total_strikes = closed_losses + active_losses
+        is_at_loss_limit = (total_strikes >= 2)
+
+        can_enter = in_window and on_interval and not stopped_today and daily_trades < MAX_TRADES_DAY and not econ_skip_entries and bayesian_gate_ok and not is_under_pressure and not is_at_loss_limit
         # can_enter   = in_window and on_interval and not stopped_today and daily_trades < MAX_TRADES_DAY and not econ_skip_entries and bayesian_gate_ok
 
         if not can_enter:
