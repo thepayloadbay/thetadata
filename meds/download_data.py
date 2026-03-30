@@ -52,6 +52,33 @@ SPX_APPROX_BY_YEAR = {
     2018: 2700, 2019: 2950, 2020: 3100, 2021: 3750,
 }
 
+# Load daily SPX close lookup (from yfinance) for more accurate strike inference
+_SPX_DAILY_CLOSE = {}
+_spx_close_path = os.path.join(DATA_DIR, "spx_daily_close.csv")
+if os.path.exists(_spx_close_path):
+    import csv
+    with open(_spx_close_path) as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            _SPX_DAILY_CLOSE[row["Date"]] = float(row["close"])
+
+
+def _get_approx_spx(date_str: str) -> int | None:
+    """Get approximate SPX level for a date, using daily close lookup or yearly fallback."""
+    # Try exact date first, then prior days (weekends/holidays)
+    import datetime
+    dt = datetime.datetime.strptime(date_str, "%Y%m%d")
+    for offset in range(0, 5):
+        d = (dt - datetime.timedelta(days=offset)).strftime("%Y%m%d")
+        if d in _SPX_DAILY_CLOSE:
+            return round(_SPX_DAILY_CLOSE[d] / STRIKE_STEP) * STRIKE_STEP
+    # Fallback to yearly approximation
+    year = int(date_str[:4])
+    approx = SPX_APPROX_BY_YEAR.get(year)
+    if approx is not None:
+        return round(approx / STRIKE_STEP) * STRIKE_STEP
+    return None
+
 MARKET_HOLIDAYS = {
     # 2023
     "20230102","20230116","20230220","20230407","20230529","20230619",
@@ -232,8 +259,7 @@ async def infer_spx_open_from_options(session, date_str: str) -> float | None:
         underlying ≈ strike + call_mid - put_mid
     Returns None if option quotes are unavailable.
     """
-    year = int(date_str[:4])
-    approx_strike = SPX_APPROX_BY_YEAR.get(year)
+    approx_strike = _get_approx_spx(date_str)
     if approx_strike is None:
         return None
 

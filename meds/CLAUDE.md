@@ -108,6 +108,7 @@ Backtest and optimize a **Multi-Entry Directional Spreads (MEDS)** strategy trad
 - **Strike distance decay / delta gate** [11]: delta chg=0.000 at worst entries on 4/5 top loss days (V-shape reversals). Best threshold saves $6.5k, costs $97k. Same failure mode as Bayesian gate and pressure filter
 - **Bid/ask spread width filter** [33]: SPXW 0DTE spreads discrete ($0.05/$0.10/$0.15 = 99%). Wide-spread entries still 91.6% WR. Any filter costs P&L; correlates with VIX 25-30 already handled by dynamic SL
 - **GEX / Dealer Positioning** [20]: GEX is 66% correlated with VIX (redundant proxy). No added signal within VIX zones. DIX gradient $139/day too weak. Both only useful for Kelly sizing
+- **VIX1D/VVIX/VIX9D signals** (TradingView data): VIX term spread (VIX-VIX1D), VVIX level, VIX1D/VIX ratio — none produce actionable filters. Backwardation SL (-$500 on spread<0) showed +$13k in day-level approx but marathon confirmed -$91k cost (same intraday recovery failure). Narrow combos (backwardation+VIX zone, backwardation+high VVIX) don't catch worst loss days — 8 of top 10 losses have positive spread and normal VVIX. Skip filters on all signals cost P&L at every threshold. Data integrated into indicator pipeline but no filter implemented
 
 ---
 
