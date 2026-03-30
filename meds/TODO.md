@@ -30,26 +30,27 @@ Priority order reflects expected signal quality, data availability, and distinct
 
 | # | Item | Effort | Notes |
 |---|------|--------|-------|
-| 7 | Strike distance decay signal (Option 2) | High | At each entry bar, block if avg OTM distance shrunk >X pts. Most surgical VIX 15–20 fix. Defer until Kelly unlock |
-| 8 | Entry window cutoff by VIX range (Option 3b) | Low | For VIX 15–20, stop entries at 11:30 instead of 12:45. Sweep over cutoff times |
-| 9 | Tighter per-trade SL when day is already negative (Option 3c) | Medium | Once daily P&L < -$500, subsequent positions use -$150 SL. Targets mixed-result days |
-| 10 | Halt entries on intraday trend reversal (Option 3f) | High | EMA cross / VWAP cross / rolling high break as entry suppression signal |
-| 11 | MAX_OTM_DISTANCE cap | Low | Skip entries where strike >75pt OTM. Likely overlaps VIX 25–30 zone. From Finding 5 |
-| 12 | Widen danger zone to VIX 13.5–15.0 | Low | Extend dynamic SL coverage to fill unprotected gap. From Finding 2 |
-| 13 | "Wonging" Entry — wait for 0.3% adverse move [30] | Medium | Enter only after SPX moves against spread direction. Gets better credit |
-| 14 | Bid/ask spread width filter [33] | Low | Skip entry if bid/ask spread >$0.15. Per-entry credit quality check |
-| 15 | Pot Odds filter — MIN_NET_CREDIT to 3.5% of width [34] | Low | Raise MIN_NET_CREDIT from $0.55 to $0.70. Related to existing sweep |
-| 16 | Chop Rule — close at 80% max profit with 2h+ remaining [13-ideas] | Medium | Similar to DAILY_TP but % capture + time filter. All fixed TP levels rejected but this framing untested |
-| 17 | "Semi-Bluff" half-size on near-EMA-cross [41] | Medium | EMA alignment as sizing trigger (not gate). EMA as gate rejected; sizing untested |
+| 7 | VIX-conditional PCE skip | Low | PCE has 69% WR (p=0.00002 vs 91.8% baseline). Test: skip PCE only when VIX <15 or 25–30 (weak zones). Full skip costs $17k; conditional may preserve most P&L while filtering worst days |
+| 8 | Strike distance decay signal (Option 2) | High | At each entry bar, block if avg OTM distance shrunk >X pts. Most surgical VIX 15–20 fix. Defer until Kelly unlock |
+| 9 | Entry window cutoff by VIX range (Option 3b) | Low | For VIX 15–20, stop entries at 11:30 instead of 12:45. Sweep over cutoff times |
+| 10 | Tighter per-trade SL when day is already negative (Option 3c) | Medium | Once daily P&L < -$500, subsequent positions use -$150 SL. Targets mixed-result days |
+| 11 | Halt entries on intraday trend reversal (Option 3f) | High | EMA cross / VWAP cross / rolling high break as entry suppression signal |
+| 12 | MAX_OTM_DISTANCE cap | Low | Skip entries where strike >75pt OTM. Likely overlaps VIX 25–30 zone. From Finding 5 |
+| 13 | Widen danger zone to VIX 13.5–15.0 | Low | Extend dynamic SL coverage to fill unprotected gap. From Finding 2 |
+| 14 | "Wonging" Entry — wait for 0.3% adverse move [30] | Medium | Enter only after SPX moves against spread direction. Gets better credit |
+| 15 | Bid/ask spread width filter [33] | Low | Skip entry if bid/ask spread >$0.15. Per-entry credit quality check |
+| 16 | Pot Odds filter — MIN_NET_CREDIT to 3.5% of width [34] | Low | Raise MIN_NET_CREDIT from $0.55 to $0.70. Related to existing sweep |
+| 17 | Chop Rule — close at 80% max profit with 2h+ remaining [13-ideas] | Medium | Similar to DAILY_TP but % capture + time filter. All fixed TP levels rejected but this framing untested |
+| 18 | "Semi-Bluff" half-size on near-EMA-cross [41] | Medium | EMA alignment as sizing trigger (not gate). EMA as gate rejected; sizing untested |
 
 ### Low Priority
 
 | # | Item | Effort | Notes |
 |---|------|--------|-------|
-| 18 | Hurst Exponent regime filter [18] | Medium | Classifies movement *type* not magnitude. Novel but consistent pattern suggests low odds |
-| 19 | QQQ/SPY Correlation [22] | Low | Within-equity signal. Weak theoretical basis vs cross-asset [21] |
-| 20 | Dynamic Delta-Adjusted Strike Distance [25] | Medium | VIX-adjusted MIN_OTM_DISTANCE. Likely counterproductive — high-VIX days are best days |
-| 21 | Iron Condor on winning Put spread [31] | High | Open Call side to lock in profit on middle zone. Complex position management |
+| 19 | Hurst Exponent regime filter [18] | Medium | Classifies movement *type* not magnitude. Novel but consistent pattern suggests low odds |
+| 20 | QQQ/SPY Correlation [22] | Low | Within-equity signal. Weak theoretical basis vs cross-asset [21] |
+| 21 | Dynamic Delta-Adjusted Strike Distance [25] | Medium | VIX-adjusted MIN_OTM_DISTANCE. Likely counterproductive — high-VIX days are best days |
+| 22 | Iron Condor on winning Put spread [31] | High | Open Call side to lock in profit on middle zone. Complex position management |
 
 ---
 

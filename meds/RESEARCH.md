@@ -170,12 +170,15 @@ All max drawdown comes from the CALL side.
 
 ---
 
-## Finding 2: VIX 13.0–13.5 — The ONLY Net-Negative Zone
+## Finding 2: VIX 13.0–13.5 — Formerly Net-Negative, Now Positive
 
-**Stats:** 177 trades, 40 trading days, 55.4% WR, -$568 P&L, -$2,296 DD
+**Original stats (pre-SL gap re-entry):** 177 trades, 40 trading days, 55.4% WR, -$568 P&L, -$2,296 DD
+**Current stats (with SL gap re-entry):** 191 trades, 67.0% WR, +$2,796 P&L, -$3,338 DD
 **Dynamic SL:** Already ON at -$800 via `DYNAMIC_SL_VIX_MID = (13.0, 13.5)`
 
-**Loss day breakdown (19 losing date-direction combos):**
+**What changed:** `ENABLE_SL_GAP_REENTRY = True` (60 min) converted this zone from net-negative to net-positive. In this low-IV zone, the dynamic SL fires frequently; the re-entry feature allows a second attempt 60 min later, capturing recoveries. Trade count increased from 177 to 191 (+14 re-entry trades), wins increased more than losses, flipping the zone to +$2,796.
+
+**Loss day breakdown (19 losing date-direction combos, original analysis):**
 - 14 of 19 are PUT spreads (-$7,832 cumulative)
 - 5 of 19 are CALL spreads (-$3,748 cumulative)
 - Only 3 overlap calendar events (2023-06-16 TW, 2023-07-26 FOMC, 2024-03-20 FOMC)
@@ -183,7 +186,7 @@ All max drawdown comes from the CALL side.
 
 **Worst days:** 2024-07-16 CALL -$920 (5 trades, 0% WR), 2024-01-26 PUT -$788 (7 trades, 14% WR), 2024-06-04 CALL -$740 (10 trades, 40% WR)
 
-**Root cause:** VIX 13.0–13.5 = extremely low IV. Credits are minimal ($0.55–0.70), leaving almost no buffer. The -$800 SL fires frequently, turning it into a death-by-a-thousand-cuts zone.
+**Root cause:** VIX 13.0–13.5 = extremely low IV. Credits are minimal ($0.55–0.70), leaving almost no buffer. The -$800 SL fires frequently. SL gap re-entry mitigates this but doesn't eliminate it — the zone is still the weakest by WR (67% vs 93.4% overall).
 
 **Options tested:**
 - Skip VIX 13.0–13.5 entirely — MARATHON TESTED: P&L $611,768 (-$244), DD -$6,356 (unchanged), Sharpe 15.32 (+1.17), WR 94.2%. **Rejected** — P&L cost negligible but DD unchanged. Sharpe gain is cosmetic.
