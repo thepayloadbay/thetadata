@@ -35,7 +35,7 @@ Ranked by expected signal quality, data availability, and distinctiveness from p
 |------|------|--------|-------|
 | 1 | Hard time exit — close all by 3:15 PM [gamma] | Low | Hour-15 losses avg -$952 (8x noon). Close positions early to avoid 0DTE gamma spike. Backtestable now with existing logs |
 | 2 | Early profit-taking at % of credit [research] | Low | Close at 50% or 65% of credit received. Iron condor research (8–20Δ) shows improved equity curve + smaller DD with early close. Different from Chop Rule (% of max profit) and DAILY_TP (fixed $). Backtestable with existing logs |
-| 3 | ~~VIX9D/VIX term structure filter [vix9d]~~ | ~~Medium~~ | **REJECTED** — VIX9D is 96.5% correlated with VIX (pure proxy). Ratio vs P&L r=0.067 (zero signal). Inversion skip costs $182k. Contango bonus is backwards (deep contango = LOWER P&L). Gap narrowing has zero gradient. Confirmed by both trade-log analysis and marathon sweep |
+| 3 | ~~VIX9D/VIX term structure filter [vix9d]~~ | ~~Medium~~ | **REJECTED** — VIX9D is 96.5% correlated with VIX (pure proxy). Ratio vs P&L r=0.067 (zero signal). Full SL sweep (4 conditions × 5 levels) all worse. Also tested removing dynamic SL on VIX9D-back in VIX 25-30: +$12k P&L but DD triples (-$6k→-$18k), Sharpe 14.47→10.26. Contango SL removal even worse (DD -$35k). Current dynamic SL on all VIX 25-30 confirmed optimal |
 | 4 | Tighter per-trade SL when day is already negative (Option 3c) | Medium | Once daily P&L < -$500, subsequent positions use -$150 SL. Targets mixed-result days. No external data needed |
 | 5 | RV/IV ratio regime filter [research] | Medium | 20-day realized vol / VIX as sizing signal. 0.5–0.8 normal (full size), >0.8 stress (reduce/tighten SL). Well-documented thresholds. Distinct from VIX9D vs RV (#9) — uses 30-day horizon |
 | 6 | VIX-conditional PCE skip | Low | PCE has 69% WR (p=0.00002 vs 91.8% baseline). Test: skip PCE only when VIX <15 or 25–30 (weak zones). Full skip costs $17k; conditional may preserve most P&L while filtering worst days |
@@ -233,6 +233,7 @@ Tests to validate that the strategy edge is real and robust, not overfitted or f
 | 14 | Gain-to-Pain Ratio (Schwager) | Low | Sum of monthly gains / sum of monthly losses. Raw measure of emotional cost per dollar earned |
 | 15 | Equity Curve R² | Low | Linear regression on cumulative P&L. R² > 0.90 = smooth, psychologically tradeable curve |
 | 16 | Max Drawdown Duration | Low | Time-to-recovery from worst DD. If >3 months, psychological tilt risk is high regardless of dollar DD |
+| 17 | Broken Strategy Test | Low | Randomly flip 10% of winners to losers (1,000 iterations). If equity curve collapses, edge is too fragile — concentrated in a few critical trades rather than broadly distributed |
 
 ---
 
