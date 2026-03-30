@@ -24,7 +24,7 @@ Priority order reflects expected signal quality, data availability, and distinct
 |---|------|--------|-------------|-------|
 | 4 | ~~True IV Skew from BSM [15]~~ | ~~Medium~~ | ~~Compute from existing bid/ask data~~ | **TESTED** — Q1→Q5 gradient $104/day, weaker than credit proxy ($274). Only useful for Kelly sizing. See [15] in RESEARCH.md |
 | 5 | ~~GEX / Dealer Positioning [20]~~ | ~~Medium~~ | ~~SqueezeMetrics (free tier)~~ | **TESTED** — GEX 66% corr w/ VIX (redundant). No added signal within VIX zones. DIX gradient $139/day too weak. Both useful only for Kelly sizing |
-| 6 | DSPX Dispersion Index [24] | Medium | CBOE (availability unclear) | Market crowding signal; check data access first |
+| 6 | DSPX Dispersion Index [24] | Medium | CBOE (availability unclear) | Market crowding signal. Thresholds: DSPX ~37 vs avg 23; DSPX-VIX spread >20 = 85th %ile danger zone. Correlation spike → dispersion unwind → violent moves (cf. Feb 2018 Volmageddon) |
 
 ### Ranked Backlog — Untested Ideas
 
@@ -33,32 +33,37 @@ Ranked by expected signal quality, data availability, and distinctiveness from p
 | Rank | Item | Effort | Notes |
 |------|------|--------|-------|
 | 1 | Hard time exit — close all by 3:15 PM [gamma] | Low | Hour-15 losses avg -$952 (8x noon). Close positions early to avoid 0DTE gamma spike. Backtestable now with existing logs |
-| 2 | VIX9D/VIX term structure filter [vix9d] | Medium | Inversion (VIX9D > VIX) as skip signal; gap narrowing as SL tightener; contango (VIX/VIX9D > 1.15) as size-up; slope steepening as green light. Download VIX9D from CBOE |
-| 3 | Tighter per-trade SL when day is already negative (Option 3c) | Medium | Once daily P&L < -$500, subsequent positions use -$150 SL. Targets mixed-result days. No external data needed |
-| 4 | VIX-conditional PCE skip | Low | PCE has 69% WR (p=0.00002 vs 91.8% baseline). Test: skip PCE only when VIX <15 or 25–30 (weak zones). Full skip costs $17k; conditional may preserve most P&L while filtering worst days |
-| 5 | VIX9D regime sizing [vix9d] | Medium | <15 small, 15–25 full, >25 reduce/skip. More granular than VIX-based Kelly; 9-day horizon matches 0DTE better |
-| 6 | Widen danger zone to VIX 13.5–15.0 | Low | Extend dynamic SL coverage to fill unprotected gap. From Finding 2 |
-| 7 | Entry window cutoff by VIX range (Option 3b) | Low | For VIX 15–20, stop entries at 11:30 instead of 12:45. Sweep over cutoff times |
-| 8 | VIX9D vs Realized Vol edge [vix9d] | Medium | Size up when VIX9D >> 9-day realized vol (selling overpriced insurance); reduce when VIX9D < realized (underpaid) |
-| 9 | VIX9D-based dynamic strike distance [vix9d] | Medium | MIN_OTM = Base + VIX9D × 2. Auto-widens in high near-term vol (VIX9D=15→30pt, VIX9D=25→50pt). Elegant but MIN_OTM=30 already works well |
-| 10 | Time-decayed position sizing [gamma] | Medium | Reduce qty for later entries (e.g., qty=1 after noon). Distinct from Kelly (VIX-based). Limited impact since entry window ends 12:45 |
-| 11 | VIX/VVIX divergence signal [vvix] | Medium | VIX new high + VVIX lower high = vol exhaustion, hold positions. Opposite divergence = exit early |
-| 12 | VVIX-adjusted strike distance [vvix] | Medium | Add 5pt to MIN_OTM per 10pt VVIX above 100. Dynamic OTM buffer based on vol-of-vol. Overlaps with VIX9D version (#9) |
-| 13 | Acceleration SL — speed-based exit [gamma] | Medium | Exit on rapid adverse move (e.g., 10pt in 5min) regardless of price level. Needs intraday SPX tick data. High effort |
-| 14 | MAX_OTM_DISTANCE cap | Low | Skip entries where strike >75pt OTM. Likely overlaps VIX 25–30 zone. From Finding 5 |
-| 15 | "Wonging" Entry — wait for 0.3% adverse move [30] | Medium | Enter only after SPX moves against spread direction. Gets better credit. Needs intraday SPX tracking |
-| 16 | VIX9D convergence filter [vix9d] | Low | Skip PUT spreads when SPX rallying but VIX9D flat/rising (fake rally detection). Speculative |
-| 17 | Halt entries on intraday trend reversal (Option 3f) | High | EMA cross / VWAP cross / rolling high break as entry suppression signal. Related signals tested poorly |
-| 18 | VVIX mean reversion sizing [vvix] | Medium | At 52-week VVIX highs, sell wider/more aggressively for premium. Contrarian — goes against risk reduction |
-| 19 | Dynamic WIDTH by entry time [gamma] | Low | Narrower spreads (10pt) for later entries. Limited value since entry window ends 12:45 |
-| 20 | VVIX-adjusted minimum credit [vvix] | Low | Demand higher MIN_NET_CREDIT when VVIX elevated. Raising MIN_NET_CREDIT always cost P&L in sweeps |
-| 21 | VIX/GEX divergence signal [gamma] | Medium | VIX rising + GEX falling = danger. GEX tested redundant with VIX; divergence speculative |
-| 22 | Chop Rule — close at 80% max profit with 2h+ remaining [13-ideas] | Medium | Similar to DAILY_TP but % capture + time filter. All fixed TP levels rejected; this framing unlikely to differ |
-| 23 | "Semi-Bluff" half-size on near-EMA-cross [41] | Medium | EMA alignment as sizing trigger (not gate). EMA as gate rejected; sizing variant speculative |
-| 24 | VVIX term structure [vvix] | Medium | Short-term VVIX > long-term = panic regime. Needs specialized CBOE term structure data; availability unclear |
-| 25 | Systemic reset indicator [vvix] | Low | VVIX drops 10%+ in a day after crash week = green light. Rare event (2–3 times in 4yr backtest) |
-| 26 | VIX1D/VIX9D spread [vix9d] | Low | Track theta gap; VIX1D >> VIX9D = prime time for 0DTE. Needs VIX1D data; availability unclear |
-| 27 | Pot Odds filter — MIN_NET_CREDIT to 3.5% of width [34] | Low | Raise MIN_NET_CREDIT from $0.55 to $0.70. Raising always cost P&L in sweeps |
+| 2 | Early profit-taking at % of credit [research] | Low | Close at 50% or 65% of credit received. Iron condor research (8–20Δ) shows improved equity curve + smaller DD with early close. Different from Chop Rule (% of max profit) and DAILY_TP (fixed $). Backtestable with existing logs |
+| 3 | VIX9D/VIX term structure filter [vix9d] | Medium | Inversion (VIX9D > VIX) as skip signal; gap narrowing as SL tightener; contango (VIX/VIX9D > 1.15) as size-up; slope steepening as green light. Download VIX9D from CBOE |
+| 4 | Tighter per-trade SL when day is already negative (Option 3c) | Medium | Once daily P&L < -$500, subsequent positions use -$150 SL. Targets mixed-result days. No external data needed |
+| 5 | RV/IV ratio regime filter [research] | Medium | 20-day realized vol / VIX as sizing signal. 0.5–0.8 normal (full size), >0.8 stress (reduce/tighten SL). Well-documented thresholds. Distinct from VIX9D vs RV (#9) — uses 30-day horizon |
+| 6 | VIX-conditional PCE skip | Low | PCE has 69% WR (p=0.00002 vs 91.8% baseline). Test: skip PCE only when VIX <15 or 25–30 (weak zones). Full skip costs $17k; conditional may preserve most P&L while filtering worst days |
+| 7 | VIX9D regime sizing [vix9d] | Medium | <15 small, 15–25 full, >25 reduce/skip. More granular than VIX-based Kelly; 9-day horizon matches 0DTE better |
+| 8 | Widen danger zone to VIX 13.5–15.0 | Low | Extend dynamic SL coverage to fill unprotected gap. From Finding 2 |
+| 9 | Entry window cutoff by VIX range (Option 3b) | Low | For VIX 15–20, stop entries at 11:30 instead of 12:45. Sweep over cutoff times |
+| 10 | VIX9D vs Realized Vol edge [vix9d] | Medium | Size up when VIX9D >> 9-day realized vol (selling overpriced insurance); reduce when VIX9D < realized (underpaid). Consider Parkinson estimator (high-low range) instead of close-to-close RV for better 0DTE accuracy |
+| 11 | VIX9D-based dynamic strike distance [vix9d] | Medium | MIN_OTM = Base + VIX9D × 2. Auto-widens in high near-term vol (VIX9D=15→30pt, VIX9D=25→50pt). Elegant but MIN_OTM=30 already works well |
+| 12 | Non-standard delta strikes (9–12Δ) [research] | Medium | Test selling at 9–12 delta instead of fixed 30pt OTM. Research shows higher WR, smaller DD, smaller avg gain. Fundamentally different strike selection approach vs fixed distance |
+| 13 | Time-decayed position sizing [gamma] | Medium | Reduce qty for later entries (e.g., qty=1 after noon). Distinct from Kelly (VIX-based). Limited impact since entry window ends 12:45 |
+| 14 | Normalized skew richness signal [research] | Medium | (25Δ put IV − 25Δ call IV) / ATM IV. >0.35 expensive (good for selling), <0.15 cheap (reduce size). Different from BSM IV Skew (#4 tested) — uses normalized ratio with documented thresholds. Needs vol surface data |
+| 15 | VIX/VVIX divergence signal [vvix] | Medium | VIX new high + VVIX lower high = vol exhaustion, hold positions. Opposite divergence = exit early. Fed research: VVIX negatively predicts tail risk hedge returns 3–4 weeks ahead |
+| 16 | VVIX-adjusted strike distance [vvix] | Medium | Add 5pt to MIN_OTM per 10pt VVIX above 100. Dynamic OTM buffer based on vol-of-vol. Overlaps with VIX9D version (#11) |
+| 17 | Acceleration SL — speed-based exit [gamma] | Medium | Exit on rapid adverse move (e.g., 10pt in 5min) regardless of price level. Needs intraday SPX tick data. High effort |
+| 18 | MAX_OTM_DISTANCE cap | Low | Skip entries where strike >75pt OTM. Likely overlaps VIX 25–30 zone. From Finding 5 |
+| 19 | "Wonging" Entry — wait for 0.3% adverse move [30] | Medium | Enter only after SPX moves against spread direction. Gets better credit. Needs intraday SPX tracking |
+| 20 | VIX9D convergence filter [vix9d] | Low | Skip PUT spreads when SPX rallying but VIX9D flat/rising (fake rally detection). Speculative |
+| 21 | VIX decomposition factor-based signal [research] | High | Use put slope (Factor 3 = real fear) vs parallel shift (Factor 2 = event prep) vs wing expansion (Factor 5 = tail risk) to classify VIX moves. Needs vol surface data; complex but most granular VIX signal possible |
+| 22 | Halt entries on intraday trend reversal (Option 3f) | High | EMA cross / VWAP cross / rolling high break as entry suppression signal. Related signals tested poorly |
+| 23 | VVIX mean reversion sizing [vvix] | Medium | At 52-week VVIX highs, sell wider/more aggressively for premium. Contrarian — goes against risk reduction |
+| 24 | Dynamic WIDTH by entry time [gamma] | Low | Narrower spreads (10pt) for later entries. Limited value since entry window ends 12:45 |
+| 25 | VVIX-adjusted minimum credit [vvix] | Low | Demand higher MIN_NET_CREDIT when VVIX elevated. Raising MIN_NET_CREDIT always cost P&L in sweeps |
+| 26 | VIX/GEX divergence signal [gamma] | Medium | VIX rising + GEX falling = danger. GEX tested redundant with VIX; divergence speculative |
+| 27 | Chop Rule — close at 80% max profit with 2h+ remaining [13-ideas] | Medium | Similar to DAILY_TP but % capture + time filter. All fixed TP levels rejected; this framing unlikely to differ |
+| 28 | "Semi-Bluff" half-size on near-EMA-cross [41] | Medium | EMA alignment as sizing trigger (not gate). EMA as gate rejected; sizing variant speculative |
+| 29 | VVIX term structure [vvix] | Medium | Short-term VVIX > long-term = panic regime. Needs specialized CBOE term structure data; availability unclear |
+| 30 | Systemic reset indicator [vvix] | Low | VVIX drops 10%+ in a day after crash week = green light. Rare event (2–3 times in 4yr backtest) |
+| 31 | VIX1D/VIX9D spread [vix9d] | Low | Track theta gap; VIX1D >> VIX9D = prime time for 0DTE. Needs VIX1D data; availability unclear |
+| 32 | Pot Odds filter — MIN_NET_CREDIT to 3.5% of width [34] | Low | Raise MIN_NET_CREDIT from $0.55 to $0.70. Raising always cost P&L in sweeps |
 
 ### Tested / Rejected / Done
 
