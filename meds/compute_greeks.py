@@ -58,48 +58,90 @@ def _bsm_vega_scalar(S: float, K: float, T: float, r: float, sigma: float) -> fl
     return S * sqrtT * norm.pdf(d1)
 
 
-def implied_vol(price: float, S: float, K: float, T: float, r: float,
-                is_call: bool, tol: float = 1e-6, max_iter: int = 50) -> float:
-    """Newton-Raphson IV solver. Returns IV or NaN."""
-    if price <= 0 or T <= 0 or S <= 0 or K <= 0:
-        return np.nan
-    intrinsic = max(S - K, 0) if is_call else max(K - S, 0)
-    if price < intrinsic:
-        return np.nan
+def implied_vol_vectorized(prices: np.ndarray, S: np.ndarray, K: np.ndarray,
+                           T: np.ndarray, r: float, is_call: np.ndarray,
+                           tol: float = 1e-6, max_iter: int = 50) -> np.ndarray:
+    """Vectorized Newton-Raphson IV solver. Returns array of IV (NaN where failed)."""
+    n = len(prices)
+    result = np.full(n, np.nan)
 
-    sigma = 0.25
+    # Validity mask
+    intrinsic = np.where(is_call, np.maximum(S - K, 0), np.maximum(K - S, 0))
+    valid = (prices > 0) & (T > 0) & (S > 0) & (K > 0) & (prices >= intrinsic)
+    if not valid.any():
+        return result
+
+    # Work on valid subset
+    p = prices[valid]
+    s = S[valid]
+    k = K[valid]
+    t = T[valid]
+    call = is_call[valid]
+    sigma = np.full(valid.sum(), 0.25)
+
+    converged = np.zeros(valid.sum(), dtype=bool)
+
     for _ in range(max_iter):
-        p = _bsm_price(S, K, T, r, sigma, is_call)
-        v = _bsm_vega_scalar(S, K, T, r, sigma)
-        if v < 1e-12:
-            return _bisect_iv(price, S, K, T, r, is_call)
-        sigma_new = sigma - (p - price) / v
-        if sigma_new <= 0:
-            sigma = sigma / 2
-            continue
-        if abs(sigma_new - sigma) < tol:
-            return sigma_new
-        sigma = sigma_new
-    return _bisect_iv(price, S, K, T, r, is_call)
+        active = ~converged
+        if not active.any():
+            break
 
+        sqrtT = np.sqrt(t[active])
+        d1 = (np.log(s[active] / k[active]) + (r + 0.5 * sigma[active]**2) * t[active]) / (sigma[active] * sqrtT)
+        d2 = d1 - sigma[active] * sqrtT
+        nd1 = norm.pdf(d1)
+        Nd1 = norm.cdf(d1)
+        Nd2 = norm.cdf(d2)
 
-def _bisect_iv(price: float, S: float, K: float, T: float, r: float,
-               is_call: bool, lo: float = 0.01, hi: float = 5.0,
-               tol: float = 1e-5, max_iter: int = 80) -> float:
-    for _ in range(max_iter):
-        mid = (lo + hi) / 2
-        p = _bsm_price(S, K, T, r, mid, is_call)
-        if abs(p - price) < tol:
-            return mid
-        if p > price:
-            hi = mid
-        else:
-            lo = mid
-    result = (lo + hi) / 2
-    # Validate convergence
-    p = _bsm_price(S, K, T, r, result, is_call)
-    if abs(p - price) > 0.05:
-        return np.nan
+        # BSM price
+        bsm = np.where(
+            call[active],
+            s[active] * Nd1 - k[active] * np.exp(-r * t[active]) * Nd2,
+            k[active] * np.exp(-r * t[active]) * norm.cdf(-d2) - s[active] * norm.cdf(-d1),
+        )
+
+        # Vega
+        vega = s[active] * sqrtT * nd1
+
+        # Newton step
+        low_vega = vega < 1e-12
+        step = np.where(low_vega, 0.0, (bsm - p[active]) / np.where(low_vega, 1.0, vega))
+        sigma_new = sigma[active] - step
+
+        # Clamp
+        sigma_new = np.clip(sigma_new, 0.001, 10.0)
+
+        # Check convergence
+        newly_converged = np.abs(sigma_new - sigma[active]) < tol
+        converged[active] = newly_converged
+        sigma[active] = sigma_new
+
+    # Bisection fallback for unconverged
+    unconverged = ~converged
+    if unconverged.any():
+        lo = np.full(unconverged.sum(), 0.01)
+        hi = np.full(unconverged.sum(), 5.0)
+        pu = p[unconverged]
+        su = s[unconverged]
+        ku = k[unconverged]
+        tu = t[unconverged]
+        callu = call[unconverged]
+        for _ in range(80):
+            mid_sig = (lo + hi) / 2
+            sqrtT = np.sqrt(tu)
+            d1 = (np.log(su / ku) + (r + 0.5 * mid_sig**2) * tu) / (mid_sig * sqrtT)
+            d2 = d1 - mid_sig * sqrtT
+            bsm = np.where(
+                callu,
+                su * norm.cdf(d1) - ku * np.exp(-r * tu) * norm.cdf(d2),
+                ku * np.exp(-r * tu) * norm.cdf(-d2) - su * norm.cdf(-d1),
+            )
+            too_high = bsm > pu
+            hi = np.where(too_high, mid_sig, hi)
+            lo = np.where(too_high, lo, mid_sig)
+        sigma[unconverged] = (lo + hi) / 2
+
+    result[valid] = sigma
     return result
 
 
@@ -270,18 +312,14 @@ def compute_day(date_str: str) -> pd.DataFrame | None:
         lambda ts: minutes_to_close(ts) / (365.25 * 24 * 60)
     )
 
-    # Compute IV row-by-row (Newton-Raphson, vectorize the loop via apply)
+    # Compute IV vectorized (Newton-Raphson + bisection fallback)
     S = quotes["spot"].values
     K = quotes["strike"].values.astype(float)
     T = quotes["T"].values
     mid = quotes["mid"].values
     is_call = (quotes["right"].values == "C")
 
-    # Compute IV — this is the bottleneck, use a loop with early-exit
-    n = len(quotes)
-    iv_arr = np.full(n, np.nan)
-    for i in range(n):
-        iv_arr[i] = implied_vol(mid[i], S[i], K[i], T[i], RISK_FREE_RATE, bool(is_call[i]))
+    iv_arr = implied_vol_vectorized(mid, S, K, T, RISK_FREE_RATE, is_call)
 
     quotes["iv"] = iv_arr
 
