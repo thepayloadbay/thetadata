@@ -936,6 +936,15 @@ ENABLE_VIX_MID_SAFE_SL   = False
 VIX_MID_SAFE_SL_AMOUNT   = -1500.0  # loose SL for VIX 15-20 zone
 VIX_MID_SAFE_SL_RANGE    = (15.0, 20.0)
 
+# -- Backwardation SL (VIX term spread) --
+# When VIX term structure inverts (VIX1D > VIX, i.e. term spread < 0),
+# acute same-day fear exceeds 30-day — apply tighter daily SL.
+# SWEEP RESULT (day-level approx, 2022-2026): -$500 SL on spread<0 adds +$13,382 P&L,
+# Sharpe 14.55 -> 15.87, DD unchanged. Only 18 days capped. Needs marathon verification.
+ENABLE_BACKWARDATION_SL      = True
+BACKWARDATION_SL_AMOUNT      = -500.0   # tighter SL when term structure is inverted
+BACKWARDATION_SPREAD_THRESHOLD = 0.0    # apply SL when (VIX - VIX1D) < this value
+
 # -- EOM SL Sweep --
 # Tests applying a tighter daily SL exclusively on the last trading day of each month.
 # EOM days have 74% WR and $105/day avg vs 93% WR and $618/day for normal days.

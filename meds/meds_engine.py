@@ -1555,6 +1555,17 @@ def _get_effective_sl(day_data: dict, date_str: str) -> "float | None":
             if gap_pct is not None and gap_pct < 0:
                 effective_sl = GAP_CALL_SL_AMOUNT
 
+    if ENABLE_BACKWARDATION_SL:
+        day_ind = _DAILY_INDICATORS.get(date_str) or {}
+        term_spread = day_ind.get("dVixTermSpread")
+        if term_spread is not None and not (isinstance(term_spread, float) and term_spread != term_spread):
+            if term_spread < BACKWARDATION_SPREAD_THRESHOLD:
+                candidate = BACKWARDATION_SL_AMOUNT
+                if effective_sl is None:
+                    effective_sl = candidate
+                else:
+                    effective_sl = max(effective_sl, candidate)  # tighter wins
+
     if ENABLE_VIX_MID_SAFE_SL and vix is not None:
         if VIX_MID_SAFE_SL_RANGE[0] <= vix < VIX_MID_SAFE_SL_RANGE[1]:
             candidate = VIX_MID_SAFE_SL_AMOUNT
