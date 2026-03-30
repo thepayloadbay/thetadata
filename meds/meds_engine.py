@@ -116,6 +116,7 @@ _DAILY_INDICATORS: dict = {}   # date_str -> dict of indicator values; built onc
 _EOM_DATES: set = set()        # last trading day of each month (YYYYMMDD); built once at startup
 _CPI_DATES: set = set()        # CPI release days
 _PCE_DATES: set = set()        # PCE release days
+_NFP_DATES: set = set()        # Non-Farm Payroll release days
 _EOQ_DATES: set = set()        # last trading day of each quarter
 _PRE_TW_DATES: set = set()     # trading day immediately before Triple Witching Friday
 _POST_HOL_DATES: set = set()   # first trading day after each market holiday
@@ -869,6 +870,20 @@ async def _fetch_day_data(session, date_str: str, seed_bars: int | None = None) 
         if _skip_flag and date_str in _skip_dates:
             logger.info(f"{_skip_label} day {date_str} -- skipping (ENABLE_{_skip_label.upper().replace('-','_')}_SKIP)")
             return None
+
+    # -- VIX-conditional econ skip (event+VIX combos that are net negative) --
+    if _cfg.ENABLE_ECON_VIX_SKIP and vix_level is not None:
+        _event_date_map = {
+            "fomc": FOMC_DATES,
+            "cpi": _CPI_DATES,
+            "pce": _PCE_DATES,
+            "nfp": _NFP_DATES,
+        }
+        for _evt_type, _vix_lo, _vix_hi in _cfg.ECON_VIX_SKIP_RULES:
+            _evt_dates = _event_date_map.get(_evt_type, set())
+            if date_str in _evt_dates and _vix_lo <= vix_level < _vix_hi:
+                logger.info(f"Econ+VIX skip: {_evt_type} day {date_str} VIX={vix_level:.1f} in [{_vix_lo},{_vix_hi}) -- skipping")
+                return None
 
     # -- Daily indicator filters --
     if _DAILY_INDICATORS and not _passes_active_day_filters(date_str, vix_level):

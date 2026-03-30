@@ -33,6 +33,7 @@ from meds_engine import (
     _EOM_DATES,
     _CPI_DATES,
     _PCE_DATES,
+    _NFP_DATES,
     _EOQ_DATES,
     _PRE_TW_DATES,
     _POST_HOL_DATES,
@@ -190,6 +191,7 @@ if __name__ == "__main__":
     _parser.add_argument("--min-otm-distance", default=None, type=float, help="Override MIN_OTM_DISTANCE (pts)")
     _parser.add_argument("--max-credit",       default=None, type=float, help="Override MAX_NET_CREDIT cap")
     _parser.add_argument("--fomc-vix1520-sl",  default=None, type=float, help="Enable FOMC VIX 15-20 SL at this amount (e.g. -800)")
+    _parser.add_argument("--econ-vix-skip",    action="store_true",      help="Enable VIX-conditional econ day skips")
     _args = _parser.parse_args()
 
     # -- Apply CLI overrides to meds_core (before importing sweeps) --
@@ -213,12 +215,15 @@ if __name__ == "__main__":
     if _args.fomc_vix1520_sl is not None:
         _cfg.ENABLE_FOMC_VIX1520_SL = True
         _cfg.FOMC_VIX1520_SL_AMOUNT = _args.fomc_vix1520_sl
+    if _args.econ_vix_skip:
+        _cfg.ENABLE_ECON_VIX_SKIP = True
 
     # Build EOM date set (used by EOM SL and EOM SL sweep)
     _cal_event_sets_startup = _build_calendar_event_dates()
     _EOM_DATES.update(_cal_event_sets_startup.get("end_of_month", set()))
     _CPI_DATES.update(_cal_event_sets_startup.get("cpi", set()))
     _PCE_DATES.update(_cal_event_sets_startup.get("pce", set()))
+    _NFP_DATES.update(_cal_event_sets_startup.get("nfp", set()))
     _EOQ_DATES.update(_cal_event_sets_startup.get("end_of_quarter", set()))
     _PRE_TW_DATES.update(_cal_event_sets_startup.get("pre_triple_witching", set()))
     _POST_HOL_DATES.update(_cal_event_sets_startup.get("post_major_holiday", set()))

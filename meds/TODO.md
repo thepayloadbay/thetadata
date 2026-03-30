@@ -22,7 +22,7 @@ Priority order reflects expected signal quality, data availability, and distinct
 
 | # | Item | Effort | Data Needed | Notes |
 |---|------|--------|-------------|-------|
-| 4 | True IV Skew from BSM [15] | Medium | Compute from existing bid/ask data | Price-proxy showed $274/day Q1→Q5 gradient; true IV may strengthen it. Also enables Wings vs Shoulders ratio test |
+| 4 | ~~True IV Skew from BSM [15]~~ | ~~Medium~~ | ~~Compute from existing bid/ask data~~ | **TESTED** — Q1→Q5 gradient $104/day, weaker than credit proxy ($274). Only useful for Kelly sizing. See [15] in RESEARCH.md |
 | 5 | GEX / Dealer Positioning [20] | Medium | SpotGamma (paid) or SqueezeMetrics (free tier) | Only microstructure signal — predicts market *behavior* not vol magnitude |
 | 6 | DSPX Dispersion Index [24] | Medium | CBOE (availability unclear) | Market crowding signal; check data access first |
 
@@ -31,8 +31,8 @@ Priority order reflects expected signal quality, data availability, and distinct
 | # | Item | Effort | Notes |
 |---|------|--------|-------|
 | 7 | ~~FOMC VIX 15–20 tighter SL~~ | ~~Medium~~ | **REJECTED** — marathon sweep -$500 to -$3,000: all levels cost P&L (-$4k to -$16k), DD unchanged. Same root cause as blanket VIX 15–20 SL |
-| 8 | VIX-range econ day SL sweep | Medium | For each econ event (PCE/FOMC/CPI/Pre-TW/Post-Hol), cross-tab WR by VIX bucket. Apply SL only in event+VIX combos below baseline WR. Blanket econ SLs rejected; VIX-conditional may isolate unprofitable pockets |
-| 9 | Econ day adjacency analysis | Low | Check WR/P&L on T-1 and T+1 around each econ event type (CPI/PCE/FOMC/NFP/TW). Look for pre-event positioning losses or post-event reversal patterns that may need SLs |
+| 8 | ~~VIX-range econ day SL sweep~~ | ~~Medium~~ | **REJECTED** — cross-tabbed all events × VIX buckets; 4 net-negative combos found but marathon skip costs -$8.7k P&L (Sharpe +0.50 not worth it) |
+| 9 | ~~Econ day adjacency analysis~~ | ~~Low~~ | **DONE** — no T-1/T+1 pattern; FOMC/PCE weakness is event-day-only, neighbors are normal WR |
 | 10 | VIX-conditional PCE skip | Low | PCE has 69% WR (p=0.00002 vs 91.8% baseline). Test: skip PCE only when VIX <15 or 25–30 (weak zones). Full skip costs $17k; conditional may preserve most P&L while filtering worst days |
 | 11 | Strike distance decay signal (Option 2) | High | At each entry bar, block if avg OTM distance shrunk >X pts. Most surgical VIX 15–20 fix. Defer until Kelly unlock |
 | 12 | Entry window cutoff by VIX range (Option 3b) | Low | For VIX 15–20, stop entries at 11:30 instead of 12:45. Sweep over cutoff times |

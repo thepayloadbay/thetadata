@@ -89,6 +89,9 @@ VIX change is the only statistically significant direction signal (p=0.0). All a
 | Pressure filter VIX 15-20 only (45pt) | -$134k | unchanged | Rejected — eliminated 2 worst days but cost 1,297 trades |
 | Entry cap VIX 15-20 (cap=5/7) | -$144k to -$161k | unchanged | Rejected — too blunt, penalises ~1,400 winning trades/year |
 | FOMC VIX 15-20 SL (-$500 to -$3000) | -$4k to -$16k | unchanged | Rejected — zero DD improvement; even targeted ~20 FOMC days in VIX 15-20 still cuts winning days |
+| True IV Skew from BSM [15] | N/A (filter) | N/A | Negative as filter — $104/day gradient weaker than credit proxy ($274); Q1 skip costs ~$100k; only useful for Kelly sizing |
+| VIX-conditional econ skip (4 rules) | $606,540 (-$8.7k) | unchanged | Rejected — FOMC+PCE+NFP skips in weak VIX zones cost -$8.7k P&L; Sharpe +0.50 but not worth it |
+| FOMC VIX skip (15-20 + 25-30) | $605,850 (-$9.4k) | unchanged | Rejected — skipping 18 FOMC days in weak VIX zones still costs P&L |
 | Daily circuit breaker (2 intraday SLs) | not viable | — | Rejected — batch-SL architecture means all positions close simultaneously |
 
 ---
@@ -481,6 +484,22 @@ Monotonic gradient ($459→$733 Q1→Q5) confirms put skew = favorable. But skip
 
 **Paper:** Rehman & Vilkov (2012); ScienceDirect (2020)
 
+### [15] True IV Skew from BSM — NEGATIVE AS FILTER (2026-03-29)
+
+Computed implied volatility via Newton-Raphson BSM solver from bid/ask mid-prices at 9:35 AM, 30pt OTM distance. Put IV mean=0.310, Call IV mean=0.274. 908 days with valid IV data.
+
+| Quintile | Days | WR% | Avg P&L | Avg Skew Ratio |
+|---|---|---|---|---|
+| Q1 (low) | 182 | 81.3% | $547 | 0.959 |
+| Q2 | 181 | 90.1% | $716 | 1.074 |
+| Q3 | 182 | 91.2% | $664 | 1.162 |
+| Q4 | 181 | 91.7% | $623 | 1.256 |
+| Q5 (high) | 182 | 93.4% | $651 | 1.412 |
+
+Q1→Q5 gradient: $104/day — **weaker** than credit proxy [11] at $274/day. True IV isolates only the volatility component, while credit proxy also captures spread width effects. Q1 (put IV < call IV) is the only weak bucket at 81.3% WR but skipping it costs ~$100k P&L. Same conclusion as [11]: only useful as Kelly sizing multiplier.
+
+**Note:** Thetadata's option_greeks IV field is all zeros for 0DTE SPXW. BSM solver was implemented in `iv_skew_analysis.py`.
+
 ### [12] Realized GARCH — NEGATIVE (2026-03-29)
 
 Same pattern as HAR-RV. Higher vol forecast = better trading days. Half-sizing top 20% costs -$44k.
@@ -594,3 +613,26 @@ Days with the largest intraday VIX spikes are above-average trading days. Dec 18
 | >= 30% | 6 days | $821 | Would cost P&L |
 | >= 40% | 3 days | $1,016 | Would cost P&L |
 | >= 50% | 1 day | $1,080 | Would cost P&L |
+
+### VIX-Conditional Econ Skip — TESTED NEGATIVE (2026-03-29)
+
+Cross-tabbed each econ event by VIX bucket. Identified 4 net-negative combos:
+
+| Combo | Days | WR% | BL WR% | Δ WR | Total P&L |
+|-------|------|-----|--------|------|-----------|
+| FOMC 15-20 | 13 | 30.8% | 93.2% | -62.5pp | -$3,372 |
+| FOMC 25-30 | 5 | 20.0% | 60.6% | -40.6pp | -$2,840 |
+| PCE <15 | 8 | 50.0% | 86.3% | -36.3pp | -$204 |
+| NFP 25-30 | 3 | 33.3% | 60.6% | -27.3pp | -$486 |
+
+Marathon results:
+
+| Config | P&L | Delta | DD | Sharpe |
+|--------|-----|-------|-----|--------|
+| Baseline | $615,220 | — | -$6,356 | 14.55 |
+| FOMC only (VIX 15-20 + 25-30) | $605,850 | -$9,370 | -$6,356 | 14.71 |
+| All 4 rules | $606,540 | -$8,680 | -$6,356 | 15.05 |
+
+**Rejected** — trade-log analysis showed theoretical savings of $6,902 but marathon confirms net cost of $8-9k. Full-run cost is higher due to EMA/indicator carry-over effects when days are skipped. Sharpe improved +0.50 but at $8.7k P&L cost.
+
+**Adjacency analysis (T-1, T+1):** No pattern on adjacent days. FOMC T=0 is 52.9% WR but T-1 (88.2%) and T+1 (94.1%) are normal. PCE T=0 is 69% WR but neighbors are 95.2%. The weakness is event-day-specific, not a multi-day effect.

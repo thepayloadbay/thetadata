@@ -624,6 +624,7 @@ def append_results_md(all_trades: list, date_list) -> None:
         f"| FOMC SL | {'on $'+str(int(FOMC_SL_AMOUNT)) if ENABLE_FOMC_SL else 'off'} |",
         f"| FOMC skip | {'on' if ENABLE_FOMC_SKIP else 'off'} |",
         f"| FOMC VIX15-20 SL | {'on $'+str(int(_cfg.FOMC_VIX1520_SL_AMOUNT))+' VIX '+str(_cfg.FOMC_VIX1520_RANGE[0])+'-'+str(_cfg.FOMC_VIX1520_RANGE[1]) if _cfg.ENABLE_FOMC_VIX1520_SL else 'off'} |",
+        f"| Econ+VIX skip | {'on ('+str(len(_cfg.ECON_VIX_SKIP_RULES))+' rules)' if _cfg.ENABLE_ECON_VIX_SKIP else 'off'} |",
         f"| PCE SL | {'on $'+str(int(PCE_SL_AMOUNT)) if ENABLE_PCE_SL else 'off'} |",
         f"| PCE skip | {'on' if ENABLE_PCE_SKIP else 'off'} |",
         f"| EOQ SL | {'on $'+str(int(EOQ_SL_AMOUNT)) if ENABLE_EOQ_SL else 'off'} |",

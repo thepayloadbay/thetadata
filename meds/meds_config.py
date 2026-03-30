@@ -1055,6 +1055,24 @@ ENABLE_POST_HOL_SL   = False
 POST_HOL_SL_AMOUNT   = -300.0   # tighter SL on first trading day after each market holiday
 ENABLE_POST_HOL_SKIP = False    # skip all entries on post-holiday days entirely
 
+# -- VIX-conditional econ skips (Finding 7 + econ_vix_analysis) --
+# Skip specific event+VIX combos that are net negative in backtest.
+# Unlike blanket event skips which cost P&L, these target only unprofitable pockets.
+ENABLE_ECON_VIX_SKIP = False
+ECON_VIX_SKIP_RULES_ALL: list[tuple[str, float, float]] = [
+    # (event_type, vix_lo, vix_hi) — skip day if event matches AND VIX in range
+    # FOMC 15-20: 13 days, 30.8% WR, -$3,372 total
+    ("fomc", 15.0, 20.0),
+    # FOMC 25-30: 5 days, 20.0% WR, -$2,840 total (already partially covered by dynamic SL)
+    ("fomc", 25.0, 30.0),
+    # PCE <15: 8 days, 50.0% WR, -$204 total
+    ("pce", 0.0, 15.0),
+    # NFP 25-30: 3 days, 33.3% WR, -$486 total
+    ("nfp", 25.0, 30.0),
+]
+# Active rule set — change to test subsets
+ECON_VIX_SKIP_RULES: list[tuple[str, float, float]] = ECON_VIX_SKIP_RULES_ALL
+
 # -- Bias Sweep --
 # Tests each daily indicator as a direction router: bullish signal -> PUT spread,
 # bearish signal -> CALL spread.  Compares against always-PUT, always-CALL, and
