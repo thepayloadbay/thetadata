@@ -48,6 +48,8 @@ Backtest and optimize a **Multi-Entry Directional Spreads (MEDS)** strategy trad
 - **Daily indicators** (`_DAILY_INDICATORS`): built using `_prior_day_ind()` which fetches T-1 data, keyed by today's date. Do not use same-day closing values as an entry signal.
 - **Intraday signals**: any bar-based indicator (EMA, momentum, etc.) must reference the prior completed bar, never the current forming bar or any future bar.
 - **New signals under research**: before implementing, explicitly verify the data timestamp used is strictly prior to the entry time. A signal that "predicts" T+0 using T+0 data is look-ahead bias even if it appears predictive in a sweep. The day-level SL approximation incident (+$13k approx → -$91k marathon) is a reminder that what looks like signal can be an artifact of forward-leaking data.
+- **Code review checklist**: when reviewing backtest code for look-ahead bias, grep for these patterns: `.shift(-1)`, `i+1` index access (e.g. `df.iloc[i+1]`), `.lead()`, `.rolling(...).shift(-n)`. These are smoking guns of forward-looking data.
+- **AI-written backtest code**: when asking Claude to write or modify backtest logic, include this instruction: *"Indicators must be calculated on the closed bar (index i-1) and trades executed on the open of bar i. Show the shift/index logic explicitly to prove no future data is used."*
 
 ---
 

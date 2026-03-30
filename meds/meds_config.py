@@ -134,7 +134,7 @@ MIN_OTM_DISTANCE  = 30.0   # minimum OTM distance (pts) for short strike at entr
                            # 30pt floor transformed baseline from ~$62k -> $320k by eliminating
                            # close-in, low-OTM entries on dangerous days. 35-50 skip too many trades.
 PUT_ONLY       = False  # legacy flag -- use DIRECTION_MODE instead
-DIRECTION_MODE = "vix_change"  # "vix_change" | "always_put" | "always_call" | "ema"
+DIRECTION_MODE = "ema"  # "vix_change" | "always_put" | "always_call" | "ema"
 # vix_change: VIX falling -> PUT spread (bullish); VIX rising -> CALL spread (bearish)
 COMMISSION     = 0.50  # per contract per leg (TradeStation)
 
@@ -519,7 +519,7 @@ DAY_FILTER_SKIP_VIX_RISE_DECEL = False  # True = skip days where VIX rising but 
 DAILY_TP       = None  # SWEEP RESULT: None wins. $750 cap was cutting winners short.
                        # Full-run sweep: None=$607k, $900=$512k, $800=$487k, $750=$466k baseline.
                        # Same MaxDD (-$9,922) and better Sharpe (12.35 vs 11.40). Keep None.
-DAILY_SL       = -20000   # Black swan protection. -20000 never fired in 4yr backtest (worst day -$6,118) -- zero P&L cost.
+DAILY_SL       = None   # Black swan protection. -20000 never fired in 4yr backtest (worst day -$6,118) -- zero P&L cost.
                             # -5000 DAILY_SL resulted in $365,580.00 PNL
                             # -10000 DAILY_SL resulted in $497,722.00 PNL
                             # -15000 DAILY_SL resulted in $578,172.00 PNL
@@ -543,7 +543,7 @@ DAILY_SL       = -20000   # Black swan protection. -20000 never fired in 4yr bac
 # DYNAMIC_SL_AMOUNT = -200 = $570,204.00 PNL -$183 avg loss
 # DYNAMIC_SL_AMOUNT = -100 = $570,204.00 PNL -$174 avg loss
 
-ENABLE_DYNAMIC_SL    = True
+ENABLE_DYNAMIC_SL    = False
 DYNAMIC_SL_AMOUNT    = -800.0        # stop loss applied on danger-zone days
 DYNAMIC_SL_VIX_LOW   = 13.0         # apply SL when VIX < this
 DYNAMIC_SL_VIX_HIGH  = (25.0, 30.0) # apply SL when VIX is in this range (inclusive)
@@ -970,7 +970,7 @@ VIX_ENTRY_CUTOFF_VIX_LO       = 15.0   # apply cutoff when VIX >= this
 VIX_ENTRY_CUTOFF_VIX_HI       = 20.0   # apply cutoff when VIX <  this
 
 # -- EOM SL (live) --
-ENABLE_EOM_SL         = True
+ENABLE_EOM_SL         = False
 EOM_SL_AMOUNT         = -200.0   # tighter SL on EOM days (normal VIX)
 EOM_SL_AMOUNT_DANGER  = -150.0   # even tighter SL on EOM days when VIX is in danger zone
 
@@ -994,7 +994,7 @@ EOM_SL_AMOUNT_DANGER  = -150.0   # even tighter SL on EOM days when VIX is in da
 #  +-----------------+--------+-------+----------+---------+--------+
 #  | 120 min         | 6,957  | 93.0% | $607,802 | +$248   | 13.89  |
 
-ENABLE_SL_GAP_REENTRY = True    # tested: +$4,458 P&L, Sharpe 14.15 (best at 60 min); DD unchanged at -$6,356
+ENABLE_SL_GAP_REENTRY = False   # tested: +$4,458 P&L, Sharpe 14.15 (best at 60 min); DD unchanged at -$6,356
 SL_GAP_MINUTES        = 60
 
 # -- Hard Time Exit --
