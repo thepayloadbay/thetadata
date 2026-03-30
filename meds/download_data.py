@@ -375,19 +375,6 @@ async def download_day(
 
     # ── 5. First-order greeks (delta, theta, vega, rho, IV — standard plan) ──
     if greeks_available and (force or not is_saved("option_greeks", date_str)):
-        # Probe with one strike first to confirm access
-        try:
-            probe = await call_tool(session, "option_history_greeks_first_order", {
-                "symbol": "SPXW", "expiration": expiry,
-                "strike": str(put_strikes[len(put_strikes) // 2]), "right": "P",
-                "date": date_str, "interval": "1m",
-            })
-        except Exception:
-            probe = None
-        if probe and "_error" in probe and "professional subscription" in probe["_error"]:
-            print(f"  [greeks]    Pro plan required — skipping for all days")
-            return date_str, False
-
         async def fetch_greeks(right, strike):
             async with sem:
                 data = await call_with_retry(session, "option_history_greeks_first_order", {
