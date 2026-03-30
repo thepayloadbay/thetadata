@@ -35,16 +35,16 @@ Ranked by expected signal quality, data availability, and distinctiveness from p
 |------|------|--------|-------|
 | 1 | Hard time exit — close all by 3:15 PM [gamma] | Low | Hour-15 losses avg -$952 (8x noon). Close positions early to avoid 0DTE gamma spike. Backtestable now with existing logs |
 | 2 | Early profit-taking at % of credit [research] | Low | Close at 50% or 65% of credit received. Iron condor research (8–20Δ) shows improved equity curve + smaller DD with early close. Different from Chop Rule (% of max profit) and DAILY_TP (fixed $). Backtestable with existing logs |
-| 3 | VIX9D/VIX term structure filter [vix9d] | Medium | Inversion (VIX9D > VIX) as skip signal; gap narrowing as SL tightener; contango (VIX/VIX9D > 1.15) as size-up; slope steepening as green light. Download VIX9D from CBOE |
+| 3 | ~~VIX9D/VIX term structure filter [vix9d]~~ | ~~Medium~~ | **REJECTED** — VIX9D is 96.5% correlated with VIX (pure proxy). Ratio vs P&L r=0.067 (zero signal). Inversion skip costs $182k. Contango bonus is backwards (deep contango = LOWER P&L). Gap narrowing has zero gradient. Confirmed by both trade-log analysis and marathon sweep |
 | 4 | Tighter per-trade SL when day is already negative (Option 3c) | Medium | Once daily P&L < -$500, subsequent positions use -$150 SL. Targets mixed-result days. No external data needed |
 | 5 | RV/IV ratio regime filter [research] | Medium | 20-day realized vol / VIX as sizing signal. 0.5–0.8 normal (full size), >0.8 stress (reduce/tighten SL). Well-documented thresholds. Distinct from VIX9D vs RV (#9) — uses 30-day horizon |
 | 6 | VIX-conditional PCE skip | Low | PCE has 69% WR (p=0.00002 vs 91.8% baseline). Test: skip PCE only when VIX <15 or 25–30 (weak zones). Full skip costs $17k; conditional may preserve most P&L while filtering worst days |
-| 7 | VIX9D regime sizing [vix9d] | Medium | <15 small, 15–25 full, >25 reduce/skip. More granular than VIX-based Kelly; 9-day horizon matches 0DTE better |
+| 7 | ~~VIX9D regime sizing [vix9d]~~ | ~~Medium~~ | **REJECTED** — VIX9D is 96.5% correlated with VIX; this is just VIX-based Kelly in disguise. Already have Kelly sizing (blocked on BP) |
 | 8 | Survival Analysis — time-in-trade exit [ml] | Medium | Wins avg 299 min, losses avg 86 min. Cox Proportional Hazards model: "if trade hasn't recovered by 90 min, failure probability triples." Smart dynamic exit using time-to-event data. Backtestable with existing logs. 90% of trades go to expiration (censored) — perfect for survival modeling |
 | 9 | Widen danger zone to VIX 13.5–15.0 | Low | Extend dynamic SL coverage to fill unprotected gap. From Finding 2 |
 | 10 | Entry window cutoff by VIX range (Option 3b) | Low | For VIX 15–20, stop entries at 11:30 instead of 12:45. Sweep over cutoff times |
-| 11 | VIX9D vs Realized Vol edge [vix9d] | Medium | Size up when VIX9D >> 9-day realized vol (selling overpriced insurance); reduce when VIX9D < realized (underpaid). Consider Parkinson estimator (high-low range) instead of close-to-close RV for better 0DTE accuracy |
-| 12 | VIX9D-based dynamic strike distance [vix9d] | Medium | MIN_OTM = Base + VIX9D × 2. Auto-widens in high near-term vol (VIX9D=15→30pt, VIX9D=25→50pt). Elegant but MIN_OTM=30 already works well |
+| 11 | ~~VIX9D vs Realized Vol edge [vix9d]~~ | ~~Medium~~ | **SUPERSEDED** — VIX9D ≈ VIX (r=0.965). Use RV/IV ratio (#5) with VIX instead; same signal, no extra data needed |
+| 12 | ~~VIX9D-based dynamic strike distance [vix9d]~~ | ~~Medium~~ | **SUPERSEDED** — VIX9D ≈ VIX (r=0.965). If dynamic strike distance is worth testing, use VIX directly. MIN_OTM=30 already works well |
 | 13 | Non-standard delta strikes (9–12Δ) [research] | Medium | Test selling at 9–12 delta instead of fixed 30pt OTM. Research shows higher WR, smaller DD, smaller avg gain. Fundamentally different strike selection approach vs fixed distance |
 | 14 | Time-decayed position sizing [gamma] | Medium | Reduce qty for later entries (e.g., qty=1 after noon). Distinct from Kelly (VIX-based). Limited impact since entry window ends 12:45 |
 | 15 | Conformal Prediction [ml] | Medium | Mathematical guarantee on win probability (e.g., "95% confident this is a win"). More rigorous than calibrated RF — explicitly outputs "I don't know" when confidence is insufficient. Skip trade when confidence < threshold |
@@ -61,7 +61,7 @@ Ranked by expected signal quality, data availability, and distinctiveness from p
 | 26 | Cost-Sensitive Learning [ml] | Medium | Penalize model more for missing big losses than small wins. Avg loss ~2x avg win — weight accordingly. Addresses class imbalance better than SMOTE by focusing on economic impact |
 | 27 | GARCH volatility forecasting [ml] | Medium | Predict tomorrow's vol with GARCH model; adjust strikes/sizing preemptively before VIX moves. Well-established method but adds model complexity |
 | 28 | KNN Historical Analogues [ml] | Low | "What happened on the 10 most similar days?" Match on VIX/EMA/credit features. Intuitive, interpretable, no black box. Could surface patterns invisible to parametric models |
-| 29 | VIX9D convergence filter [vix9d] | Low | Skip PUT spreads when SPX rallying but VIX9D flat/rising (fake rally detection). Speculative |
+| 29 | ~~VIX9D convergence filter [vix9d]~~ | ~~Low~~ | **SUPERSEDED** — VIX9D ≈ VIX (r=0.965). VIX9D rising = VIX rising; no independent signal |
 | 30 | ML entry gate — calibrated classifier [ml] | High | RF/XGBoost to predict win probability; Platt scaling for calibration; skip if P(win) < 92%. SMOTE for class imbalance. ⚠️ Major overfitting risk: 91.7% WR means model defaults to "always win"; same failure mode as Bayesian gate (false positives on wins) |
 | 31 | VIX decomposition factor-based signal [research] | High | Use put slope (Factor 3 = real fear) vs parallel shift (Factor 2 = event prep) vs wing expansion (Factor 5 = tail risk) to classify VIX moves. Needs vol surface data; complex but most granular VIX signal possible |
 | 32 | Halt entries on intraday trend reversal (Option 3f) | High | EMA cross / VWAP cross / rolling high break as entry suppression signal. Related signals tested poorly |
@@ -78,7 +78,7 @@ Ranked by expected signal quality, data availability, and distinctiveness from p
 | 43 | "Semi-Bluff" half-size on near-EMA-cross [41] | Medium | EMA alignment as sizing trigger (not gate). EMA as gate rejected; sizing variant speculative |
 | 44 | VVIX term structure [vvix] | Medium | Short-term VVIX > long-term = panic regime. Needs specialized CBOE term structure data; availability unclear |
 | 45 | Systemic reset indicator [vvix] | Low | VVIX drops 10%+ in a day after crash week = green light. Rare event (2–3 times in 4yr backtest) |
-| 46 | VIX1D/VIX9D spread [vix9d] | Low | Track theta gap; VIX1D >> VIX9D = prime time for 0DTE. Needs VIX1D data; availability unclear |
+| 46 | ~~VIX1D/VIX9D spread [vix9d]~~ | ~~Low~~ | **SUPERSEDED** — Both VIX1D and VIX9D are high-correlation VIX proxies. VIX1D backwardation already tested and rejected (costs -$5k to -$91k). No independent signal in spread |
 | 47 | Pot Odds filter — MIN_NET_CREDIT to 3.5% of width [34] | Low | Raise MIN_NET_CREDIT from $0.55 to $0.70. Raising always cost P&L in sweeps |
 
 ### Tested / Rejected / Done

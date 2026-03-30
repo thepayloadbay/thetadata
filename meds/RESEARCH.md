@@ -444,9 +444,23 @@ Entry gate on `current_day_pnl` costs P&L at every threshold.
 
 **Root cause:** Each position immediately shows ~-$29 paper loss from bid-ask spread. With 5–6 simultaneously open positions, the noise floor is -$150 to -$200 even on perfect win days.
 
-### [5] VIX Term Structure Slope (VIX9D/VIX Ratio) — NEGATIVE (2026-03-28)
+### [5] VIX Term Structure Slope (VIX9D/VIX Ratio) — NEGATIVE (2026-03-28, extended 2026-03-29)
 
 VIX9D/VIX ratio is mostly a proxy for VIX level (correlation = 0.455). The only positive filter (VIX <13 + backwardation) yields +$1,268 on 67 trades over 4 years (~17/yr). 64% of those trades already stopped by dynamic SL.
+
+**Extended analysis (928 clean days, 8 VIX=0 days excluded):**
+
+VIX9D is 96.5% correlated with VIX — virtually a pure proxy. The ratio adds moderate orthogonal info (r=0.433 with VIX) but has zero predictive power for P&L (r=0.067).
+
+| Test | Result |
+|------|--------|
+| Ratio quintiles (prior-day) | Q1→Q5 gradient $158/day, but OPPOSITE direction: high ratio (near-inversion) = higher avg P&L |
+| Inversion skip (VIX9D > VIX) | 257 days, avg $709 vs normal $643. Skip costs $182k. Even >1.10 (45 days): avg $568, still profitable |
+| Contango bonus (VIX/VIX9D > 1.15) | BACKWARDS: deep contango avg $517 vs non-contango $690. Low VIX9D = low premium = lower P&L |
+| Gap narrowing (ratio Δ quintiles) | Zero gradient across quintiles — no predictive signal |
+| Marathon sweep (4 cond × 5 SL) | VIX9D back+VIX15-20 (71 days) has 95.7% WR. SL costs -$16k at loosest level |
+
+**Root cause:** VIX9D is 96.5% correlated with VIX, so it contains almost no independent information. The ratio's moderate independence (r=0.433) doesn't translate to P&L prediction. Inverted days are high-credit days (more premium), so skipping them costs money — same failure mode as all other "fear filter" approaches.
 
 **Paper:** Yoon (2022), *Journal of Futures Markets*
 
