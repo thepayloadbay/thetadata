@@ -203,6 +203,62 @@ def _build_daily_indicators(compute_full: bool = False) -> dict:
         vix_df["vix_rise_decel"] = (vix_df["dVixVelocity"] > 0) & (vix_df["dVixAccel"] < 0)
         d = d.merge(vix_df[["date", "vix_close", "dVixChgPct", "dVixVelocity", "dVixAccel", "vix_rise_decel"]], on="date", how="left")
 
+    # -- Merge daily VIX1D closes --
+    vix1d_rows = []
+    for fpath in sorted(glob.glob(os.path.join(DATA_DIR, "*", "vix1d", "*.parquet"))):
+        try:
+            vdf = pd.read_parquet(fpath)
+            if not vdf.empty and "vix1d_close" in vdf.columns:
+                vix1d_rows.append({"date": str(vdf["date"].iloc[0]), "vix1d_close": float(vdf["vix1d_close"].iloc[0])})
+        except Exception:
+            pass
+    if vix1d_rows:
+        v1d_df = pd.DataFrame(vix1d_rows).sort_values("date").reset_index(drop=True)
+        v1d_df["prev_vix1d"]    = v1d_df["vix1d_close"].shift(1)
+        v1d_df["dVix1dChgPct"]  = (v1d_df["vix1d_close"] - v1d_df["prev_vix1d"]) / v1d_df["prev_vix1d"] * 100
+        d = d.merge(v1d_df[["date", "vix1d_close", "dVix1dChgPct"]], on="date", how="left")
+        d.rename(columns={"vix1d_close": "dVix1d"}, inplace=True)
+
+    # -- Merge daily VIX9D closes --
+    vix9d_rows = []
+    for fpath in sorted(glob.glob(os.path.join(DATA_DIR, "*", "vix9d", "*.parquet"))):
+        try:
+            vdf = pd.read_parquet(fpath)
+            if not vdf.empty and "vix9d_close" in vdf.columns:
+                vix9d_rows.append({"date": str(vdf["date"].iloc[0]), "vix9d_close": float(vdf["vix9d_close"].iloc[0])})
+        except Exception:
+            pass
+    if vix9d_rows:
+        v9d_df = pd.DataFrame(vix9d_rows).sort_values("date").reset_index(drop=True)
+        d = d.merge(v9d_df[["date", "vix9d_close"]], on="date", how="left")
+        d.rename(columns={"vix9d_close": "dVix9d"}, inplace=True)
+
+    # -- Merge daily VVIX closes --
+    vvix_rows = []
+    for fpath in sorted(glob.glob(os.path.join(DATA_DIR, "*", "vvix", "*.parquet"))):
+        try:
+            vdf = pd.read_parquet(fpath)
+            if not vdf.empty and "vvix_close" in vdf.columns:
+                vvix_rows.append({"date": str(vdf["date"].iloc[0]), "vvix_close": float(vdf["vvix_close"].iloc[0])})
+        except Exception:
+            pass
+    if vvix_rows:
+        vvix_df = pd.DataFrame(vvix_rows).sort_values("date").reset_index(drop=True)
+        vvix_df["prev_vvix"]    = vvix_df["vvix_close"].shift(1)
+        vvix_df["dVvixChgPct"]  = (vvix_df["vvix_close"] - vvix_df["prev_vvix"]) / vvix_df["prev_vvix"] * 100
+        d = d.merge(vvix_df[["date", "vvix_close", "dVvixChgPct"]], on="date", how="left")
+        d.rename(columns={"vvix_close": "dVvix"}, inplace=True)
+
+    # -- Derived VIX term structure signals --
+    if "dVix1d" in d.columns and "vix_close" in d.columns:
+        # VIX1D/VIX ratio: >1 means acute 1-day fear exceeds 30-day -> danger signal
+        d["dVix1dVixRatio"] = d["dVix1d"] / d["vix_close"].clip(lower=0.01)
+        # Term spread: VIX - VIX1D (positive = contango = normal; negative = backwardation = stress)
+        d["dVixTermSpread"] = d["vix_close"] - d["dVix1d"]
+    if "dVix9d" in d.columns and "vix_close" in d.columns:
+        # VIX9D/VIX ratio: short-term structure slope
+        d["dVix9dVixRatio"] = d["dVix9d"] / d["vix_close"].clip(lower=0.01)
+
     # -- Single-bar indicators (always needed) --
     hl = (d["high"] - d["low"]).clip(lower=0.01)
     d["dVarPct"]     = (d["close"] - d["low"]) / hl * 100
