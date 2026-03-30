@@ -92,6 +92,8 @@ VIX change is the only statistically significant direction signal (p=0.0). All a
 | True IV Skew from BSM [15] | N/A (filter) | N/A | Negative as filter — $104/day gradient weaker than credit proxy ($274); Q1 skip costs ~$100k; only useful for Kelly sizing |
 | VIX-conditional econ skip (4 rules) | $606,540 (-$8.7k) | unchanged | Rejected — FOMC+PCE+NFP skips in weak VIX zones cost -$8.7k P&L; Sharpe +0.50 but not worth it |
 | FOMC VIX skip (15-20 + 25-30) | $605,850 (-$9.4k) | unchanged | Rejected — skipping 18 FOMC days in weak VIX zones still costs P&L |
+| GEX / Dealer Positioning [20] | N/A (filter) | N/A | GEX is 66% correlated with VIX — redundant. No added signal within VIX zones. Neg GEX days avg $610 (still profitable) |
+| DIX (Dark Index) [20] | N/A (filter) | N/A | Q1→Q5 gradient $139/day but too weak. Low DIX in VIX 15-20: 90.8% WR, $644/day — still profitable, not skip-worthy |
 | Daily circuit breaker (2 intraday SLs) | not viable | — | Rejected — batch-SL architecture means all positions close simultaneously |
 
 ---
@@ -636,3 +638,35 @@ Marathon results:
 **Rejected** — trade-log analysis showed theoretical savings of $6,902 but marathon confirms net cost of $8-9k. Full-run cost is higher due to EMA/indicator carry-over effects when days are skipped. Sharpe improved +0.50 but at $8.7k P&L cost.
 
 **Adjacency analysis (T-1, T+1):** No pattern on adjacent days. FOMC T=0 is 52.9% WR but T-1 (88.2%) and T+1 (94.1%) are normal. PCE T=0 is 69% WR but neighbors are 95.2%. The weakness is event-day-specific, not a multi-day effect.
+
+### [20] GEX / DIX (SqueezeMetrics) — NEGATIVE AS FILTER (2026-03-29)
+
+Data: SqueezeMetrics free tier, 2011-2026, 3,749 days. 918 overlap with backtest.
+
+**Data validation (all known properties confirmed):**
+- DIX >= 0.45 → 60d fwd return 3.87% vs 2.46% baseline (bullish, as expected)
+- GEX < 0 → 28.5% annualized vol vs 12.3% (2.3x, as expected)
+- GEX-VIX correlation = -0.659 (inverse, as expected)
+- Data: no gaps, no NaNs, DIX range [0.33, 0.55]
+
+**GEX quintile analysis (prior-day value):**
+
+| Quintile | Days | WR% | Avg P&L | Avg GEX |
+|---|---|---|---|---|
+| Q1 (low) | 184 | 83.2% | $694 | -606M |
+| Q2 | 183 | 92.9% | $720 | 1,825M |
+| Q3 | 183 | 96.7% | $752 | 3,635M |
+| Q4 | 183 | 88.5% | $569 | 5,339M |
+| Q5 (high) | 184 | 91.8% | $568 | 7,296M |
+
+Q1→Q5 gradient: **-$127/day** (backwards). Low GEX = high VIX = strategy's best zone. GEX is 66% correlated with VIX, making it a redundant proxy. Negative GEX days: 77.9% WR, $610/day — still profitable.
+
+**Critical test — does GEX add signal within VIX 15-20 (the problem zone)?**
+- GEX Low/Mid/High in VIX 15-20: 94.4% / 94.3% / 97.6% WR — virtually flat
+- Negative GEX in VIX 15-20: only 13 days, $980/day avg (better than baseline)
+
+**DIX quintile analysis:** Q1→Q5 gradient +$139/day. Low DIX in VIX 15-20: 90.8% WR, $644/day — below baseline but still profitable, not skip-worthy.
+
+**Conclusion:** Both GEX and DIX are redundant with VIX for this strategy. GEX is structurally a VIX proxy (dealers short gamma = high VIX). DIX shows a weak directional gradient but not strong enough to act on at qty=2. Both may become useful as Kelly sizing multipliers.
+
+**Source:** SqueezeMetrics (squeezemetrics.com), free tier CSV download

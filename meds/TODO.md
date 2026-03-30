@@ -23,7 +23,7 @@ Priority order reflects expected signal quality, data availability, and distinct
 | # | Item | Effort | Data Needed | Notes |
 |---|------|--------|-------------|-------|
 | 4 | ~~True IV Skew from BSM [15]~~ | ~~Medium~~ | ~~Compute from existing bid/ask data~~ | **TESTED** — Q1→Q5 gradient $104/day, weaker than credit proxy ($274). Only useful for Kelly sizing. See [15] in RESEARCH.md |
-| 5 | GEX / Dealer Positioning [20] | Medium | SpotGamma (paid) or SqueezeMetrics (free tier) | Only microstructure signal — predicts market *behavior* not vol magnitude |
+| 5 | ~~GEX / Dealer Positioning [20]~~ | ~~Medium~~ | ~~SqueezeMetrics (free tier)~~ | **TESTED** — GEX 66% corr w/ VIX (redundant). No added signal within VIX zones. DIX gradient $139/day too weak. Both useful only for Kelly sizing |
 | 6 | DSPX Dispersion Index [24] | Medium | CBOE (availability unclear) | Market crowding signal; check data access first |
 
 ### Medium Priority — Untested Tactical Ideas

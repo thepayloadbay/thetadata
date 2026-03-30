@@ -107,6 +107,7 @@ Backtest and optimize a **Multi-Entry Directional Spreads (MEDS)** strategy trad
 - **Delta-adjusted strike distance** [25]: delta paradox — losses have LOWER |delta| than wins. Any threshold <0.10 is a no-op; <0.08 blocks 37.5% of trades (mostly wins) for 8.8% of losses, costs -$280k
 - **Strike distance decay / delta gate** [11]: delta chg=0.000 at worst entries on 4/5 top loss days (V-shape reversals). Best threshold saves $6.5k, costs $97k. Same failure mode as Bayesian gate and pressure filter
 - **Bid/ask spread width filter** [33]: SPXW 0DTE spreads discrete ($0.05/$0.10/$0.15 = 99%). Wide-spread entries still 91.6% WR. Any filter costs P&L; correlates with VIX 25-30 already handled by dynamic SL
+- **GEX / Dealer Positioning** [20]: GEX is 66% correlated with VIX (redundant proxy). No added signal within VIX zones. DIX gradient $139/day too weak. Both only useful for Kelly sizing
 
 ---
 
