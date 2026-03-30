@@ -684,3 +684,28 @@ Q1→Q5 gradient: **-$127/day** (backwards). Low GEX = high VIX = strategy's bes
 **Conclusion:** Both GEX and DIX are redundant with VIX for this strategy. GEX is structurally a VIX proxy (dealers short gamma = high VIX). DIX shows a weak directional gradient but not strong enough to act on at qty=2. Both may become useful as Kelly sizing multipliers.
 
 **Source:** SqueezeMetrics (squeezemetrics.com), free tier CSV download
+
+---
+
+### [Rank 1] Hard Time Exit — Close All Positions Early — NEGATIVE (2026-03-29)
+
+**Hypothesis:** Hour-15 losses average -$1,047 (8× noon losses of -$122). Closing all positions before expiration avoids 0DTE gamma spike, reducing max-loss trades.
+
+**Analysis:** 40 trades expire at max loss at 15:59 (EXPIRATION outcome), totaling -$41,880. But 6,399 trades expire as wins at 15:59. Any early exit forces buyback of remaining premium on winners.
+
+**Sweep results (pool, ~6,950 trades):**
+
+| Exit Time | Trades | WR% | P&L | P&L Δ | Max DD | Sharpe |
+|-----------|--------|-----|-----|-------|--------|--------|
+| None (baseline) | 6,948 | 93.3% | $612,818 | -- | -$6,356 | 14.47 |
+| 13:00 | 6,958 | 73.3% | $97,878 | -$514,940 | -$12,414 | 1.63 |
+| 13:30 | 6,958 | 79.3% | $197,098 | -$415,720 | -$22,738 | 3.07 |
+| 14:00 | 6,958 | 81.5% | $234,058 | -$378,760 | -$16,584 | 3.20 |
+| 14:30 | 6,948 | 86.2% | $336,738 | -$276,080 | -$13,140 | 5.08 |
+| 14:45 | 6,948 | 88.0% | $378,328 | -$234,490 | -$12,328 | 5.49 |
+| 15:00 | 6,948 | 88.8% | $406,588 | -$206,230 | -$18,590 | 5.93 |
+| 15:15 | 6,948 | 90.3% | $474,198 | -$138,620 | -$16,750 | 7.80 |
+| 15:30 | 6,948 | 91.2% | $519,298 | -$93,520 | -$14,946 | 9.34 |
+| 15:45 | 6,948 | 92.1% | $580,598 | -$32,220 | -$7,808 | 12.85 |
+
+**Conclusion:** REJECTED. Relationship is monotonically worse at every exit time. Even 15:45 costs -$32k P&L and worsens DD from -$6,356 to -$7,808. The premium decay in the final 15 minutes is too valuable to sacrifice. Same root cause as premium buyback exit, per-position trailing stop, and per-position fixed SL: with 93%+ WR, any early close mechanism primarily cuts winning trades.

@@ -33,7 +33,7 @@ Ranked by expected signal quality, data availability, and distinctiveness from p
 
 | Rank | Item | Effort | Notes |
 |------|------|--------|-------|
-| 1 | Hard time exit — close all by 3:15 PM [gamma] | Low | Hour-15 losses avg -$952 (8x noon). Close positions early to avoid 0DTE gamma spike. Backtestable now with existing logs |
+| 1 | ~~Hard time exit — close all by 3:15 PM [gamma]~~ | ~~Low~~ | **REJECTED** — Sweep tested 13:00–15:45 in 15-min steps. ALL levels cost P&L: even 15:45 costs -$32k and worsens DD (-$6,356→-$7,808). Monotonic: later=better, converging to baseline at expiry. Buyback cost on ~6,400 winning positions far outweighs saving ~40 max-loss expiration trades (-$41,880). Premium decay in final 15 min is too valuable to give up |
 | 2 | Early profit-taking at % of credit [research] | Low | Close at 50% or 65% of credit received. Iron condor research (8–20Δ) shows improved equity curve + smaller DD with early close. Different from Chop Rule (% of max profit) and DAILY_TP (fixed $). Backtestable with existing logs |
 | 3 | ~~VIX9D/VIX term structure filter [vix9d]~~ | ~~Medium~~ | **REJECTED** — VIX9D is 96.5% correlated with VIX (pure proxy). Ratio vs P&L r=0.067 (zero signal). Full SL sweep (4 conditions × 5 levels) all worse. Also tested removing dynamic SL on VIX9D-back in VIX 25-30: +$12k P&L but DD triples (-$6k→-$18k), Sharpe 14.47→10.26. Contango SL removal even worse (DD -$35k). Current dynamic SL on all VIX 25-30 confirmed optimal |
 | 4 | Tighter per-trade SL when day is already negative (Option 3c) | Medium | Once daily P&L < -$500, subsequent positions use -$150 SL. Targets mixed-result days. No external data needed |
