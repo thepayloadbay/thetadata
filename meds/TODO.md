@@ -34,14 +34,14 @@ Priority order reflects expected signal quality, data availability, and distinct
 | 8 | ~~VIX-range econ day SL sweep~~ | ~~Medium~~ | **REJECTED** — cross-tabbed all events × VIX buckets; 4 net-negative combos found but marathon skip costs -$8.7k P&L (Sharpe +0.50 not worth it) |
 | 9 | ~~Econ day adjacency analysis~~ | ~~Low~~ | **DONE** — no T-1/T+1 pattern; FOMC/PCE weakness is event-day-only, neighbors are normal WR |
 | 10 | VIX-conditional PCE skip | Low | PCE has 69% WR (p=0.00002 vs 91.8% baseline). Test: skip PCE only when VIX <15 or 25–30 (weak zones). Full skip costs $17k; conditional may preserve most P&L while filtering worst days |
-| 11 | Strike distance decay signal (Option 2) | High | At each entry bar, block if avg OTM distance shrunk >X pts. Most surgical VIX 15–20 fix. Defer until Kelly unlock |
+| 11 | ~~Strike distance decay signal (delta gate)~~ | ~~High~~ | **REJECTED** — delta chg=0.000 at worst entries on 4/5 top loss days (V-shape reversals invisible to signal). Best threshold (0.05) saves $6.5k, costs $97k wins. 20.8:1 false positive ratio |
 | 12 | Entry window cutoff by VIX range (Option 3b) | Low | For VIX 15–20, stop entries at 11:30 instead of 12:45. Sweep over cutoff times |
 | 13 | Tighter per-trade SL when day is already negative (Option 3c) | Medium | Once daily P&L < -$500, subsequent positions use -$150 SL. Targets mixed-result days |
 | 14 | Halt entries on intraday trend reversal (Option 3f) | High | EMA cross / VWAP cross / rolling high break as entry suppression signal |
 | 15 | MAX_OTM_DISTANCE cap | Low | Skip entries where strike >75pt OTM. Likely overlaps VIX 25–30 zone. From Finding 5 |
 | 16 | Widen danger zone to VIX 13.5–15.0 | Low | Extend dynamic SL coverage to fill unprotected gap. From Finding 2 |
 | 17 | "Wonging" Entry — wait for 0.3% adverse move [30] | Medium | Enter only after SPX moves against spread direction. Gets better credit |
-| 18 | Bid/ask spread width filter [33] | Low | Skip entry if bid/ask spread >$0.15. Per-entry credit quality check |
+| 18 | ~~Bid/ask spread width filter [33]~~ | ~~Low~~ | **REJECTED** — SPXW 0DTE spreads discrete ($0.05/0.10/0.15 cover 99%). Wide-spread entries still 91.6% WR, $86.6 avg. Any filter costs P&L (>$0.10 threshold = -$137k). Correlates with VIX 25-30, already handled by dynamic SL |
 | 19 | Pot Odds filter — MIN_NET_CREDIT to 3.5% of width [34] | Low | Raise MIN_NET_CREDIT from $0.55 to $0.70. Related to existing sweep |
 | 20 | Chop Rule — close at 80% max profit with 2h+ remaining [13-ideas] | Medium | Similar to DAILY_TP but % capture + time filter. All fixed TP levels rejected but this framing untested |
 | 21 | "Semi-Bluff" half-size on near-EMA-cross [41] | Medium | EMA alignment as sizing trigger (not gate). EMA as gate rejected; sizing untested |
@@ -52,7 +52,7 @@ Priority order reflects expected signal quality, data availability, and distinct
 |---|------|--------|-------|
 | 22 | Hurst Exponent regime filter [18] | Medium | Classifies movement *type* not magnitude. Novel but consistent pattern suggests low odds |
 | 23 | QQQ/SPY Correlation [22] | Low | Within-equity signal. Weak theoretical basis vs cross-asset [21] |
-| 24 | Dynamic Delta-Adjusted Strike Distance [25] | Medium | VIX-adjusted MIN_OTM_DISTANCE. Likely counterproductive — high-VIX days are best days |
+| 24 | ~~Dynamic Delta-Adjusted Strike Distance [25]~~ | ~~Medium~~ | **REJECTED** — delta paradox: losses have LOWER |delta| than wins. |delta|<0.10 = no-op (never triggers under MIN_OTM=30). |delta|<0.08 blocks 37.5% of trades, catches 8.8% of losses, costs -$280k net |
 | 25 | Iron Condor on winning Put spread [31] | High | Open Call side to lock in profit on middle zone. Complex position management |
 
 ---

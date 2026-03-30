@@ -104,6 +104,9 @@ Backtest and optimize a **Multi-Entry Directional Spreads (MEDS)** strategy trad
 - **FOMC VIX 15-20 SL** (-$500 to -$3,000): all levels cost P&L (-$4k to -$16k), DD unchanged at -$6,356. Even targeting ~20 FOMC-in-VIX-15-20 days, SL fires on winning days too often
 - **VIX-conditional econ skip** (FOMC+PCE+NFP in weak VIX zones): costs -$8.7k P&L; Sharpe +0.50 but not worth the P&L hit
 - **True IV Skew from BSM** [15]: Q1→Q5 gradient $104/day (weaker than credit proxy $274/day); only useful for Kelly sizing
+- **Delta-adjusted strike distance** [25]: delta paradox — losses have LOWER |delta| than wins. Any threshold <0.10 is a no-op; <0.08 blocks 37.5% of trades (mostly wins) for 8.8% of losses, costs -$280k
+- **Strike distance decay / delta gate** [11]: delta chg=0.000 at worst entries on 4/5 top loss days (V-shape reversals). Best threshold saves $6.5k, costs $97k. Same failure mode as Bayesian gate and pressure filter
+- **Bid/ask spread width filter** [33]: SPXW 0DTE spreads discrete ($0.05/$0.10/$0.15 = 99%). Wide-spread entries still 91.6% WR. Any filter costs P&L; correlates with VIX 25-30 already handled by dynamic SL
 
 ---
 
