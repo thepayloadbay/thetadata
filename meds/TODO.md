@@ -8,9 +8,10 @@ All experiment results, deep-dives, and decision rationale are in [RESEARCH.md](
 
 | # | Item | Status | Acceptance Criteria |
 |---|------|--------|---------------------|
-| 1 | VIX Futures Backwardation filter [13] | TODO | Download VX1 data from CBOE, bucket by contango/backwardation, marathon test as skip/reduce filter in VIX 15–25 zone |
-| 2 | VVIX/VIX Ratio signal [19] | TODO | Download VVIX from CBOE, test ratio >6 vs <4 buckets, test combined VVIX>100 + VIX<20 condition, marathon verify. Also test: VVIX hard ceiling (>115 skip), VVIX floor (<80 skip), VVIX percentile sizing (quartile-based 0.25x–1x) |
-| 3 | MOVE/VIX Ratio cross-asset signal [21] | TODO | Download MOVE from FRED, compute prior-day ratio quintiles, marathon test as skip filter on extreme high-ratio days |
+| 1 | ~~VIX Futures Backwardation filter [13]~~ | **REJECTED** | Marathon tested: backwardation SL costs -$91,642 P&L (Sharpe 14.55→11.80). VIX9D/VIX ratio is a proxy for VIX level (r=0.455). Only positive filter (VIX<13 + backwardation) yields +$1,268 on 67 trades/4yr; 64% already caught by dynamic SL. See [5] in RESEARCH.md |
+| 2 | ~~VVIX/VIX Ratio signal [19]~~ | **REJECTED** | VVIX data loaded. Full sweep: Back+VVIX>=100 (67 days) costs -$39k to -$47k; Back+VVIX>=120 (14 days) costs -$5k to -$10k. VVIX skip (>120/130) also costs P&L. VVIX 110-120 is the best WR bucket (97.2%). No actionable filter found |
+| 3 | ~~VIX9D/VIX term structure filter~~ | **REJECTED** | Full sweep: 4 conditions × 5 SL levels. VIX9D back+VIX15-20 (71 days) has 95.7% WR — one of best subsets. SL costs -$16k at loosest. Covers TODO backlog item 3. No VX1 download needed — VIX9D proxy conclusive |
+| 4 | MOVE/VIX Ratio cross-asset signal [21] | TODO | Download MOVE from FRED, compute prior-day ratio quintiles, marathon test as skip filter on extreme high-ratio days |
 
 ---
 
