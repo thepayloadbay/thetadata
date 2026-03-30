@@ -125,10 +125,11 @@ _POST_HOL_DATES: set = set()   # first trading day after each market holiday
 def _get_baseline_mode(date_str: str) -> str | None:
     """Return the baseline_mode for _simulate_day based on DIRECTION_MODE.
 
-    "vix_change" reads today's VIX % change from _DAILY_INDICATORS:
-        VIX falling (chg <= 0) -> "always_put"  (market calmer, sell PUT spread)
-        VIX rising  (chg >  0) -> "always_call" (market fearful, sell CALL spread)
-    Falls back to "always_put" if VIX data is unavailable for the day.
+    "vix_change" uses today's VIX open vs yesterday's close (dVixOpenChgPct):
+        VIX fell at open (chg <= 0) -> "always_put"  (market calmer, sell PUT spread)
+        VIX rose at open (chg >  0) -> "always_call" (market fearful, sell CALL spread)
+    VIX open is the 9:30 AM print — fully known at 9:40 AM entry time, no look-ahead bias.
+    Falls back to "always_put" if VIX data is unavailable.
     """
     if DIRECTION_MODE == "always_put":
         return "always_put"
@@ -136,7 +137,7 @@ def _get_baseline_mode(date_str: str) -> str | None:
         return "always_call"
     if DIRECTION_MODE == "vix_change":
         today = _DAILY_INDICATORS.get(date_str)
-        chg = (today or {}).get("dVixChgPct")
+        chg = (today or {}).get("dVixOpenChgPct")
         if chg is None:
             return "always_put"  # safe fallback
         return "always_put" if chg <= 0 else "always_call"
@@ -201,7 +202,56 @@ def _build_daily_indicators(compute_full: bool = False) -> dict:
         vix_df["dVixAccel"]     = vix_df["dVixVelocity"] - vix_df["dVixVelocity"].shift(1)
         # True when VIX is rising but rate of rise is slowing (weakest signal quadrant)
         vix_df["vix_rise_decel"] = (vix_df["dVixVelocity"] > 0) & (vix_df["dVixAccel"] < 0)
-        d = d.merge(vix_df[["date", "vix_close", "dVixChgPct", "dVixVelocity", "dVixAccel", "vix_rise_decel"]], on="date", how="left")
+
+        # -- VIX 9:35 AM signal (no look-ahead) --
+        # dVixOpenChgPct = (VIX_close_at_9:35[today] - VIX_close[yesterday]) / VIX_close[yesterday]
+        # The 9:35 AM bar close is the last VIX print before the first 9:40 AM entry.
+        # No look-ahead bias: this price exists before any trade is placed.
+        # Falls back to 9:30 open (vix_history.csv) if intraday parquet is unavailable,
+        # and further falls back to EOD close (look-ahead) if neither source is available.
+        vix935_rows = []
+        for fpath in sorted(glob.glob(os.path.join(DATA_DIR, "*", "vix_ohlc", "*.parquet"))):
+            date_str_v = os.path.basename(fpath).replace(".parquet", "")
+            try:
+                vdf = pd.read_parquet(fpath)
+                if vdf.empty:
+                    continue
+                # Find the 9:35 bar (timestamp prefix "T09:35")
+                bar935 = vdf[vdf["timestamp"].astype(str).str.contains("T09:35")]
+                if not bar935.empty:
+                    vix935_rows.append({"date": date_str_v, "vix_935": float(bar935["close"].iloc[0])})
+                else:
+                    # Fallback: first non-zero bar after 9:30
+                    nonzero = vdf[vdf["close"] > 0]
+                    if not nonzero.empty:
+                        vix935_rows.append({"date": date_str_v, "vix_935": float(nonzero["close"].iloc[0])})
+            except Exception:
+                pass
+        if vix935_rows:
+            v935_df = pd.DataFrame(vix935_rows)
+            vix_df = vix_df.merge(v935_df, on="date", how="left")
+            # Fill any remaining gaps from vix_history.csv OPEN (9:30 AM)
+            vix_hist_path = os.path.join(DATA_DIR, "vix_history.csv")
+            if os.path.exists(vix_hist_path):
+                vh = pd.read_csv(vix_hist_path, parse_dates=["DATE"])
+                vh["date"] = vh["DATE"].dt.strftime("%Y%m%d")
+                vh = vh[["date", "OPEN"]].rename(columns={"OPEN": "vix_open_930"})
+                vix_df = vix_df.merge(vh, on="date", how="left")
+                vix_df["vix_935"] = vix_df["vix_935"].fillna(vix_df["vix_open_930"])
+            vix_df["dVixOpenChgPct"] = (vix_df["vix_935"] - vix_df["prev_vix"]) / vix_df["prev_vix"] * 100
+        else:
+            # No intraday VIX data at all — fall back to 9:30 open from vix_history.csv
+            vix_hist_path = os.path.join(DATA_DIR, "vix_history.csv")
+            if os.path.exists(vix_hist_path):
+                vh = pd.read_csv(vix_hist_path, parse_dates=["DATE"])
+                vh["date"] = vh["DATE"].dt.strftime("%Y%m%d")
+                vh = vh[["date", "OPEN"]].rename(columns={"OPEN": "vix_open_930"})
+                vix_df = vix_df.merge(vh, on="date", how="left")
+                vix_df["dVixOpenChgPct"] = (vix_df["vix_open_930"] - vix_df["prev_vix"]) / vix_df["prev_vix"] * 100
+            else:
+                vix_df["dVixOpenChgPct"] = vix_df["dVixChgPct"]  # last resort: EOD (look-ahead)
+
+        d = d.merge(vix_df[["date", "vix_close", "dVixChgPct", "dVixOpenChgPct", "dVixVelocity", "dVixAccel", "vix_rise_decel"]], on="date", how="left")
 
     # -- Merge daily VIX1D closes --
     vix1d_rows = []

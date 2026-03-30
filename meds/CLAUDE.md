@@ -41,6 +41,14 @@ Backtest and optimize a **Multi-Entry Directional Spreads (MEDS)** strategy trad
 
 **Explain changes before editing** — briefly state what is changing and why before making any code edits.
 
+**Parameter sensitivity (Plateau Rule)**: When a sweep shows a single optimal value surrounded by significantly worse neighbors, treat it as a fluke — not a real edge. Only adopt a parameter when it sits on a broad plateau of consistent performance across neighboring values. If EMA-13 is the only value that works and EMA-12/14 are substantially worse, it's overfitted.
+
+**No look-ahead bias** — all signals and indicators must use only data available at the time of the trading decision. Specifically:
+- **Daily direction signal** (`dVixChgPct`): uses prior-day VIX close (T-1). Already correct.
+- **Daily indicators** (`_DAILY_INDICATORS`): built using `_prior_day_ind()` which fetches T-1 data, keyed by today's date. Do not use same-day closing values as an entry signal.
+- **Intraday signals**: any bar-based indicator (EMA, momentum, etc.) must reference the prior completed bar, never the current forming bar or any future bar.
+- **New signals under research**: before implementing, explicitly verify the data timestamp used is strictly prior to the entry time. A signal that "predicts" T+0 using T+0 data is look-ahead bias even if it appears predictive in a sweep. The day-level SL approximation incident (+$13k approx → -$91k marathon) is a reminder that what looks like signal can be an artifact of forward-leaking data.
+
 ---
 
 ## Current Config (Confirmed Optimal)
