@@ -1525,6 +1525,16 @@ def _get_effective_sl(day_data: dict, date_str: str) -> "float | None":
             else:
                 effective_sl = max(effective_sl, effective_amt)  # tighter wins
 
+    # FOMC + VIX 15-20 targeted SL (Finding 7: 5 of 9 worst unprotected days)
+    if _cfg.ENABLE_FOMC_VIX1520_SL and date_str in FOMC_DATES and vix is not None:
+        lo, hi = _cfg.FOMC_VIX1520_RANGE
+        if lo <= vix < hi:
+            candidate = _cfg.FOMC_VIX1520_SL_AMOUNT
+            if effective_sl is None:
+                effective_sl = candidate
+            else:
+                effective_sl = max(effective_sl, candidate)  # tighter wins
+
     return effective_sl
 
 

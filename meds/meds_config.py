@@ -1033,6 +1033,9 @@ ENABLE_FOMC_SL          = False
 FOMC_SL_AMOUNT          = -300.0   # tighter SL on FOMC days (normal VIX)
 FOMC_SL_AMOUNT_DANGER   = -200.0   # even tighter SL on FOMC days when VIX in danger zone
 ENABLE_FOMC_SKIP        = False    # skip all entries on FOMC days entirely
+ENABLE_FOMC_VIX1520_SL  = False    # FOMC SL only when VIX is in 15-20 range (Finding 7)
+FOMC_VIX1520_SL_AMOUNT  = -800.0   # SL amount for FOMC days in VIX 15-20
+FOMC_VIX1520_RANGE      = (15.0, 20.0)  # VIX range where FOMC SL applies
 
 ENABLE_PCE_SL           = False
 PCE_SL_AMOUNT           = -300.0   # tighter SL on PCE release days (normal VIX)

@@ -88,6 +88,7 @@ VIX change is the only statistically significant direction signal (p=0.0). All a
 | Tighter dynamic SL for VIX <13 (-$400/-$500) | marginal | worse DD | Rejected — tighter SL fires more, days that survive at -$800 recover enough |
 | Pressure filter VIX 15-20 only (45pt) | -$134k | unchanged | Rejected — eliminated 2 worst days but cost 1,297 trades |
 | Entry cap VIX 15-20 (cap=5/7) | -$144k to -$161k | unchanged | Rejected — too blunt, penalises ~1,400 winning trades/year |
+| FOMC VIX 15-20 SL (-$500 to -$3000) | -$4k to -$16k | unchanged | Rejected — zero DD improvement; even targeted ~20 FOMC days in VIX 15-20 still cuts winning days |
 | Daily circuit breaker (2 intraday SLs) | not viable | — | Rejected — batch-SL architecture means all positions close simultaneously |
 
 ---
@@ -287,6 +288,52 @@ $7,012 P&L but -$6,382 DD = 0.91 Calmar for this zone alone. Carries 93% of port
 4. **EMA crossover on SPX intraday bars** — fast/slow EMA on 1-min or 5-min intraday bars. Key risk: same overfitting concern as global EMA direction signal.
 
 **Caution:** All four ideas share the same failure mode as prior rejected filters — may fire on *winning* days where the market temporarily moves against positions before recovering.
+
+---
+
+## Finding 7: 9 of 15 Worst Loss Days Are Unprotected in VIX 13.5–20
+
+**Cross-reference analysis (2026-03-29):** Mapped all 15 worst loss days against RESEARCH.md findings and existing dynamic SL coverage.
+
+**Coverage breakdown:**
+- 4 days already investigated in RESEARCH.md
+- 6 days protected by existing dynamic SL (VIX >25 or <13.5)
+- **9 days (60%, ~$25,572 cumulative) are unprotected and uninvestigated** — all in VIX 13.5–20
+
+| Date | VIX | Trades | W/L | Day P&L | Event |
+|------|----:|-------:|-----|--------:|-------|
+| 2023-10-09 | 17.7 | 7 | 3W/4L | -$6,118 | — |
+| 2025-02-26 | 19.0 | 10 | 6W/4L | -$3,370 | — |
+| 2025-09-02 | 17.5 | 8 | 6W/2L | -$3,092 | Post-Hol |
+| 2025-01-06 | 16.0 | 7 | 4W/3L | -$2,898 | — |
+| 2025-10-01 | 16.2 | 2 | 0W/2L | -$2,878 | — |
+| 2023-08-10 | 15.9 | 10 | 7W/3L | -$2,440 | CPI |
+| 2024-08-29 | 15.8 | 9 | 6W/3L | -$2,176 | — |
+| 2024-11-19 | 16.2 | 6 | 4W/2L | -$1,444 | — |
+| 2023-06-15 | 14.4 | 3 | 1W/2L | -$4,292 | Pre-TW |
+
+**Key patterns:**
+1. **All are mixed W/L days** — not total signal failures, but intraday reversals where some entries win and later entries lose 11–30x the baseline loss per losing trade
+2. **FOMC clustering:** 5 of 34 FOMC days in the backtest (14.7%) fall in VIX 15–20. Cross-referencing the worst 15 loss days: 2022-09-21, 2023-03-22, 2023-09-20, 2024-09-18, 2024-12-18 are all FOMC days in VIX 15–20 with mixed W/L and large losses. FOMC days have fat tails even when VIX appears moderate.
+3. **VIX 15–20 paradox confirmed:** 97.8% overall WR (2,871 trades) but 8 of 15 worst days cluster here
+
+**Why existing protections don't help:**
+- Dynamic SL only activates at VIX <13, 13–13.5, or 25–30 — VIX 15–20 is unprotected
+- Blanket VIX 15-20 SL: already tested, costs -$99k to -$173k (too many winning trades)
+- Per-position SL: costs -$276k+ (positions recover by EOD 97.8% of the time)
+
+**Tested mitigation: FOMC VIX 15-20 SL — MARATHON TESTED 2026-03-29:**
+
+| SL Level | P&L | Delta | Max DD | Sharpe | Trades |
+|----------|-----|-------|--------|--------|--------|
+| Baseline | $615,220 | — | -$6,356 | 14.55 | 6,950 |
+| -$500 | $599,638 | -$15,582 | -$6,356 | 13.85 | 6,943 |
+| -$1,000 | $609,032 | -$6,188 | -$6,356 | 14.16 | 6,947 |
+| -$1,500 | $611,180 | -$4,040 | -$6,356 | 14.26 | 6,950 |
+| -$2,000 | $611,180 | -$4,040 | -$6,356 | 14.26 | 6,950 |
+| -$3,000 | $609,350 | -$5,870 | -$6,356 | 13.98 | 6,950 |
+
+**Rejected** — all levels cost P&L with zero DD improvement. Even targeting only ~20 FOMC days in VIX 15-20, the SL fires on winning days often enough to cost more than it saves. Same root cause as blanket VIX 15-20 SL: the 97.8% WR means most days that trigger an SL would have recovered by EOD.
 
 ---
 

@@ -189,6 +189,7 @@ if __name__ == "__main__":
     _parser.add_argument("--kelly",            action="store_true",      help="Enable Kelly zone sizing (ENABLE_KELLY_SIZING=True)")
     _parser.add_argument("--min-otm-distance", default=None, type=float, help="Override MIN_OTM_DISTANCE (pts)")
     _parser.add_argument("--max-credit",       default=None, type=float, help="Override MAX_NET_CREDIT cap")
+    _parser.add_argument("--fomc-vix1520-sl",  default=None, type=float, help="Enable FOMC VIX 15-20 SL at this amount (e.g. -800)")
     _args = _parser.parse_args()
 
     # -- Apply CLI overrides to meds_core (before importing sweeps) --
@@ -209,6 +210,9 @@ if __name__ == "__main__":
         _cfg.MIN_OTM_DISTANCE = _args.min_otm_distance
     if _args.max_credit is not None:
         _cfg.MAX_NET_CREDIT = _args.max_credit
+    if _args.fomc_vix1520_sl is not None:
+        _cfg.ENABLE_FOMC_VIX1520_SL = True
+        _cfg.FOMC_VIX1520_SL_AMOUNT = _args.fomc_vix1520_sl
 
     # Build EOM date set (used by EOM SL and EOM SL sweep)
     _cal_event_sets_startup = _build_calendar_event_dates()
