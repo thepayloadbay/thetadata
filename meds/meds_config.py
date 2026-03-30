@@ -997,6 +997,20 @@ EOM_SL_AMOUNT_DANGER  = -150.0   # even tighter SL on EOM days when VIX is in da
 ENABLE_SL_GAP_REENTRY = True    # tested: +$4,458 P&L, Sharpe 14.15 (best at 60 min); DD unchanged at -$6,356
 SL_GAP_MINUTES        = 60
 
+# -- Hard Time Exit --
+# Close all open positions at a fixed time rather than letting them expire at 15:59.
+# Motivation: 40 trades expire at max loss (avg -$1,047 each, total -$41,880).
+# Hour-15 losses are 8x worse than noon losses. Closing early may cut these losses
+# while only giving up a small amount of remaining premium on winning positions.
+ENABLE_HARD_TIME_EXIT = False   # TODO: test with marathon, then enable if positive
+HARD_TIME_EXIT_TIME   = time(15, 15)  # close all positions at this time
+
+# -- Hard Time Exit Sweep --
+RUN_HARD_TIME_EXIT_SWEEP      = False
+HARD_TIME_EXIT_SWEEP_FILE     = _out("meds_hard_time_exit_sweep.csv")
+HARD_TIME_EXIT_SWEEP_TIMES    = [None, time(13, 0), time(13, 30), time(14, 0), time(14, 30),
+                                  time(14, 45), time(15, 0), time(15, 15), time(15, 30), time(15, 45)]
+
 # -- SL Gap Re-entry Sweep --
 RUN_SL_GAP_SWEEP       = False
 SL_GAP_SWEEP_FILE      = _out("meds_sl_gap_sweep.csv")

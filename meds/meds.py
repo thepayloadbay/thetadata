@@ -334,6 +334,9 @@ if __name__ == "__main__":
     elif RUN_CALENDAR_RISK_SL_SWEEP:
         from meds_sweeps import run_calendar_risk_sl_sweep
         asyncio.run(run_calendar_risk_sl_sweep())
+    elif RUN_HARD_TIME_EXIT_SWEEP:
+        from meds_sweeps import run_hard_time_exit_sweep
+        asyncio.run(run_hard_time_exit_sweep())
     elif RUN_PRESSURE_VIX_SWEEP:
         from meds_sweeps import run_pressure_vix_sweep
         asyncio.run(run_pressure_vix_sweep())

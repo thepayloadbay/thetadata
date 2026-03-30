@@ -1032,6 +1032,7 @@ async def _simulate_day(
     enable_pressure_filter: bool | None = None,
     per_pos_sl: float | None = "USE_GLOBAL",
     sl_gap_minutes: int | None = "USE_GLOBAL",
+    hard_time_exit: time | None = "USE_GLOBAL",
 ) -> tuple:
     """Run the intraday simulation using the pre-populated quote cache.
 
@@ -1063,6 +1064,8 @@ async def _simulate_day(
         touch_exit_dollars = TOUCH_EXIT_DOLLARS
     if touch_exit_pct == "USE_GLOBAL":
         touch_exit_pct = TOUCH_EXIT_PCT
+    if hard_time_exit == "USE_GLOBAL":
+        hard_time_exit = HARD_TIME_EXIT_TIME if ENABLE_HARD_TIME_EXIT else None
     if pnl_sample_interval is None:
         pnl_sample_interval = PNL_SAMPLE_INTERVAL
     date_str          = day_data["date_str"]
@@ -1280,6 +1283,8 @@ async def _simulate_day(
                 outcome = "TRAILING_STOP"
             elif daily_sl is not None and current_day_pnl <= daily_sl:
                 outcome = "STOP_LOSS"
+            elif hard_time_exit is not None and curr_time >= hard_time_exit and not is_eod:
+                outcome = "HARD_TIME_EXIT"
             elif is_eod:
                 outcome = "EXPIRATION"
 

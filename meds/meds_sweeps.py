@@ -4428,3 +4428,104 @@ async def run_combo_sweep():
     logger.info(f"\n  Full results saved -> {COMBO_SWEEP_FILE}")
 
 
+# ---------------------------------------------
+#  HARD TIME EXIT SWEEP
+# ---------------------------------------------
+async def run_hard_time_exit_sweep():
+    """Sweep hard time exit: close all positions at a fixed time instead of expiration.
+
+    None = baseline (expire at 15:59). Each other level closes at that time.
+    """
+    logger.info("=" * 70)
+    logger.info("MEDS: HARD TIME EXIT SWEEP")
+    logger.info(f"Times         : {[str(t) if t else 'None' for t in HARD_TIME_EXIT_SWEEP_TIMES]}")
+    logger.info(f"Output        : {HARD_TIME_EXIT_SWEEP_FILE}")
+    logger.info("=" * 70)
+
+    date_list = pd.date_range(_mc.PILOT_YEAR_START, _mc.PILOT_YEAR_END, freq="B")
+    day_pool: dict[str, dict] = {}
+    async with _get_session() as session:
+        for d in date_list:
+            d_str = d.strftime("%Y%m%d")
+            if d_str in MARKET_HOLIDAYS:
+                continue
+            if ENABLE_ECON_FILTER and d_str in ECON_DATES:
+                continue
+            day_data = await _fetch_day_data(session, d_str)
+            if day_data is not None:
+                day_pool[d_str] = day_data
+    logger.info(f"Pre-fetched {len(day_pool)} qualifying days.")
+
+    cols = ["exit_time", "num_trades", "win_rate_pct",
+            "total_pnl", "pnl_delta", "max_drawdown", "dd_delta", "calmar", "sharpe"]
+    rows = []
+    base_pnl = None
+    base_dd  = None
+
+    async with _get_session() as session:
+        for exit_t in HARD_TIME_EXIT_SWEEP_TIMES:
+            label = "none" if exit_t is None else exit_t.strftime("%H:%M")
+            all_trades: list = []
+
+            for d_str, day_data in day_pool.items():
+                effective_sl = _get_effective_sl(day_data, d_str)
+                in_danger    = effective_sl is not None
+                sample_interval = DANGER_PNL_SAMPLE_INTERVAL if in_danger else PNL_SAMPLE_INTERVAL
+                direction    = _get_baseline_mode(d_str)
+                trades, _ = await _simulate_day(
+                    session, day_data, effective_sl,
+                    baseline_mode=direction,
+                    pnl_sample_interval=sample_interval,
+                    hard_time_exit=exit_t,
+                )
+                all_trades.extend(trades)
+
+            m      = compute_metrics(all_trades)
+            pnl    = m["total_pnl"]
+            dd     = m["max_drawdown"]
+            calmar = pnl / abs(dd) if dd != 0 else float("inf")
+            wr     = m["win_rate"]
+
+            if base_pnl is None:
+                base_pnl  = pnl
+                base_dd   = dd
+                pnl_delta = "--"
+                dd_delta  = "--"
+            else:
+                pnl_delta = f"{pnl - base_pnl:+.2f}"
+                dd_delta  = f"{dd - base_dd:+.2f}"
+
+            rows.append({
+                "exit_time":    label,
+                "num_trades":   len(all_trades),
+                "win_rate_pct": f"{wr:.1f}",
+                "total_pnl":    f"{pnl:.2f}",
+                "pnl_delta":    pnl_delta,
+                "max_drawdown": f"{dd:.2f}",
+                "dd_delta":     dd_delta,
+                "calmar":       f"{calmar:.2f}",
+                "sharpe":       f"{m['sharpe']:.2f}",
+            })
+            logger.info(f"  exit={label:>5}  trades={len(all_trades):>5}  P&L=${pnl:>10,.2f}  DD=${dd:>9,.2f}  Calmar={calmar:.2f}  Sharpe={m['sharpe']:.2f}")
+
+    with open(HARD_TIME_EXIT_SWEEP_FILE, "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=cols)
+        w.writeheader()
+        w.writerows(rows)
+
+    sep = "-" * 100
+    logger.info("")
+    logger.info("═" * 100)
+    logger.info(f"  {'EXIT_TIME':>9} | {'TRADES':>7} | {'WIN%':>5} | {'TOTAL_PNL':>12} | "
+                f"{'PNL_DELTA':>10} | {'MAX_DD':>10} | {'DD_DELTA':>10} | {'CALMAR':>8} | {'SHARPE':>7}")
+    logger.info(sep)
+    for row in rows:
+        logger.info(
+            f"  {row['exit_time']:>9} | {row['num_trades']:>7} | {row['win_rate_pct']:>4}% | "
+            f"${float(row['total_pnl']):>11,.2f} | {row['pnl_delta']:>10} | "
+            f"${float(row['max_drawdown']):>9,.2f} | {row['dd_delta']:>10} | "
+            f"{row['calmar']:>8} | {row['sharpe']:>7}"
+        )
+    logger.info("═" * 100)
+    logger.info(f"  Full results: {HARD_TIME_EXIT_SWEEP_FILE}")
+
