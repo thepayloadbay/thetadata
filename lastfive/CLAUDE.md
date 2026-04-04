@@ -55,7 +55,7 @@ Backtest and optimize a **LastFive** strategy that sells SPX short call + put cr
 
 ---
 
-## Current Config (Confirmed Baseline — 2026-03-31)
+## Current Config (Confirmed Baseline — 2026-04-04)
 
 | Parameter | Value | Reason |
 |---|---|---|
@@ -79,17 +79,17 @@ Backtest and optimize a **LastFive** strategy that sells SPX short call + put cr
 
 | Metric | Value |
 |---|---|
-| **Total P&L** | $214,538 |
-| **CAGR** | 48.4% |
-| **Max Drawdown** | -$5,017 |
-| **Sharpe Ratio** | 6.08 |
-| **Calmar Ratio** | 4.82 |
-| **Win Rate** | 77.9% |
-| **Profit Factor** | 2.15 |
-| **Total Trades** | 1,501 (752 calls + 749 puts) |
-| **Avg Win / Avg Loss** | $343 / -$566 |
+| **Total P&L** | $357,778 |
+| **CAGR** | 64.4% |
+| **Max Drawdown** | -$2,739 (-0.8%) |
+| **Sharpe Ratio** | 10.77 |
+| **Calmar Ratio** | 11.76 |
+| **Win Rate** | 73.9% |
+| **Profit Factor** | 3.03 |
+| **Total Trades** | 1,659 (call + put) |
+| **Worst Day** | -$1,188 |
+| **Entry** | 15:52, bar OPEN (99.8% match with OA) |
 | **Touch Exits** | OA-style, bar CLOSE, Call $0 / Put -$1 |
-| **Entry Strike** | bar OPEN (99.8% match with OA) |
 
 ---
 

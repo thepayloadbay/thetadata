@@ -83,7 +83,9 @@
 - [x] #61 SPX last-10-min statistical model — Student-t df=6.58, mean-reverting (0.56x √t)
 - [x] #62 Model-implied improvements — min dist, asym put, pre-entry range. None beat baseline P&L.
 - [x] #63 Credit velocity research — d=1.54 signal but exit cost kills P&L. Touch is optimal.
-- [ ] #64 Test 15:48 and 15:45 entry times on OA backtester
+- [x] #64 50 hypotheses generated, top 15 backtested
+- [x] #65 Entry 15:52 adopted — +$143k P&L, DD -45%, Sharpe 10.77, Calmar 11.76
+- [ ] #66 Test 15:48 and 15:45 entry times on OA backtester
 
 ## Future
 - [ ] #62 Combine with MEDS or Zenith for portfolio-level analysis
