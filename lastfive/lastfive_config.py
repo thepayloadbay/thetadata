@@ -219,6 +219,10 @@ VIX_TERM_MAX_RATIO     = 1.2    # Skip if VIX/VIX9D > this (backwardation)
 ENABLE_VVIX_FILTER = False
 VVIX_MAX           = 120.0      # Skip if VVIX > this
 
+# === PARKINSON RATIO FILTER (H2-MMA-1: closing vol / full-day vol) ===
+ENABLE_PARKINSON_RATIO_FILTER = False
+PARKINSON_RATIO_MAX           = 1.2    # Skip if closing vol > 1.2x full-day vol (close is hotter)
+
 # === KAUFMAN EFFICIENCY RATIO (trend/chop from 1-min bars at 15:54) ===
 ENABLE_ER_FILTER = False
 ER_LOOKBACK      = 10        # Number of 1-min bars (10 = 15:45-15:54)

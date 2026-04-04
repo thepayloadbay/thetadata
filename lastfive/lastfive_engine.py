@@ -528,7 +528,7 @@ def run_backtest(indicators: dict) -> list:
     skip_reasons = {"holiday": 0, "early_close": 0, "no_data": 0, "no_spx": 0,
                     "no_quotes": 0, "no_strikes": 0, "zero_credit": 0,
                     "vix_filter": 0, "vix_term": 0, "vvix_filter": 0, "wvf_filter": 0,
-                    "er_filter": 0, "parkinson_filter": 0, "range_budget": 0, "spread_compression": 0,
+                    "er_filter": 0, "parkinson_filter": 0, "parkinson_ratio": 0, "range_budget": 0, "spread_compression": 0,
                     "fomc_skip": 0, "tw_skip": 0,
                     "vix_intraday": 0, "afternoon_filter": 0,
                     "put_momentum": 0}
@@ -644,6 +644,16 @@ def run_backtest(indicators: dict) -> list:
             if rb is not None and rb < _cfg.RANGE_BUDGET_MIN:
                 skip_reasons["range_budget"] += 1
                 continue
+
+        # Parkinson RATIO filter (H2-MMA-1: closing vol / full-day vol)
+        if _cfg.ENABLE_PARKINSON_RATIO_FILTER:
+            close_pv = _compute_parkinson_vol(spx_df, "15:25", "15:54")
+            full_pv = _compute_parkinson_vol(spx_df, "09:30", "15:54")
+            if close_pv is not None and full_pv is not None and full_pv > 0:
+                pv_ratio = close_pv / full_pv
+                if pv_ratio > _cfg.PARKINSON_RATIO_MAX:
+                    skip_reasons["parkinson_ratio"] += 1
+                    continue
 
         # Spread compression filter (VSA-inspired: narrow bars = safe for credit spreads)
         if _cfg.ENABLE_SPREAD_COMPRESSION_FILTER:

@@ -107,6 +107,7 @@ if __name__ == "__main__":
     parser.add_argument("--parkinson-max", type=float, help="Enable Parkinson vol filter (skip if annualized vol > this %%)")
     parser.add_argument("--er-max", type=float, help="Enable Kaufman ER filter (skip if ER > this, e.g. 0.65)")
     parser.add_argument("--range-budget-min", type=float, help="Enable range budget filter (skip if budget_used < this, e.g. 0.7)")
+    parser.add_argument("--park-ratio-max", type=float, help="Enable Parkinson ratio filter (skip if close_vol/full_vol > this)")
     parser.add_argument("--vix16-min", type=float, help="Min distance floor for VIX/16 mode")
     args = parser.parse_args()
 
@@ -147,6 +148,9 @@ if __name__ == "__main__":
     if args.range_budget_min:
         _cfg.ENABLE_RANGE_BUDGET_FILTER = True
         _cfg.RANGE_BUDGET_MIN = args.range_budget_min
+    if args.park_ratio_max:
+        _cfg.ENABLE_PARKINSON_RATIO_FILTER = True
+        _cfg.PARKINSON_RATIO_MAX = args.park_ratio_max
     if args.vix16_min:
         _cfg.VIX16_MIN_DIST = args.vix16_min
 
