@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
-"""REST-based 1DTE option data downloader for ThetaData v3.
+"""REST-based N-DTE option data downloader for ThetaData v3.
 
-Downloads quotes, greeks, and OI for 1DTE SPXW options (expiry = next trading day).
+Downloads quotes, greeks, and OI for SPXW options at any DTE.
 Uses direct REST API — no MCP dependency, works on remote machines with --host.
 
 Usage:
-  python3 download_1dte_rest.py --year 2024 --host 192.168.0.132
-  python3 download_1dte_rest.py --year 2024 --start-date 20240101 --end-date 20240630
-  python3 download_1dte_rest.py --year 2024 --force
-  python3 download_1dte_rest.py --year 2024 --quotes-only
+  python3 download_1dte_rest.py --dte 1 --year 2024 --host 192.168.0.132
+  python3 download_1dte_rest.py --dte 3 --year 2024
+  python3 download_1dte_rest.py --dte 1 --year 2024 --start-date 20240101 --end-date 20240630
+  python3 download_1dte_rest.py --dte 1 --year 2024 --force
+  python3 download_1dte_rest.py --dte 1 --year 2024 --quotes-only
 """
 from __future__ import annotations
 
@@ -54,14 +55,14 @@ def get_trading_days(year: int) -> list[str]:
     return [d.strftime("%Y%m%d") for d in days if d.strftime("%Y%m%d") not in MARKET_HOLIDAYS]
 
 
-def get_expiry_for_1dte(trade_date: str) -> str | None:
-    """Return the next trading day (1DTE expiry)."""
+def get_expiry_for_dte(trade_date: str, dte: int) -> str | None:
+    """Return the trading day `dte` days ahead (expiry date)."""
     year = int(trade_date[:4])
     all_days = get_trading_days(year) + get_trading_days(year + 1)
     try:
         idx = all_days.index(trade_date)
-        if idx + 1 < len(all_days):
-            return all_days[idx + 1]
+        if idx + dte < len(all_days):
+            return all_days[idx + dte]
     except ValueError:
         pass
     return None
@@ -169,20 +170,21 @@ def is_saved(data_dir, year, subdir, date_str):
         return False
 
 
-def download_day(base_url, date_str, year, force=False, quotes_only=False, workers=10):
-    """Download 1DTE option data for one trading day."""
-    expiry = get_expiry_for_1dte(date_str)
+def download_day(base_url, date_str, year, force=False, quotes_only=False, workers=10, dte=1):
+    """Download N-DTE option data for one trading day."""
+    expiry = get_expiry_for_dte(date_str, dte)
     if expiry is None:
-        print(f"  {date_str}: cannot compute 1DTE expiry, skipping")
+        print(f"  {date_str}: cannot compute {dte}DTE expiry, skipping")
         return "skip"
 
     expiry_fmt = f"{expiry[:4]}-{expiry[4:6]}-{expiry[6:]}"
     trade_fmt = f"{date_str[:4]}-{date_str[4:6]}-{date_str[6:]}"
 
+    suffix = f"_{dte}dte"
     # Check what's already done
-    q_dir = f"option_quotes_1dte"
-    g_dir = f"option_greeks_1dte"
-    o_dir = f"option_open_interest_1dte"
+    q_dir = f"option_quotes{suffix}"
+    g_dir = f"option_greeks{suffix}"
+    o_dir = f"option_open_interest{suffix}"
 
     if not force:
         if quotes_only and is_saved(DATA_DIR, year, q_dir, date_str):
@@ -293,7 +295,9 @@ def download_day(base_url, date_str, year, force=False, quotes_only=False, worke
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Download 1DTE SPXW option data via REST API")
+    parser = argparse.ArgumentParser(description="Download N-DTE SPXW option data via REST API")
+    parser.add_argument("--dte", type=int, default=1,
+                        help="Days to expiration (default: 1)")
     parser.add_argument("--year", type=int, required=True)
     parser.add_argument("--host", type=str, default="127.0.0.1",
                         help="ThetaData Terminal host (default: 127.0.0.1)")
@@ -321,20 +325,22 @@ def main():
     if args.end_date:
         days = [d for d in days if d <= args.end_date]
 
+    dte = args.dte
+    suffix = f"_{dte}dte"
     mode = "quotes only" if args.quotes_only else "quotes + greeks + OI"
     print(f"\n{'='*60}")
-    print(f"  1DTE Download — {args.year}")
+    print(f"  {dte}DTE Download — {args.year}")
     print(f"  Trading days : {len(days)}")
     print(f"  Data types   : {mode}")
     print(f"  Strike range : {OTM_MIN} to +{OTM_MAX} from open")
     print(f"  Workers      : {args.workers}")
-    print(f"  Output       : {DATA_DIR}/{args.year}/option_*_1dte/")
+    print(f"  Output       : {DATA_DIR}/{args.year}/option_*{suffix}/")
     print(f"{'='*60}\n")
 
     ok = skip = fail = 0
     t0 = time.time()
     for i, ds in enumerate(days):
-        result = download_day(base_url, ds, args.year, args.force, args.quotes_only, args.workers)
+        result = download_day(base_url, ds, args.year, args.force, args.quotes_only, args.workers, dte)
         if result == "ok":
             ok += 1
         elif result == "skip":

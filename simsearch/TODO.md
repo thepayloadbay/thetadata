@@ -65,7 +65,10 @@
 | 2026-04-04 | SimCondor CALM-only: $10.6k P&L, Sharpe 2.52, 79% WR, 102 trades/3.75yr | First profitable SimSearch strategy |
 | 2026-04-04 | Sweep: No SL wins (+$14.9k, 91% WR). SL hurts on CALM days — positions recover by expiry | Key insight |
 | 2026-04-04 | Sweep: Width 20-30 plateau, strike_mult 1.0 optimal, min_credit 0.40 best at scale | Broad plateaus |
-| 2026-04-04 | **Optimized SimCondor: $22.5k, Sharpe 3.26, Calmar 5.03, 93% WR, 136 trades** | No SL + min_credit 0.40 |
+| 2026-04-04 | Optimized SimCondor v1: $22.5k, Sharpe 3.26, Calmar 5.03, 93% WR, 136 trades | No SL + min_credit 0.40 |
+| 2026-04-04 | Round 2: PrevRange<0.8% is game changer. Vol clustering = core alpha | Sharpe 3.26→11.58 |
+| 2026-04-04 | PrevRange<0.6%: 32/32 wins, 100% WR, $0 DD, $10.3k P&L. Undefeated. | ~8.5 trades/yr |
+| 2026-04-04 | **Final SimCondor: $22.8k, Sharpe 11.58, Calmar 8.57, 96% WR, 76 trades, DD -$2.7k** | PrevRange<0.8% + noSL + CALM |
 
 ---
 

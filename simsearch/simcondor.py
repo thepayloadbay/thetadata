@@ -61,14 +61,14 @@ SIMSEARCH_TOP_K = 20
 # Which regimes to trade
 TRADE_REGIMES = {"CALM"}              # Only trade CALM — NORMAL loses money
 
-# Additional filters (set to None to disable)
-VIX_MAX = None                         # Max prior-day VIX to trade (None = no filter)
-VIX_MIN = None                         # Min prior-day VIX to trade
-DOW_SKIP = set()                       # Days of week to skip (0=Mon, 4=Fri)
-PREV_RANGE_MAX = None                  # Max prior-day range to trade (None = no filter)
-MIN_SIMILARITY = None                  # Min avg similarity score to trade
-DANGER_PROB_MAX = None                 # Max danger probability to trade
-PUT_CALL_BIAS = 0.0                    # OTM offset: positive = puts further OTM
+# Additional filters — calibrated from Round 2 sweep (2026-04-04)
+VIX_MAX = None                         # VIX<18: -$1.5k vs baseline; not worth the filter
+VIX_MIN = None                         # No min VIX
+DOW_SKIP = set()                       # Skip Fri: Sharpe +0.5 but -$2.7k P&L; marginal
+PREV_RANGE_MAX = 0.008                 # GAME CHANGER: PrevRange<0.8% → Sharpe 11.58, 96% WR, PF 7.14
+MIN_SIMILARITY = None                  # MinSim: no improvement
+DANGER_PROB_MAX = None                 # DangerProb<5%: Sharpe 5.06 but loses trades
+PUT_CALL_BIAS = 0.0                    # Asymmetric: hurts both ways
 
 # Risk
 COMMISSION = 0.50                     # Per contract per leg
