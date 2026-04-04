@@ -1,0 +1,1085 @@
+2026-03-31 21:12:25 | INFO     | Log file  : /Users/jeerapongwongchote/Documents/thetadata/lastfive/logs/lastfive_20260331_211225.log
+2026-03-31 21:12:25 | INFO     | ============================================================
+2026-03-31 21:12:25 | INFO     | LASTFIVE BACKTEST — Short Call Spread 5 Min Before Close
+2026-03-31 21:12:25 | INFO     | Period       : 2022-01-03 -> 2026-03-25
+2026-03-31 21:12:25 | INFO     | Short dist   : >= $10.0 above spot
+2026-03-31 21:12:25 | INFO     | Spread width : $5.0
+2026-03-31 21:12:25 | INFO     | Risk/trade   : $2,500
+2026-03-31 21:12:25 | INFO     | Indicator    : none
+2026-03-31 21:12:25 | INFO     | VIX filter   : max=None, min=None
+2026-03-31 21:12:25 | INFO     | ============================================================
+2026-03-31 21:12:25 | INFO     | Building daily indicators...
+2026-03-31 21:12:26 | INFO     |   -> 1060 daily bars loaded
+2026-03-31 21:12:26 | INFO     | Trading dates: 1060 (from 20220103 to 20260325)
+2026-03-31 21:12:26 | DEBUG    | [20220103] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:26 | DEBUG    | [20220105] No quotes for C 4720/4725 at 15:55:00
+2026-03-31 21:12:26 | DEBUG    | [20220110] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:26 | DEBUG    | [20220112] SPX=4729 -> 4726 | C 4740/4745 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$50,015
+2026-03-31 21:12:26 | DEBUG    | [20220114] SPX=4661 -> 4663 | C 4675/4680 x5 | credit=$0.10 settle=$0.00 | P&L=$+40 | eq=$50,055
+2026-03-31 21:12:26 | DEBUG    | [20220118] No quotes for C 4585/4590 at 15:55:00
+2026-03-31 21:12:26 | DEBUG    | [20220119] No quotes for C 4550/4555 at 15:55:00
+2026-03-31 21:12:26 | DEBUG    | [20220121] No quotes for C 4415/4420 at 15:55:00
+2026-03-31 21:12:26 | DEBUG    | [20220124] SPX=4403 -> 4410 | C 4415/4420 x5 | credit=$0.60 settle=$0.00 | P&L=$+290 | eq=$50,345
+2026-03-31 21:12:26 | DEBUG    | [20220126] No quotes for C 4360/4365 at 15:55:00
+2026-03-31 21:12:26 | DEBUG    | [20220128] SPX=4419 -> 4432 | C 4430/4435 x5 | credit=$0.25 settle=$2.00 | P&L=$-885 | eq=$49,460
+2026-03-31 21:12:26 | DEBUG    | [20220131] SPX=4512 -> 4515 | C 4525/4530 x5 | credit=$0.25 settle=$0.00 | P&L=$+115 | eq=$49,575
+2026-03-31 21:12:26 | DEBUG    | [20220202] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:26 | DEBUG    | [20220204] SPX=4509 -> 4501 | C 4520/4525 x5 | credit=$0.30 settle=$0.00 | P&L=$+140 | eq=$49,715
+2026-03-31 21:12:26 | DEBUG    | [20220207] No quotes for C 4485/4490 at 15:55:00
+2026-03-31 21:12:26 | DEBUG    | [20220209] SPX=4582 -> 4587 | C 4595/4600 x5 | credit=$0.20 settle=$0.00 | P&L=$+90 | eq=$49,805
+2026-03-31 21:12:26 | DEBUG    | [20220211] No quotes for C 4445/4450 at 15:55:00
+2026-03-31 21:12:26 | DEBUG    | [20220214] Zero/negative credit: short bid=0.15, long ask=0.15
+2026-03-31 21:12:26 | DEBUG    | [20220216] Zero/negative credit: short bid=0.1, long ask=0.1
+2026-03-31 21:12:26 | DEBUG    | [20220218] No quotes for C 4360/4365 at 15:55:00
+2026-03-31 21:12:26 | DEBUG    | [20220222] No quotes for C 4315/4320 at 15:55:00
+2026-03-31 21:12:26 | DEBUG    | [20220223] No quotes for C 4235/4240 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220225] SPX=4384 -> 4385 | C 4395/4400 x5 | credit=$0.15 settle=$0.00 | P&L=$+65 | eq=$49,870
+2026-03-31 21:12:27 | DEBUG    | [20220228] SPX=4367 -> 4373 | C 4380/4385 x5 | credit=$0.20 settle=$0.00 | P&L=$+90 | eq=$49,960
+2026-03-31 21:12:27 | DEBUG    | [20220302] SPX=4390 -> 4386 | C 4405/4410 x5 | credit=$0.30 settle=$0.00 | P&L=$+140 | eq=$50,100
+2026-03-31 21:12:27 | DEBUG    | [20220304] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220307] No quotes for C 4215/4220 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220309] SPX=4276 -> 4278 | C 4290/4295 x5 | credit=$0.45 settle=$0.00 | P&L=$+215 | eq=$50,315
+2026-03-31 21:12:27 | DEBUG    | [20220311] No quotes for C 4225/4230 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220314] No quotes for C 4185/4190 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220316] Zero/negative credit: short bid=0.1, long ask=0.1
+2026-03-31 21:12:27 | DEBUG    | [20220318] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220321] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220323] No quotes for C 4475/4480 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220325] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220328] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220330] No quotes for C 4605/4610 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220331] No quotes for C 4560/4565 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220401] SPX=4545 -> 4546 | C 4555/4560 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$50,330
+2026-03-31 21:12:27 | DEBUG    | [20220404] SPX=4578 -> 4583 | C 4590/4595 x5 | credit=$0.10 settle=$0.00 | P&L=$+40 | eq=$50,370
+2026-03-31 21:12:27 | DEBUG    | [20220406] SPX=4480 -> 4481 | C 4500/4505 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$50,385
+2026-03-31 21:12:27 | DEBUG    | [20220408] Zero/negative credit: short bid=0.1, long ask=0.1
+2026-03-31 21:12:27 | DEBUG    | [20220411] No quotes for C 4425/4430 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220413] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220414] No quotes for C 4410/4415 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220418] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220420] Zero/negative credit: short bid=0.1, long ask=0.1
+2026-03-31 21:12:27 | DEBUG    | [20220422] No quotes for C 4285/4290 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220425] SPX=4294 -> 4296 | C 4305/4310 x5 | credit=$0.65 settle=$0.00 | P&L=$+315 | eq=$50,700
+2026-03-31 21:12:27 | DEBUG    | [20220427] SPX=4188 -> 4184 | C 4200/4205 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$50,715
+2026-03-31 21:12:27 | DEBUG    | [20220429] No quotes for C 4140/4145 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220502] SPX=4154 -> 4156 | C 4165/4170 x5 | credit=$0.30 settle=$0.00 | P&L=$+140 | eq=$50,855
+2026-03-31 21:12:27 | DEBUG    | [20220504] SPX=4301 -> 4300 | C 4315/4320 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$50,870
+2026-03-31 21:12:27 | DEBUG    | [20220506] SPX=4124 -> 4124 | C 4135/4140 x5 | credit=$0.30 settle=$0.00 | P&L=$+140 | eq=$51,010
+2026-03-31 21:12:27 | DEBUG    | [20220509] No quotes for C 4005/4010 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220510] No quotes for C 4010/4015 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220511] No quotes for C 3945/3950 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220513] SPX=4014 -> 4024 | C 4025/4030 x5 | credit=$0.50 settle=$0.00 | P&L=$+240 | eq=$51,250
+2026-03-31 21:12:27 | DEBUG    | [20220516] SPX=4007 -> 4008 | C 4020/4025 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$51,265
+2026-03-31 21:12:27 | DEBUG    | [20220517] SPX=4081 -> 4089 | C 4095/4100 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$51,280
+2026-03-31 21:12:27 | DEBUG    | [20220518] No quotes for C 3930/3935 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220519] SPX=3904 -> 3901 | C 3915/3920 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$51,295
+2026-03-31 21:12:27 | DEBUG    | [20220520] No quotes for C 3910/3915 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220523] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220524] Zero/negative credit: short bid=0.1, long ask=0.1
+2026-03-31 21:12:27 | DEBUG    | [20220525] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220526] SPX=4059 -> 4058 | C 4070/4075 x5 | credit=$0.10 settle=$0.00 | P&L=$+40 | eq=$51,335
+2026-03-31 21:12:27 | DEBUG    | [20220527] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220601] No quotes for C 4115/4120 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220602] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220603] No quotes for C 4125/4130 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220606] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220607] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220608] No quotes for C 4130/4135 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220609] No quotes for C 4035/4040 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220610] No quotes for C 3925/3930 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220613] No quotes for C 3765/3770 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220614] No quotes for C 3750/3755 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220615] SPX=3794 -> 3790 | C 3805/3810 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$51,350
+2026-03-31 21:12:27 | DEBUG    | [20220616] No quotes for C 3670/3675 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220617] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220621] Zero/negative credit: short bid=0.1, long ask=0.1
+2026-03-31 21:12:27 | DEBUG    | [20220622] Zero/negative credit: short bid=0.05, long ask=0.1
+2026-03-31 21:12:27 | DEBUG    | [20220623] Zero/negative credit: short bid=0.1, long ask=0.1
+2026-03-31 21:12:27 | DEBUG    | [20220624] Zero/negative credit: short bid=0.1, long ask=0.1
+2026-03-31 21:12:27 | DEBUG    | [20220627] No quotes for C 3905/3910 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220628] No quotes for C 3835/3840 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220629] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220630] SPX=3770 -> 3786 | C 3790/3795 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$51,365
+2026-03-31 21:12:27 | DEBUG    | [20220701] Zero/negative credit: short bid=0.05, long ask=0.1
+2026-03-31 21:12:27 | DEBUG    | [20220705] SPX=3827 -> 3832 | C 3840/3845 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$51,380
+2026-03-31 21:12:27 | DEBUG    | [20220706] SPX=3840 -> 3845 | C 3850/3855 x5 | credit=$0.10 settle=$0.00 | P&L=$+40 | eq=$51,420
+2026-03-31 21:12:27 | DEBUG    | [20220707] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220708] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220711] No quotes for C 3865/3870 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220712] No quotes for C 3835/3840 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220713] SPX=3807 -> 3802 | C 3820/3825 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$51,435
+2026-03-31 21:12:27 | DEBUG    | [20220714] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220715] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220718] No quotes for C 3840/3845 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220719] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220720] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220721] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220722] No quotes for C 3970/3975 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220725] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220726] No quotes for C 3935/3940 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220727] Zero/negative credit: short bid=0.1, long ask=0.1
+2026-03-31 21:12:27 | DEBUG    | [20220728] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220729] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220801] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220802] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220803] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220804] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220805] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220808] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220810] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220812] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220815] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220816] Zero/negative credit: short bid=0.05, long ask=0.1
+2026-03-31 21:12:27 | DEBUG    | [20220817] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220818] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220819] No quotes for C 4240/4245 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220822] No quotes for C 4150/4155 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220823] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220824] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220825] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220826] No quotes for C 4075/4080 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220829] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220830] No quotes for C 3995/4000 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220831] No quotes for C 3975/3980 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220901] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220902] No quotes for C 3935/3940 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220906] No quotes for C 3915/3920 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220907] SPX=3978 -> 3980 | C 3990/3995 x5 | credit=$0.20 settle=$0.00 | P&L=$+90 | eq=$51,525
+2026-03-31 21:12:27 | DEBUG    | [20220908] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220909] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220912] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20220913] No quotes for C 3940/3945 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220914] SPX=3940 -> 3946 | C 3950/3955 x5 | credit=$0.45 settle=$0.00 | P&L=$+215 | eq=$51,740
+2026-03-31 21:12:27 | DEBUG    | [20220915] No quotes for C 3920/3925 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220916] SPX=3874 -> 3873 | C 3885/3890 x5 | credit=$0.10 settle=$0.00 | P&L=$+40 | eq=$51,780
+2026-03-31 21:12:27 | DEBUG    | [20220919] SPX=3896 -> 3900 | C 3910/3915 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$51,795
+2026-03-31 21:12:27 | DEBUG    | [20220921] No quotes for C 3810/3815 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220923] No quotes for C 3700/3705 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220926] No quotes for C 3675/3680 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220927] No quotes for C 3665/3670 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220928] SPX=3728 -> 3719 | C 3740/3745 x5 | credit=$0.10 settle=$0.00 | P&L=$+40 | eq=$51,835
+2026-03-31 21:12:27 | DEBUG    | [20220929] No quotes for C 3650/3655 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20220930] No quotes for C 3600/3605 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20221003] SPX=3676 -> 3678 | C 3690/3695 x5 | credit=$0.25 settle=$0.00 | P&L=$+115 | eq=$51,950
+2026-03-31 21:12:27 | DEBUG    | [20221004] SPX=3789 -> 3791 | C 3800/3805 x5 | credit=$0.10 settle=$0.00 | P&L=$+40 | eq=$51,990
+2026-03-31 21:12:27 | DEBUG    | [20221005] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20221007] No quotes for C 3650/3655 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20221010] No quotes for C 3630/3635 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20221011] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20221012] SPX=3582 -> 3577 | C 3595/3600 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$52,005
+2026-03-31 21:12:27 | DEBUG    | [20221013] SPX=3674 -> 3670 | C 3685/3690 x5 | credit=$0.40 settle=$0.00 | P&L=$+190 | eq=$52,195
+2026-03-31 21:12:27 | DEBUG    | [20221014] No quotes for C 3600/3605 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20221017] SPX=3678 -> 3678 | C 3690/3695 x5 | credit=$0.25 settle=$0.00 | P&L=$+115 | eq=$52,310
+2026-03-31 21:12:27 | DEBUG    | [20221018] No quotes for C 3725/3730 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20221019] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20221020] No quotes for C 3680/3685 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20221021] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20221024] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20221025] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20221026] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20221027] No quotes for C 3815/3820 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20221028] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20221031] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20221101] No quotes for C 3875/3880 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20221102] No quotes for C 3780/3785 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20221103] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20221104] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20221107] SPX=3805 -> 3807 | C 3815/3820 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$52,325
+2026-03-31 21:12:27 | DEBUG    | [20221108] SPX=3831 -> 3828 | C 3845/3850 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$52,340
+2026-03-31 21:12:27 | DEBUG    | [20221109] No quotes for C 3760/3765 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20221110] SPX=3954 -> 3956 | C 3965/3970 x5 | credit=$0.10 settle=$0.00 | P&L=$+40 | eq=$52,380
+2026-03-31 21:12:27 | DEBUG    | [20221111] SPX=3994 -> 3993 | C 4005/4010 x5 | credit=$0.15 settle=$0.00 | P&L=$+65 | eq=$52,445
+2026-03-31 21:12:27 | DEBUG    | [20221116] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20221117] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20221118] Zero/negative credit: short bid=0.1, long ask=0.1
+2026-03-31 21:12:27 | DEBUG    | [20221121] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20221122] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20221123] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20221128] No quotes for C 3975/3980 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20221129] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20221130] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20221201] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20221202] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20221205] No quotes for C 4010/4015 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20221206] No quotes for C 3955/3960 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20221207] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20221208] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20221212] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20221213] No quotes for C 4035/4040 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20221215] No quotes for C 3905/3910 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20221216] No quotes for C 3875/3880 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20221219] No quotes for C 3830/3835 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20221220] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20221221] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20221222] No quotes for C 3830/3835 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20221223] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20221227] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20221228] No quotes for C 3795/3800 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20221229] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20221230] SPX=3836 -> 3840 | C 3850/3855 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$52,460
+2026-03-31 21:12:27 | DEBUG    | [20230103] No quotes for C 3835/3840 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20230104] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230105] No quotes for C 3820/3825 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20230106] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230110] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230111] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230112] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230113] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230117] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230118] No quotes for C 3945/3950 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20230119] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230120] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230123] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230124] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230125] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230126] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230127] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230130] No quotes for C 4030/4035 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20230131] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230201] SPX=4118 -> 4119 | C 4130/4135 x5 | credit=$0.15 settle=$0.00 | P&L=$+65 | eq=$52,525
+2026-03-31 21:12:27 | DEBUG    | [20230202] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230203] SPX=4138 -> 4136 | C 4150/4155 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$52,540
+2026-03-31 21:12:27 | DEBUG    | [20230206] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230207] SPX=4169 -> 4164 | C 4180/4185 x5 | credit=$0.65 settle=$0.00 | P&L=$+315 | eq=$52,855
+2026-03-31 21:12:27 | DEBUG    | [20230208] No quotes for C 4130/4135 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20230209] No quotes for C 4095/4100 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20230210] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230213] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230214] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230215] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230216] No quotes for C 4105/4110 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20230217] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230221] No quotes for C 4015/4020 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20230222] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230223] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230224] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230227] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230228] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230301] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230302] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230303] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230306] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230307] No quotes for C 4000/4005 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20230308] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230309] No quotes for C 3935/3940 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20230310] No quotes for C 3870/3875 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20230313] SPX=3856 -> 3856 | C 3870/3875 x5 | credit=$0.15 settle=$0.00 | P&L=$+65 | eq=$52,920
+2026-03-31 21:12:27 | DEBUG    | [20230314] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230315] Zero/negative credit: short bid=0.1, long ask=0.1
+2026-03-31 21:12:27 | DEBUG    | [20230316] SPX=3955 -> 3960 | C 3965/3970 x5 | credit=$0.35 settle=$0.00 | P&L=$+165 | eq=$53,085
+2026-03-31 21:12:27 | DEBUG    | [20230317] No quotes for C 3930/3935 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20230320] SPX=3950 -> 3952 | C 3960/3965 x5 | credit=$0.10 settle=$0.00 | P&L=$+40 | eq=$53,125
+2026-03-31 21:12:27 | DEBUG    | [20230321] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230322] No quotes for C 3960/3965 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20230323] SPX=3952 -> 3948 | C 3965/3970 x5 | credit=$0.15 settle=$0.00 | P&L=$+65 | eq=$53,190
+2026-03-31 21:12:27 | DEBUG    | [20230324] SPX=3960 -> 3971 | C 3970/3975 x5 | credit=$0.15 settle=$1.18 | P&L=$-525 | eq=$52,665
+2026-03-31 21:12:27 | DEBUG    | [20230327] SPX=3979 -> 3978 | C 3990/3995 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$52,680
+2026-03-31 21:12:27 | DEBUG    | [20230328] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230329] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230330] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230403] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230404] No quotes for C 4110/4115 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20230405] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230406] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230410] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230411] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230412] No quotes for C 4100/4105 at 15:55:00
+2026-03-31 21:12:27 | DEBUG    | [20230413] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230414] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230417] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:27 | DEBUG    | [20230418] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230419] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230420] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230421] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230424] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230425] No quotes for C 4085/4090 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20230426] No quotes for C 4070/4075 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20230427] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230428] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230501] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230502] No quotes for C 4135/4140 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20230503] No quotes for C 4105/4110 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20230504] No quotes for C 4075/4080 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20230505] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230508] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230509] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230510] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230511] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230515] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230517] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230518] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230519] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230522] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230523] No quotes for C 4160/4165 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20230524] No quotes for C 4125/4130 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20230525] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230526] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230530] No quotes for C 4215/4220 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20230531] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230601] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230602] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230605] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230606] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230607] No quotes for C 4275/4280 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20230608] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230609] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230612] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230613] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230614] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230615] SPX=4425 -> 4426 | C 4435/4440 x5 | credit=$0.10 settle=$0.00 | P&L=$+40 | eq=$52,720
+2026-03-31 21:12:28 | DEBUG    | [20230616] No quotes for C 4425/4430 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20230620] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230621] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230622] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230623] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230626] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230627] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230628] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230629] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230630] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230703] No quotes for C 4200/4205 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20230705] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230706] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230707] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230710] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230711] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230712] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230713] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230714] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230717] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230718] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230719] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230720] No quotes for C 4545/4550 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20230721] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230724] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230725] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230726] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230727] No quotes for C 4545/4550 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20230728] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230731] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230801] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230802] No quotes for C 4525/4530 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20230803] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230804] No quotes for C 4490/4495 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20230807] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230808] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230809] No quotes for C 4480/4485 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20230811] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230814] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230815] No quotes for C 4455/4460 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20230816] No quotes for C 4420/4425 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20230817] No quotes for C 4390/4395 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20230818] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230821] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230822] No quotes for C 4400/4405 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20230823] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230824] No quotes for C 4390/4395 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20230825] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230828] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230829] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230830] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230831] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230901] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230905] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230906] No quotes for C 4475/4480 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20230907] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230908] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230911] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230912] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230913] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230914] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230915] No quotes for C 4460/4465 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20230918] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230919] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230920] No quotes for C 4420/4425 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20230921] No quotes for C 4345/4350 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20230925] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230926] No quotes for C 4285/4290 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20230927] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230928] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20230929] No quotes for C 4300/4305 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20231002] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231003] No quotes for C 4240/4245 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20231004] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231005] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231006] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231009] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231010] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231011] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231012] No quotes for C 4360/4365 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20231013] No quotes for C 4340/4345 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20231016] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231017] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231018] No quotes for C 4325/4330 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20231019] No quotes for C 4295/4300 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20231020] No quotes for C 4240/4245 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20231023] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231024] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231025] No quotes for C 4200/4205 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20231026] No quotes for C 4150/4155 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20231027] No quotes for C 4125/4130 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20231030] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231031] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231101] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231102] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231103] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231106] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231107] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231108] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231109] No quotes for C 4360/4365 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20231110] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231113] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231114] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231115] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231116] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231117] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231120] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231121] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231122] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231127] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231128] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231130] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231201] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231204] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231205] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231206] No quotes for C 4560/4565 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20231207] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231208] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231211] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231212] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231213] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231214] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231215] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231218] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231219] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231220] No quotes for C 4720/4725 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20231221] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231222] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231226] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231227] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20231228] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240102] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240104] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240105] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240108] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240109] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240110] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240111] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240112] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240116] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240117] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240118] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240119] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240122] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240123] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240125] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240126] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240129] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240130] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240131] No quotes for C 4865/4870 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20240201] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240202] SPX=4964 -> 4959 | C 4975/4980 x5 | credit=$0.15 settle=$0.00 | P&L=$+65 | eq=$52,785
+2026-03-31 21:12:28 | DEBUG    | [20240205] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240206] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240207] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240208] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240209] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240212] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240214] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240215] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240216] No quotes for C 5020/5025 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20240220] No quotes for C 4980/4985 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20240221] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240222] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240223] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240226] No quotes for C 5085/5090 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20240227] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240228] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240229] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240301] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240304] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240305] No quotes for C 5090/5095 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20240306] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240307] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240308] No quotes for C 5140/5145 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20240311] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240312] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240313] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240314] No quotes for C 5160/5165 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20240315] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240318] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240319] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240320] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240321] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240322] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240325] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240326] No quotes for C 5220/5225 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20240327] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240328] Zero/negative credit: short bid=0.1, long ask=0.1
+2026-03-31 21:12:28 | DEBUG    | [20240401] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240402] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240403] SPX=5209 -> 5212 | C 5220/5225 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$52,800
+2026-03-31 21:12:28 | DEBUG    | [20240404] No quotes for C 5170/5175 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20240405] SPX=5209 -> 5204 | C 5220/5225 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$52,815
+2026-03-31 21:12:28 | DEBUG    | [20240408] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240409] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240410] SPX=5163 -> 5161 | C 5175/5180 x5 | credit=$0.15 settle=$0.00 | P&L=$+65 | eq=$52,880
+2026-03-31 21:12:28 | DEBUG    | [20240411] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240412] No quotes for C 5135/5140 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20240415] No quotes for C 5080/5085 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20240416] SPX=5060 -> 5051 | C 5070/5075 x5 | credit=$0.20 settle=$0.00 | P&L=$+90 | eq=$52,970
+2026-03-31 21:12:28 | DEBUG    | [20240417] No quotes for C 5040/5045 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20240418] No quotes for C 5020/5025 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20240419] No quotes for C 4980/4985 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20240422] Zero/negative credit: short bid=0.1, long ask=0.1
+2026-03-31 21:12:28 | DEBUG    | [20240423] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240424] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240425] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240426] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240429] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240430] No quotes for C 5055/5060 at 15:55:00
+2026-03-31 21:12:28 | DEBUG    | [20240501] SPX=5024 -> 5018 | C 5035/5040 x5 | credit=$0.30 settle=$0.00 | P&L=$+140 | eq=$53,110
+2026-03-31 21:12:28 | DEBUG    | [20240502] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240503] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240506] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240507] SPX=5189 -> 5188 | C 5200/5205 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$53,125
+2026-03-31 21:12:28 | DEBUG    | [20240508] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240509] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240510] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240513] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240514] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:28 | DEBUG    | [20240515] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240516] SPX=5304 -> 5297 | C 5315/5320 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$53,140
+2026-03-31 21:12:29 | DEBUG    | [20240517] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240520] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240521] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240523] No quotes for C 5275/5280 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20240524] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240528] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240529] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240530] No quotes for C 5250/5255 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20240531] SPX=5270 -> 5278 | C 5280/5285 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$53,155
+2026-03-31 21:12:29 | DEBUG    | [20240604] SPX=5290 -> 5291 | C 5300/5305 x5 | credit=$0.20 settle=$0.00 | P&L=$+90 | eq=$53,245
+2026-03-31 21:12:29 | DEBUG    | [20240605] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240606] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240607] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240610] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240611] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240612] SPX=5428 -> 5421 | C 5440/5445 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$53,260
+2026-03-31 21:12:29 | DEBUG    | [20240613] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240614] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240617] SPX=5474 -> 5473 | C 5485/5490 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$53,275
+2026-03-31 21:12:29 | DEBUG    | [20240618] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240620] No quotes for C 5490/5495 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20240621] SPX=5469 -> 5465 | C 5480/5485 x5 | credit=$0.10 settle=$0.00 | P&L=$+40 | eq=$53,315
+2026-03-31 21:12:29 | DEBUG    | [20240624] SPX=5454 -> 5448 | C 5465/5470 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$53,330
+2026-03-31 21:12:29 | DEBUG    | [20240625] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240626] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240627] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240628] No quotes for C 5480/5485 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20240701] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240702] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240703] No quotes for C 5255/5260 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20240705] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240708] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240709] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240710] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240711] No quotes for C 5600/5605 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20240712] SPX=5619 -> 5615 | C 5630/5635 x5 | credit=$0.25 settle=$0.00 | P&L=$+115 | eq=$53,445
+2026-03-31 21:12:29 | DEBUG    | [20240715] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240716] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240717] No quotes for C 5600/5605 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20240718] No quotes for C 5560/5565 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20240719] No quotes for C 5515/5520 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20240722] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240723] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240724] No quotes for C 5435/5440 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20240725] No quotes for C 5420/5425 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20240726] SPX=5447 -> 5459 | C 5460/5465 x5 | credit=$0.20 settle=$0.00 | P&L=$+90 | eq=$53,535
+2026-03-31 21:12:29 | DEBUG    | [20240729] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240730] No quotes for C 5460/5465 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20240731] SPX=5527 -> 5522 | C 5540/5545 x5 | credit=$0.25 settle=$0.00 | P&L=$+115 | eq=$53,650
+2026-03-31 21:12:29 | DEBUG    | [20240801] No quotes for C 5450/5455 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20240802] No quotes for C 5355/5360 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20240805] SPX=5175 -> 5186 | C 5190/5195 x5 | credit=$0.15 settle=$0.00 | P&L=$+65 | eq=$53,715
+2026-03-31 21:12:29 | DEBUG    | [20240806] SPX=5246 -> 5240 | C 5260/5265 x5 | credit=$0.35 settle=$0.00 | P&L=$+165 | eq=$53,880
+2026-03-31 21:12:29 | DEBUG    | [20240807] No quotes for C 5215/5220 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20240808] SPX=5311 -> 5319 | C 5325/5330 x5 | credit=$0.25 settle=$0.00 | P&L=$+115 | eq=$53,995
+2026-03-31 21:12:29 | DEBUG    | [20240809] SPX=5339 -> 5344 | C 5350/5355 x5 | credit=$0.10 settle=$0.00 | P&L=$+40 | eq=$54,035
+2026-03-31 21:12:29 | DEBUG    | [20240812] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240813] SPX=5429 -> 5434 | C 5440/5445 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$54,050
+2026-03-31 21:12:29 | DEBUG    | [20240814] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240815] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240816] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240819] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240820] SPX=5597 -> 5597 | C 5610/5615 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$54,065
+2026-03-31 21:12:29 | DEBUG    | [20240821] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240822] No quotes for C 5580/5585 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20240823] SPX=5633 -> 5635 | C 5645/5650 x5 | credit=$0.10 settle=$0.00 | P&L=$+40 | eq=$54,105
+2026-03-31 21:12:29 | DEBUG    | [20240826] No quotes for C 5625/5630 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20240827] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240828] No quotes for C 5610/5615 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20240829] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240830] SPX=5646 -> 5648 | C 5660/5665 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$54,120
+2026-03-31 21:12:29 | DEBUG    | [20240903] No quotes for C 5535/5540 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20240904] SPX=5522 -> 5520 | C 5535/5540 x5 | credit=$0.15 settle=$0.00 | P&L=$+65 | eq=$54,185
+2026-03-31 21:12:29 | DEBUG    | [20240905] No quotes for C 5510/5515 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20240906] No quotes for C 5420/5425 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20240909] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240910] SPX=5494 -> 5496 | C 5505/5510 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$54,200
+2026-03-31 21:12:29 | DEBUG    | [20240911] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240912] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240913] SPX=5628 -> 5626 | C 5640/5645 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$54,215
+2026-03-31 21:12:29 | DEBUG    | [20240916] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240917] No quotes for C 5645/5650 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20240919] SPX=5713 -> 5714 | C 5725/5730 x5 | credit=$0.10 settle=$0.00 | P&L=$+40 | eq=$54,255
+2026-03-31 21:12:29 | DEBUG    | [20240920] SPX=5703 -> 5703 | C 5715/5720 x5 | credit=$0.30 settle=$0.00 | P&L=$+140 | eq=$54,395
+2026-03-31 21:12:29 | DEBUG    | [20240923] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240924] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240927] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20240930] SPX=5760 -> 5762 | C 5775/5780 x5 | credit=$0.10 settle=$0.00 | P&L=$+40 | eq=$54,435
+2026-03-31 21:12:29 | DEBUG    | [20241001] No quotes for C 5720/5725 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20241002] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20241003] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20241004] SPX=5749 -> 5751 | C 5760/5765 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$54,450
+2026-03-31 21:12:29 | DEBUG    | [20241007] No quotes for C 5710/5715 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20241008] SPX=5754 -> 5751 | C 5765/5770 x5 | credit=$0.10 settle=$0.00 | P&L=$+40 | eq=$54,490
+2026-03-31 21:12:29 | DEBUG    | [20241009] SPX=5794 -> 5792 | C 5805/5810 x5 | credit=$0.15 settle=$0.00 | P&L=$+65 | eq=$54,555
+2026-03-31 21:12:29 | DEBUG    | [20241010] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20241011] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20241014] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20241015] No quotes for C 5825/5830 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20241016] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20241017] No quotes for C 5855/5860 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20241018] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20241021] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20241022] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20241023] No quotes for C 5810/5815 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20241024] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20241028] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20241029] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20241030] No quotes for C 5825/5830 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20241031] No quotes for C 5730/5735 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20241101] Zero/negative credit: short bid=0.1, long ask=0.1
+2026-03-31 21:12:29 | DEBUG    | [20241104] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20241105] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20241106] SPX=5929 -> 5929 | C 5940/5945 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$54,570
+2026-03-31 21:12:29 | DEBUG    | [20241107] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20241108] SPX=5995 -> 5996 | C 6005/6010 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$54,585
+2026-03-31 21:12:29 | DEBUG    | [20241111] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20241112] No quotes for C 5995/6000 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20241113] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20241114] No quotes for C 5960/5965 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20241115] No quotes for C 5890/5895 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20241118] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20241119] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20241120] Zero/negative credit: short bid=0.05, long ask=0.1
+2026-03-31 21:12:29 | DEBUG    | [20241121] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20241122] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20241125] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20241126] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20241202] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20241203] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20241204] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20241206] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20241209] No quotes for C 6065/6070 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20241210] No quotes for C 6045/6050 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20241211] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20241212] No quotes for C 6065/6070 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20241213] No quotes for C 6060/6065 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20241216] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20241217] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20241218] No quotes for C 5905/5910 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20241219] No quotes for C 5890/5895 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20241220] SPX=5927 -> 5931 | C 5940/5945 x5 | credit=$0.60 settle=$0.00 | P&L=$+290 | eq=$54,875
+2026-03-31 21:12:29 | DEBUG    | [20241223] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20241226] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20241227] No quotes for C 5980/5985 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20241230] SPX=5921 -> 5907 | C 5935/5940 x5 | credit=$0.10 settle=$0.00 | P&L=$+40 | eq=$54,915
+2026-03-31 21:12:29 | DEBUG    | [20241231] No quotes for C 5885/5890 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20250102] No quotes for C 5880/5885 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20250103] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20250106] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20250107] No quotes for C 5920/5925 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20250108] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20250110] No quotes for C 5840/5845 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20250113] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20250114] No quotes for C 5850/5855 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20250115] SPX=5950 -> 5950 | C 5960/5965 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$54,930
+2026-03-31 21:12:29 | DEBUG    | [20250116] No quotes for C 5955/5960 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20250117] SPX=5999 -> 5997 | C 6010/6015 x5 | credit=$0.10 settle=$0.00 | P&L=$+40 | eq=$54,970
+2026-03-31 21:12:29 | DEBUG    | [20250121] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20250122] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20250123] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20250124] No quotes for C 6110/6115 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20250127] SPX=6005 -> 6012 | C 6015/6020 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$54,985
+2026-03-31 21:12:29 | DEBUG    | [20250128] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20250130] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20250131] No quotes for C 6050/6055 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20250203] SPX=5999 -> 5995 | C 6010/6015 x5 | credit=$0.45 settle=$0.00 | P&L=$+215 | eq=$55,200
+2026-03-31 21:12:29 | DEBUG    | [20250204] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20250205] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20250206] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20250207] No quotes for C 6040/6045 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20250210] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20250211] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20250212] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20250213] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20250214] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20250218] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20250219] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20250221] No quotes for C 6030/6035 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20250224] No quotes for C 6000/6005 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20250225] No quotes for C 5965/5970 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20250226] Zero/negative credit: short bid=0.1, long ask=0.1
+2026-03-31 21:12:29 | DEBUG    | [20250227] No quotes for C 5880/5885 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20250228] SPX=5948 -> 5954 | C 5960/5965 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$55,215
+2026-03-31 21:12:29 | DEBUG    | [20250303] No quotes for C 5855/5860 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20250304] No quotes for C 5790/5795 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20250305] SPX=5847 -> 5843 | C 5860/5865 x5 | credit=$0.40 settle=$0.00 | P&L=$+190 | eq=$55,405
+2026-03-31 21:12:29 | DEBUG    | [20250306] No quotes for C 5755/5760 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20250307] SPX=5777 -> 5770 | C 5790/5795 x5 | credit=$0.25 settle=$0.00 | P&L=$+115 | eq=$55,520
+2026-03-31 21:12:29 | DEBUG    | [20250310] No quotes for C 5630/5635 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20250311] No quotes for C 5595/5600 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20250312] No quotes for C 5615/5620 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20250313] No quotes for C 5530/5535 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20250314] SPX=5642 -> 5639 | C 5655/5660 x5 | credit=$0.15 settle=$0.00 | P&L=$+65 | eq=$55,585
+2026-03-31 21:12:29 | DEBUG    | [20250317] SPX=5681 -> 5675 | C 5695/5700 x5 | credit=$0.30 settle=$0.00 | P&L=$+140 | eq=$55,725
+2026-03-31 21:12:29 | DEBUG    | [20250318] No quotes for C 5625/5630 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20250319] SPX=5675 -> 5675 | C 5690/5695 x5 | credit=$0.50 settle=$0.00 | P&L=$+240 | eq=$55,965
+2026-03-31 21:12:29 | DEBUG    | [20250320] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20250321] Zero/negative credit: short bid=0.1, long ask=0.1
+2026-03-31 21:12:29 | DEBUG    | [20250324] SPX=5770 -> 5768 | C 5780/5785 x5 | credit=$0.25 settle=$0.00 | P&L=$+115 | eq=$56,080
+2026-03-31 21:12:29 | DEBUG    | [20250325] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20250326] No quotes for C 5725/5730 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20250327] Zero/negative credit: short bid=0.1, long ask=0.1
+2026-03-31 21:12:29 | DEBUG    | [20250328] No quotes for C 5600/5605 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20250331] SPX=5616 -> 5612 | C 5630/5635 x5 | credit=$0.60 settle=$0.00 | P&L=$+290 | eq=$56,370
+2026-03-31 21:12:29 | DEBUG    | [20250401] SPX=5629 -> 5633 | C 5640/5645 x5 | credit=$0.30 settle=$0.00 | P&L=$+140 | eq=$56,510
+2026-03-31 21:12:29 | DEBUG    | [20250402] SPX=5676 -> 5671 | C 5690/5695 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$56,525
+2026-03-31 21:12:29 | DEBUG    | [20250403] No quotes for C 5415/5420 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20250404] No quotes for C 5090/5095 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20250407] Zero/negative credit: short bid=0.8, long ask=0.95
+2026-03-31 21:12:29 | DEBUG    | [20250408] No quotes for C 4985/4990 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20250410] No quotes for C 5275/5280 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20250411] SPX=5368 -> 5363 | C 5380/5385 x5 | credit=$0.20 settle=$0.00 | P&L=$+90 | eq=$56,615
+2026-03-31 21:12:29 | DEBUG    | [20250414] No quotes for C 5420/5425 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20250415] SPX=5397 -> 5397 | C 5415/5420 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$56,630
+2026-03-31 21:12:29 | DEBUG    | [20250416] No quotes for C 5285/5290 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20250417] No quotes for C 5295/5300 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20250421] No quotes for C 5170/5175 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20250422] SPX=5281 -> 5288 | C 5295/5300 x5 | credit=$0.10 settle=$0.00 | P&L=$+40 | eq=$56,670
+2026-03-31 21:12:29 | DEBUG    | [20250423] SPX=5385 -> 5376 | C 5400/5405 x5 | credit=$0.25 settle=$0.00 | P&L=$+115 | eq=$56,785
+2026-03-31 21:12:29 | DEBUG    | [20250424] SPX=5486 -> 5485 | C 5500/5505 x5 | credit=$0.10 settle=$0.00 | P&L=$+40 | eq=$56,825
+2026-03-31 21:12:29 | DEBUG    | [20250425] Zero/negative credit: short bid=0.15, long ask=0.15
+2026-03-31 21:12:29 | DEBUG    | [20250428] SPX=5537 -> 5529 | C 5550/5555 x5 | credit=$0.10 settle=$0.00 | P&L=$+40 | eq=$56,865
+2026-03-31 21:12:29 | DEBUG    | [20250429] SPX=5561 -> 5561 | C 5575/5580 x5 | credit=$0.10 settle=$0.00 | P&L=$+40 | eq=$56,905
+2026-03-31 21:12:29 | DEBUG    | [20250430] SPX=5577 -> 5569 | C 5590/5595 x5 | credit=$0.25 settle=$0.00 | P&L=$+115 | eq=$57,020
+2026-03-31 21:12:29 | DEBUG    | [20250501] SPX=5613 -> 5604 | C 5630/5635 x5 | credit=$0.30 settle=$0.00 | P&L=$+140 | eq=$57,160
+2026-03-31 21:12:29 | DEBUG    | [20250502] SPX=5684 -> 5687 | C 5695/5700 x5 | credit=$0.50 settle=$0.00 | P&L=$+240 | eq=$57,400
+2026-03-31 21:12:29 | DEBUG    | [20250505] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20250506] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20250507] SPX=5629 -> 5631 | C 5640/5645 x5 | credit=$0.10 settle=$0.00 | P&L=$+40 | eq=$57,440
+2026-03-31 21:12:29 | DEBUG    | [20250508] SPX=5666 -> 5664 | C 5680/5685 x5 | credit=$0.45 settle=$0.00 | P&L=$+215 | eq=$57,655
+2026-03-31 21:12:29 | DEBUG    | [20250509] No quotes for C 5670/5675 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20250513] SPX=5889 -> 5887 | C 5900/5905 x5 | credit=$0.20 settle=$0.00 | P&L=$+90 | eq=$57,745
+2026-03-31 21:12:29 | DEBUG    | [20250514] SPX=5895 -> 5893 | C 5905/5910 x5 | credit=$0.10 settle=$0.00 | P&L=$+40 | eq=$57,785
+2026-03-31 21:12:29 | DEBUG    | [20250515] SPX=5908 -> 5917 | C 5920/5925 x5 | credit=$0.10 settle=$0.00 | P&L=$+40 | eq=$57,825
+2026-03-31 21:12:29 | DEBUG    | [20250516] Zero/negative credit: short bid=0.1, long ask=0.1
+2026-03-31 21:12:29 | DEBUG    | [20250519] Zero/negative credit: short bid=0.1, long ask=0.1
+2026-03-31 21:12:29 | DEBUG    | [20250520] Zero/negative credit: short bid=0.05, long ask=0.1
+2026-03-31 21:12:29 | DEBUG    | [20250521] No quotes for C 5860/5865 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20250522] SPX=5845 -> 5842 | C 5860/5865 x5 | credit=$0.30 settle=$0.00 | P&L=$+140 | eq=$57,965
+2026-03-31 21:12:29 | DEBUG    | [20250523] SPX=5799 -> 5803 | C 5810/5815 x5 | credit=$0.45 settle=$0.00 | P&L=$+215 | eq=$58,180
+2026-03-31 21:12:29 | DEBUG    | [20250527] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20250528] No quotes for C 5900/5905 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20250529] No quotes for C 5920/5925 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20250530] SPX=5917 -> 5912 | C 5930/5935 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$58,195
+2026-03-31 21:12:29 | DEBUG    | [20250602] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20250603] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20250604] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20250605] No quotes for C 5955/5960 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20250606] SPX=6004 -> 6000 | C 6015/6020 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$58,210
+2026-03-31 21:12:29 | DEBUG    | [20250609] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20250610] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20250611] No quotes for C 6035/6040 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20250612] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20250613] No quotes for C 5980/5985 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20250616] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:29 | DEBUG    | [20250617] No quotes for C 6000/6005 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20250618] SPX=5982 -> 5981 | C 5995/6000 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$58,225
+2026-03-31 21:12:29 | DEBUG    | [20250620] No quotes for C 5985/5990 at 15:55:00
+2026-03-31 21:12:29 | DEBUG    | [20250623] Zero/negative credit: short bid=0.1, long ask=0.1
+2026-03-31 21:12:29 | DEBUG    | [20250624] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20250625] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20250626] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20250627] Zero/negative credit: short bid=0.05, long ask=0.1
+2026-03-31 21:12:30 | DEBUG    | [20250630] SPX=6209 -> 6205 | C 6220/6225 x5 | credit=$0.50 settle=$0.00 | P&L=$+240 | eq=$58,465
+2026-03-31 21:12:30 | DEBUG    | [20250701] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20250702] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20250703] No quotes for C 5995/6000 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20250707] No quotes for C 6240/6245 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20250708] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20250709] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20250710] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20250711] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20250714] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20250715] No quotes for C 6260/6265 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20250716] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20250717] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20250721] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20250722] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20250723] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20250724] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20250725] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20250728] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20250729] No quotes for C 6385/6390 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20250730] No quotes for C 6370/6375 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20250731] No quotes for C 6345/6350 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20250801] No quotes for C 6255/6260 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20250804] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20250805] No quotes for C 6315/6320 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20250806] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20250807] No quotes for C 6345/6350 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20250808] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20250811] No quotes for C 6380/6385 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20250812] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20250813] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20250814] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20250815] No quotes for C 6460/6465 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20250818] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20250819] No quotes for C 6420/6425 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20250820] Zero/negative credit: short bid=0.05, long ask=0.1
+2026-03-31 21:12:30 | DEBUG    | [20250821] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20250822] SPX=6464 -> 6467 | C 6475/6480 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$58,480
+2026-03-31 21:12:30 | DEBUG    | [20250825] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20250826] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20250827] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20250828] Zero/negative credit: short bid=0.05, long ask=0.1
+2026-03-31 21:12:30 | DEBUG    | [20250829] No quotes for C 6465/6470 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20250902] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20250903] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20250904] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20250905] No quotes for C 6490/6495 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20250908] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20250909] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20250911] Zero/negative credit: short bid=0.1, long ask=0.1
+2026-03-31 21:12:30 | DEBUG    | [20250912] SPX=6590 -> 6584 | C 6600/6605 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$58,495
+2026-03-31 21:12:30 | DEBUG    | [20250915] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20250916] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20250917] SPX=6602 -> 6600 | C 6615/6620 x5 | credit=$0.10 settle=$0.00 | P&L=$+40 | eq=$58,535
+2026-03-31 21:12:30 | DEBUG    | [20250918] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20250919] SPX=6669 -> 6664 | C 6680/6685 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$58,550
+2026-03-31 21:12:30 | DEBUG    | [20250922] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20250923] No quotes for C 6670/6675 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20250924] No quotes for C 6650/6655 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20250925] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20250926] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20250929] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20250930] SPX=6690 -> 6688 | C 6700/6705 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$58,565
+2026-03-31 21:12:30 | DEBUG    | [20251001] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20251003] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20251006] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20251007] No quotes for C 6730/6735 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20251008] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20251009] No quotes for C 6745/6750 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20251010] No quotes for C 6570/6575 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20251013] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20251014] SPX=6641 -> 6644 | C 6655/6660 x5 | credit=$0.10 settle=$0.00 | P&L=$+40 | eq=$58,605
+2026-03-31 21:12:30 | DEBUG    | [20251015] No quotes for C 6670/6675 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20251016] No quotes for C 6645/6650 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20251017] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20251020] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20251021] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20251022] No quotes for C 6710/6715 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20251023] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20251024] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20251027] Zero/negative credit: short bid=0.05, long ask=0.1
+2026-03-31 21:12:30 | DEBUG    | [20251028] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20251029] No quotes for C 6900/6905 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20251030] No quotes for C 6835/6840 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20251031] No quotes for C 6865/6870 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20251103] No quotes for C 6865/6870 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20251104] No quotes for C 6780/6785 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20251105] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20251106] No quotes for C 6735/6740 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20251107] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20251110] SPX=6834 -> 6832 | C 6845/6850 x5 | credit=$0.30 settle=$0.00 | P&L=$+140 | eq=$58,745
+2026-03-31 21:12:30 | DEBUG    | [20251111] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20251113] No quotes for C 6745/6750 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20251114] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20251117] No quotes for C 6685/6690 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20251118] Zero/negative credit: short bid=0.1, long ask=0.1
+2026-03-31 21:12:30 | DEBUG    | [20251119] SPX=6648 -> 6642 | C 6660/6665 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$58,760
+2026-03-31 21:12:30 | DEBUG    | [20251120] No quotes for C 6560/6565 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20251121] SPX=6599 -> 6603 | C 6610/6615 x6 | credit=$0.85 settle=$0.00 | P&L=$+498 | eq=$59,258
+2026-03-31 21:12:30 | DEBUG    | [20251124] SPX=6712 -> 6705 | C 6725/6730 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$59,273
+2026-03-31 21:12:30 | DEBUG    | [20251125] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20251126] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20251201] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20251202] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20251203] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20251204] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20251205] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20251208] No quotes for C 6850/6855 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20251209] SPX=6840 -> 6841 | C 6850/6855 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$59,288
+2026-03-31 21:12:30 | DEBUG    | [20251210] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20251211] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20251212] No quotes for C 6840/6845 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20251215] No quotes for C 6830/6835 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20251216] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20251217] No quotes for C 6735/6740 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20251218] SPX=6780 -> 6775 | C 6795/6800 x5 | credit=$0.15 settle=$0.00 | P&L=$+65 | eq=$59,353
+2026-03-31 21:12:30 | DEBUG    | [20251219] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20251222] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20251223] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20251226] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20251229] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20251230] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20251231] No quotes for C 6870/6875 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20260102] No quotes for C 6860/6865 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20260105] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20260106] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20260107] No quotes for C 6935/6940 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20260108] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20260109] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20260112] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20260114] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20260115] No quotes for C 6955/6960 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20260120] No quotes for C 6810/6815 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20260121] SPX=6875 -> 6876 | C 6885/6890 x5 | credit=$0.15 settle=$0.00 | P&L=$+65 | eq=$59,418
+2026-03-31 21:12:30 | DEBUG    | [20260122] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20260123] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20260126] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20260127] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20260130] Zero/negative credit: short bid=0.05, long ask=0.1
+2026-03-31 21:12:30 | DEBUG    | [20260202] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20260203] No quotes for C 6930/6935 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20260204] No quotes for C 6895/6900 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20260205] No quotes for C 6810/6815 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20260206] SPX=6937 -> 6932 | C 6950/6955 x5 | credit=$0.20 settle=$0.00 | P&L=$+90 | eq=$59,508
+2026-03-31 21:12:30 | DEBUG    | [20260209] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20260210] No quotes for C 6955/6960 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20260211] No quotes for C 6955/6960 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20260212] No quotes for C 6850/6855 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20260213] SPX=6831 -> 6836 | C 6845/6850 x5 | credit=$0.20 settle=$0.00 | P&L=$+90 | eq=$59,598
+2026-03-31 21:12:30 | DEBUG    | [20260217] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20260218] SPX=6888 -> 6881 | C 6900/6905 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$59,613
+2026-03-31 21:12:30 | DEBUG    | [20260219] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20260223] No quotes for C 6840/6845 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20260224] Zero/negative credit: short bid=0.1, long ask=0.1
+2026-03-31 21:12:30 | DEBUG    | [20260225] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20260226] No quotes for C 6920/6925 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20260227] SPX=6869 -> 6879 | C 6880/6885 x5 | credit=$0.25 settle=$0.00 | P&L=$+115 | eq=$59,728
+2026-03-31 21:12:30 | DEBUG    | [20260302] Zero/negative credit: short bid=0.05, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20260303] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20260304] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20260305] No quotes for C 6835/6840 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20260306] No quotes for C 6750/6755 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20260309] SPX=6788 -> 6796 | C 6800/6805 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$59,743
+2026-03-31 21:12:30 | DEBUG    | [20260311] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20260312] No quotes for C 6685/6690 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20260313] No quotes for C 6645/6650 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20260316] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20260317] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20260318] No quotes for C 6640/6645 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20260319] Zero/negative credit: short bid=0.0, long ask=0.05
+2026-03-31 21:12:30 | DEBUG    | [20260320] No quotes for C 6520/6525 at 15:55:00
+2026-03-31 21:12:30 | DEBUG    | [20260323] SPX=6588 -> 6581 | C 6600/6605 x5 | credit=$0.20 settle=$0.00 | P&L=$+90 | eq=$59,833
+2026-03-31 21:12:30 | DEBUG    | [20260324] SPX=6553 -> 6556 | C 6565/6570 x5 | credit=$0.05 settle=$0.00 | P&L=$+15 | eq=$59,848
+2026-03-31 21:12:30 | INFO     | ============================================================
+2026-03-31 21:12:30 | INFO     | SKIP REASONS:
+2026-03-31 21:12:30 | INFO     |   early_close         : 6
+2026-03-31 21:12:30 | INFO     |   no_quotes           : 307
+2026-03-31 21:12:30 | INFO     |   no_spx              : 1
+2026-03-31 21:12:30 | INFO     |   no_strikes          : 45
+2026-03-31 21:12:30 | INFO     |   zero_credit         : 554
+2026-03-31 21:12:30 | INFO     |   TOTAL TRADES        : 147
+2026-03-31 21:12:30 | INFO     | ============================================================
+2026-03-31 21:12:30 | INFO     | Trade log snapshot -> /Users/jeerapongwongchote/Documents/thetadata/lastfive/tradelogs_lastfive.csv
+2026-03-31 21:12:30 | INFO     | ============================================================
+2026-03-31 21:12:30 | INFO     |   LASTFIVE PERFORMANCE SUMMARY
+2026-03-31 21:12:30 | INFO     | ============================================================
+2026-03-31 21:12:30 | INFO     |   Total P&L        : $    9,848.00
+2026-03-31 21:12:30 | INFO     |   CAGR             :         4.2%
+2026-03-31 21:12:30 | INFO     |   Max Drawdown     : $     -885.00
+2026-03-31 21:12:30 | INFO     |   Sharpe Ratio     :        -0.31
+2026-03-31 21:12:30 | INFO     |   Calmar Ratio     :         2.37
+2026-03-31 21:12:30 | INFO     |   Win Rate         :        98.6%
+2026-03-31 21:12:30 | INFO     |   Profit Factor    :         7.98
+2026-03-31 21:12:30 | INFO     |   Total Trades     :          147
+2026-03-31 21:12:30 | INFO     |   Avg Win          : $       77.64
+2026-03-31 21:12:30 | INFO     |   Avg Loss         : $     -705.00
+2026-03-31 21:12:30 | INFO     |   Worst Trade      : $     -885.00
+2026-03-31 21:12:30 | INFO     |   Best Trade       : $      498.00
+2026-03-31 21:12:30 | INFO     | ============================================================
+2026-03-31 21:12:30 | INFO     | Results appended to /Users/jeerapongwongchote/Documents/thetadata/lastfive/RESULTS.md
+2026-03-31 21:12:30 | INFO     | ----------------------------------------------------------------------
+2026-03-31 21:12:30 | INFO     |   VIX CORRELATION ANALYSIS
+2026-03-31 21:12:30 | INFO     | ----------------------------------------------------------------------
+2026-03-31 21:12:30 | INFO     |   VIX Range  |  Trades |  Win Rate |    Avg P&L |    Total P&L
+2026-03-31 21:12:30 | INFO     | ----------------------------------------------------------------------
+2026-03-31 21:12:30 | INFO     |   < 15       |      15 |    100.0% | $    33.33 | $     500.00
+2026-03-31 21:12:30 | INFO     |   15-20      |      50 |    100.0% | $    69.50 | $   3,475.00
+2026-03-31 21:12:30 | INFO     |   20-25      |      39 |     97.4% | $    85.97 | $   3,353.00
+2026-03-31 21:12:30 | INFO     |   25-30      |      28 |     96.4% | $    39.11 | $   1,095.00
+2026-03-31 21:12:30 | INFO     |   30-35      |      13 |    100.0% | $    97.69 | $   1,270.00
+2026-03-31 21:12:30 | INFO     |   35+        |       2 |    100.0% | $    77.50 | $     155.00
+2026-03-31 21:12:30 | INFO     | ----------------------------------------
+2026-03-31 21:12:30 | INFO     |   MONTHLY P&L
+2026-03-31 21:12:30 | INFO     | ----------------------------------------
+2026-03-31 21:12:30 | INFO     |   Month      |          P&L
+2026-03-31 21:12:30 | INFO     | ----------------------------------------
+2026-03-31 21:12:30 | INFO     |   2022-01     | $    -425.00
+2026-03-31 21:12:30 | INFO     |   2022-02     | $     385.00
+2026-03-31 21:12:30 | INFO     |   2022-03     | $     355.00
+2026-03-31 21:12:30 | INFO     |   2022-04     | $     400.00
+2026-03-31 21:12:30 | INFO     |   2022-05     | $     620.00
+2026-03-31 21:12:30 | INFO     |   2022-06     | $      30.00
+2026-03-31 21:12:30 | INFO     |   2022-07     | $      70.00
+2026-03-31 21:12:30 | INFO     |   2022-09     | $     400.00
+2026-03-31 21:12:30 | INFO     |   2022-10     | $     475.00
+2026-03-31 21:12:30 | INFO     |   2022-11     | $     135.00
+2026-03-31 21:12:30 | INFO     |   2022-12     | $      15.00
+2026-03-31 21:12:30 | INFO     |   2023-02     | $     395.00
+2026-03-31 21:12:30 | INFO     |   2023-03     | $    -175.00
+2026-03-31 21:12:30 | INFO     |   2023-06     | $      40.00
+2026-03-31 21:12:30 | INFO     |   2024-02     | $      65.00
+2026-03-31 21:12:30 | INFO     |   2024-04     | $     185.00
+2026-03-31 21:12:30 | INFO     |   2024-05     | $     185.00
+2026-03-31 21:12:30 | INFO     |   2024-06     | $     175.00
+2026-03-31 21:12:30 | INFO     |   2024-07     | $     320.00
+2026-03-31 21:12:30 | INFO     |   2024-08     | $     470.00
+2026-03-31 21:12:30 | INFO     |   2024-09     | $     315.00
+2026-03-31 21:12:30 | INFO     |   2024-10     | $     120.00
+2026-03-31 21:12:30 | INFO     |   2024-11     | $      30.00
+2026-03-31 21:12:30 | INFO     |   2024-12     | $     330.00
+2026-03-31 21:12:30 | INFO     |   2025-01     | $      70.00
+2026-03-31 21:12:30 | INFO     |   2025-02     | $     230.00
+2026-03-31 21:12:30 | INFO     |   2025-03     | $   1,155.00
+2026-03-31 21:12:30 | INFO     |   2025-04     | $     650.00
+2026-03-31 21:12:30 | INFO     |   2025-05     | $   1,175.00
+2026-03-31 21:12:30 | INFO     |   2025-06     | $     270.00
+2026-03-31 21:12:30 | INFO     |   2025-08     | $      15.00
+2026-03-31 21:12:30 | INFO     |   2025-09     | $      85.00
+2026-03-31 21:12:30 | INFO     |   2025-10     | $      40.00
+2026-03-31 21:12:30 | INFO     |   2025-11     | $     668.00
+2026-03-31 21:12:30 | INFO     |   2025-12     | $      80.00
+2026-03-31 21:12:30 | INFO     |   2026-01     | $      65.00
+2026-03-31 21:12:30 | INFO     |   2026-02     | $     310.00
+2026-03-31 21:12:30 | INFO     |   2026-03     | $     120.00
+2026-03-31 21:12:30 | INFO     | --------------------------------------------------
+2026-03-31 21:12:30 | INFO     |   WORST 10 DAYS
+2026-03-31 21:12:30 | INFO     | --------------------------------------------------
+2026-03-31 21:12:30 | INFO     |   Date         |          P&L |      VIX
+2026-03-31 21:12:30 | INFO     | --------------------------------------------------
+2026-03-31 21:12:30 | INFO     |   2022-01-28   | $    -885.00 |     27.7
+2026-03-31 21:12:30 | INFO     |   2023-03-24   | $    -525.00 |     21.7
+2026-03-31 21:12:30 | INFO     |   2022-01-12   | $      15.00 |     17.6
+2026-03-31 21:12:30 | INFO     |   2022-04-01   | $      15.00 |     19.6
+2026-03-31 21:12:30 | INFO     |   2022-04-06   | $      15.00 |     22.1
+2026-03-31 21:12:30 | INFO     |   2022-04-27   | $      15.00 |     31.6
+2026-03-31 21:12:30 | INFO     |   2022-05-04   | $      15.00 |     25.4
+2026-03-31 21:12:30 | INFO     |   2022-05-16   | $      15.00 |     27.5
+2026-03-31 21:12:30 | INFO     |   2022-05-17   | $      15.00 |     26.1
+2026-03-31 21:12:30 | INFO     |   2022-05-19   | $      15.00 |     29.4

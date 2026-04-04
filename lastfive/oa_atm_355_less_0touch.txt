@@ -1,0 +1,11171 @@
+DESCRIPTION
+LEGS
+DATE
+STATUS
+RISK
+P/L
+SPX
+Short Put Spread
+4,785
+P
+4,790
+P
+Jan 3, 2022
+3:55pm → 4:00pm
+Expired
+$1,275
+$225
+SPX
+Short Put Spread
+4,705
+P
+4,710
+P
+Jan 5, 2022
+3:55pm → 3:56pm
+Touch
+$1,185
+-$171
+SPX
+Short Put Spread
+4,675
+P
+4,680
+P
+Jan 7, 2022
+3:55pm → 3:59pm
+Touch
+$1,456
+$92
+SPX
+Short Put Spread
+4,655
+P
+4,660
+P
+Jan 10, 2022
+3:55pm → 4:00pm
+Expired
+$1,320
+$680
+SPX
+Short Put Spread
+4,720
+P
+4,725
+P
+Jan 12, 2022
+3:55pm → 4:00pm
+Expired
+$1,356
+$144
+SPX
+Short Put Spread
+4,655
+P
+4,660
+P
+Jan 14, 2022
+3:55pm → 4:00pm
+Expired
+$1,191
+$309
+SPX
+Short Put Spread
+4,560
+P
+4,565
+P
+Jan 18, 2022
+3:55pm → 4:00pm
+Expired
+$1,176
+$324
+SPX
+Short Put Spread
+4,535
+P
+4,540
+P
+Jan 19, 2022
+3:55pm → 3:56pm
+Touch
+$1,380
+-$280
+SPX
+Short Put Spread
+4,390
+P
+4,395
+P
+Jan 21, 2022
+3:55pm → 4:00pm
+Expired
+$1,155
+$345
+SPX
+Short Put Spread
+4,345
+P
+4,350
+P
+Jan 26, 2022
+3:55pm → 3:58pm
+Touch
+$1,440
+-$332
+SPX
+Short Put Spread
+4,415
+P
+4,420
+P
+Jan 28, 2022
+3:55pm → 3:56pm
+Touch
+$1,292
+-$220
+SPX
+Short Put Spread
+4,505
+P
+4,510
+P
+Jan 31, 2022
+3:55pm → 4:00pm
+Expired
+$1,185
+$315
+SPX
+Short Put Spread
+4,585
+P
+4,590
+P
+Feb 2, 2022
+3:55pm → 3:59pm
+Touch
+$1,280
+-$92
+SPX
+Short Put Spread
+4,505
+P
+4,510
+P
+Feb 4, 2022
+3:55pm → 3:56pm
+Touch
+$1,191
+-$306
+SPX
+Short Put Spread
+4,465
+P
+4,470
+P
+Feb 7, 2022
+3:55pm → 4:00pm
+Expired
+$1,480
+$520
+SPX
+Short Put Spread
+4,575
+P
+4,580
+P
+Feb 9, 2022
+3:55pm → 4:00pm
+Expired
+$1,230
+$270
+SPX
+Short Put Spread
+4,415
+P
+4,420
+P
+Feb 11, 2022
+3:55pm → 4:00pm
+Expired
+$1,300
+$156
+SPX
+Short Put Spread
+4,395
+P
+4,400
+P
+Feb 14, 2022
+3:55pm → 4:00pm
+Expired
+$1,400
+$600
+SPX
+Short Put Spread
+4,470
+P
+4,475
+P
+Feb 16, 2022
+3:55pm → 4:00pm
+Expired
+$1,284
+$216
+SPX
+Short Put Spread
+4,340
+P
+4,345
+P
+Feb 18, 2022
+3:55pm → 4:00pm
+Expired
+$1,131
+$369
+SPX
+Short Put Spread
+4,285
+P
+4,290
+P
+Feb 22, 2022
+3:55pm → 4:00pm
+Expired
+$1,400
+$600
+SPX
+Short Put Spread
+4,215
+P
+4,220
+P
+Feb 23, 2022
+3:55pm → 4:00pm
+Expired
+$1,185
+$315
+SPX
+Short Put Spread
+4,375
+P
+4,380
+P
+Feb 25, 2022
+3:55pm → 4:00pm
+Expired
+$1,388
+$612
+SPX
+Short Put Spread
+4,360
+P
+4,365
+P
+Feb 28, 2022
+3:55pm → 4:00pm
+Expired
+$1,240
+$760
+SPX
+Short Put Spread
+4,390
+P
+4,395
+P
+Mar 2, 2022
+3:55pm → 3:56pm
+Touch
+$1,308
+-$388
+SPX
+Short Put Spread
+4,320
+P
+4,325
+P
+Mar 4, 2022
+3:55pm → 4:00pm
+Expired
+$1,340
+$660
+SPX
+Short Put Spread
+4,195
+P
+4,200
+P
+Mar 7, 2022
+3:55pm → 4:00pm
+Expired
+$1,292
+$708
+SPX
+Short Put Spread
+4,275
+P
+4,280
+P
+Mar 9, 2022
+3:55pm → 3:56pm
+Touch
+$1,272
+-$292
+SPX
+Short Put Spread
+4,200
+P
+4,205
+P
+Mar 11, 2022
+3:55pm → 4:00pm
+Expired
+$1,412
+$312
+SPX
+Short Put Spread
+4,160
+P
+4,165
+P
+Mar 14, 2022
+3:55pm → 4:00pm
+Expired
+$1,448
+$552
+SPX
+Short Put Spread
+4,340
+P
+4,345
+P
+Mar 16, 2022
+3:55pm → 4:00pm
+Expired
+$1,308
+$692
+SPX
+Short Put Spread
+4,455
+P
+4,460
+P
+Mar 18, 2022
+3:55pm → 3:59pm
+Touch
+$1,332
+$8
+SPX
+Short Put Spread
+4,445
+P
+4,450
+P
+Mar 21, 2022
+3:55pm → 4:00pm
+Expired
+$1,260
+$240
+SPX
+Short Put Spread
+4,450
+P
+4,455
+P
+Mar 23, 2022
+3:55pm → 4:00pm
+Expired
+$1,134
+$366
+SPX
+Short Put Spread
+4,530
+P
+4,535
+P
+Mar 25, 2022
+3:55pm → 4:00pm
+Expired
+$1,472
+$528
+SPX
+Short Put Spread
+4,560
+P
+4,565
+P
+Mar 28, 2022
+3:55pm → 4:00pm
+Expired
+$1,209
+$291
+SPX
+Short Put Spread
+4,580
+P
+4,585
+P
+Mar 30, 2022
+3:55pm → 4:00pm
+Expired
+$1,460
+$540
+SPX
+Short Put Spread
+4,540
+P
+4,545
+P
+Mar 31, 2022
+3:55pm → 4:00pm
+Expired
+$1,280
+-$1,280
+SPX
+Short Put Spread
+4,535
+P
+4,540
+P
+Apr 1, 2022
+3:55pm → 4:00pm
+Expired
+$1,185
+$315
+SPX
+Short Put Spread
+4,575
+P
+4,580
+P
+Apr 4, 2022
+3:55pm → 3:56pm
+Touch
+$1,215
+-$336
+SPX
+Short Put Spread
+4,475
+P
+4,480
+P
+Apr 6, 2022
+3:55pm → 4:00pm
+Expired
+$1,372
+$628
+SPX
+Short Put Spread
+4,480
+P
+4,485
+P
+Apr 8, 2022
+3:55pm → 3:58pm
+Touch
+$1,440
+-$244
+SPX
+Short Put Spread
+4,400
+P
+4,405
+P
+Apr 11, 2022
+3:55pm → 4:00pm
+Expired
+$1,245
+$255
+SPX
+Short Put Spread
+4,440
+P
+4,445
+P
+Apr 13, 2022
+3:55pm → 4:00pm
+Expired
+$1,155
+$345
+SPX
+Short Put Spread
+4,390
+P
+4,395
+P
+Apr 14, 2022
+3:55pm → 3:56pm
+Touch
+$1,472
+-$184
+SPX
+Short Put Spread
+4,370
+P
+4,375
+P
+Apr 18, 2022
+3:55pm → 4:00pm
+Expired
+$1,179
+$321
+SPX
+Short Put Spread
+4,455
+P
+4,460
+P
+Apr 20, 2022
+3:55pm → 3:56pm
+Touch
+$1,452
+-$112
+SPX
+Short Put Spread
+4,270
+P
+4,275
+P
+Apr 22, 2022
+3:55pm → 3:56pm
+Touch
+$1,320
+-$180
+SPX
+Short Put Spread
+4,290
+P
+4,295
+P
+Apr 25, 2022
+3:55pm → 3:56pm
+Touch
+$1,392
+-$212
+SPX
+Short Put Spread
+4,175
+P
+4,180
+P
+Apr 26, 2022
+3:55pm → 3:57pm
+Touch
+$1,440
+-$272
+SPX
+Short Put Spread
+4,180
+P
+4,185
+P
+Apr 27, 2022
+3:55pm → 3:58pm
+Touch
+$1,272
+-$40
+SPX
+Short Put Spread
+4,125
+P
+4,130
+P
+Apr 29, 2022
+3:55pm → 3:56pm
+Touch
+$1,400
+-$75
+SPX
+Short Put Spread
+4,145
+P
+4,150
+P
+May 2, 2022
+3:55pm → 4:00pm
+Expired
+$1,436
+$564
+SPX
+Short Put Spread
+4,295
+P
+4,300
+P
+May 4, 2022
+3:55pm → 3:57pm
+Touch
+$1,208
+-$276
+SPX
+Short Put Spread
+4,115
+P
+4,120
+P
+May 6, 2022
+3:55pm → 4:00pm
+Expired
+$1,131
+$369
+SPX
+Short Put Spread
+3,975
+P
+3,980
+P
+May 9, 2022
+3:55pm → 4:00pm
+Expired
+$1,280
+$720
+SPX
+Short Put Spread
+3,995
+P
+4,000
+P
+May 10, 2022
+3:55pm → 3:56pm
+Touch
+$1,488
+-$468
+SPX
+Short Put Spread
+3,925
+P
+3,930
+P
+May 11, 2022
+3:55pm → 4:00pm
+Expired
+$1,448
+$552
+SPX
+Short Put Spread
+4,010
+P
+4,015
+P
+May 13, 2022
+3:55pm → 3:56pm
+Touch
+$1,380
+-$140
+SPX
+Short Put Spread
+4,000
+P
+4,005
+P
+May 16, 2022
+3:55pm → 3:57pm
+Touch
+$1,221
+-$480
+SPX
+Short Put Spread
+4,075
+P
+4,080
+P
+May 17, 2022
+3:55pm → 4:00pm
+Expired
+$1,170
+$330
+SPX
+Short Put Spread
+3,905
+P
+3,910
+P
+May 18, 2022
+3:55pm → 4:00pm
+Expired
+$1,472
+$528
+SPX
+Short Put Spread
+3,895
+P
+3,900
+P
+May 19, 2022
+3:55pm → 4:00pm
+Expired
+$1,392
+$608
+SPX
+Short Put Spread
+3,890
+P
+3,895
+P
+May 20, 2022
+3:55pm → 4:00pm
+Expired
+$1,308
+$692
+SPX
+Short Put Spread
+3,955
+P
+3,960
+P
+May 23, 2022
+3:55pm → 4:00pm
+Expired
+$1,194
+$306
+SPX
+Short Put Spread
+3,925
+P
+3,930
+P
+May 24, 2022
+3:55pm → 4:00pm
+Expired
+$1,209
+$291
+SPX
+Short Put Spread
+3,970
+P
+3,975
+P
+May 25, 2022
+3:55pm → 4:00pm
+Expired
+$1,432
+$568
+SPX
+Short Put Spread
+4,055
+P
+4,060
+P
+May 26, 2022
+3:55pm → 3:56pm
+Touch
+$1,308
+-$196
+SPX
+Short Put Spread
+4,140
+P
+4,145
+P
+May 27, 2022
+3:55pm → 4:00pm
+Expired
+$1,230
+$270
+SPX
+Short Put Spread
+4,135
+P
+4,140
+P
+May 31, 2022
+3:55pm → 3:56pm
+Touch
+$1,228
+-$628
+SPX
+Short Put Spread
+4,100
+P
+4,105
+P
+Jun 1, 2022
+3:55pm → 3:56pm
+Touch
+$1,269
+-$279
+SPX
+Short Put Spread
+4,105
+P
+4,110
+P
+Jun 3, 2022
+3:55pm → 3:58pm
+Touch
+$1,480
+-$232
+SPX
+Short Put Spread
+4,115
+P
+4,120
+P
+Jun 6, 2022
+3:55pm → 3:59pm
+Touch
+$1,230
+-$192
+SPX
+Short Put Spread
+4,155
+P
+4,160
+P
+Jun 7, 2022
+3:55pm → 4:00pm
+Expired
+$1,311
+$189
+SPX
+Short Put Spread
+4,105
+P
+4,110
+P
+Jun 8, 2022
+3:55pm → 4:00pm
+Expired
+$1,269
+$231
+SPX
+Short Put Spread
+4,025
+P
+4,030
+P
+Jun 9, 2022
+3:55pm → 3:56pm
+Touch
+$1,384
+-$924
+SPX
+Short Put Spread
+3,905
+P
+3,910
+P
+Jun 10, 2022
+3:55pm → 3:57pm
+Touch
+$1,460
+-$252
+SPX
+Short Put Spread
+3,740
+P
+3,745
+P
+Jun 13, 2022
+3:55pm → 4:00pm
+Expired
+$1,340
+$660
+SPX
+Short Put Spread
+3,730
+P
+3,735
+P
+Jun 14, 2022
+3:55pm → 3:57pm
+Touch
+$1,300
+-$40
+SPX
+Short Put Spread
+3,780
+P
+3,785
+P
+Jun 15, 2022
+3:55pm → 4:00pm
+Expired
+$1,420
+$580
+SPX
+Short Put Spread
+3,650
+P
+3,655
+P
+Jun 16, 2022
+3:55pm → 4:00pm
+Expired
+$1,256
+$744
+SPX
+Short Put Spread
+3,675
+P
+3,680
+P
+Jun 17, 2022
+3:55pm → 3:58pm
+Touch
+$1,288
+-$116
+SPX
+Short Put Spread
+3,765
+P
+3,770
+P
+Jun 21, 2022
+3:55pm → 3:56pm
+Touch
+$1,500
+-$680
+SPX
+Short Put Spread
+3,765
+P
+3,770
+P
+Jun 22, 2022
+3:55pm → 3:57pm
+Touch
+$1,176
+-$228
+SPX
+Short Put Spread
+3,785
+P
+3,790
+P
+Jun 23, 2022
+3:55pm → 4:00pm
+Expired
+$1,242
+$258
+SPX
+Short Put Spread
+3,900
+P
+3,905
+P
+Jun 24, 2022
+3:55pm → 3:56pm
+Touch
+$1,254
+-$129
+SPX
+Short Put Spread
+3,885
+P
+3,890
+P
+Jun 27, 2022
+3:55pm → 4:00pm
+Expired
+$1,500
+$500
+SPX
+Short Put Spread
+3,820
+P
+3,825
+P
+Jun 28, 2022
+3:55pm → 3:56pm
+Touch
+$1,206
+-$276
+SPX
+Short Put Spread
+3,805
+P
+3,810
+P
+Jun 29, 2022
+3:55pm → 4:00pm
+Expired
+$1,251
+$249
+SPX
+Short Put Spread
+3,765
+P
+3,770
+P
+Jun 30, 2022
+3:55pm → 4:00pm
+Expired
+$1,420
+$580
+SPX
+Short Put Spread
+3,815
+P
+3,820
+P
+Jul 1, 2022
+3:55pm → 4:00pm
+Expired
+$1,492
+$508
+SPX
+Short Put Spread
+3,820
+P
+3,825
+P
+Jul 5, 2022
+3:55pm → 4:00pm
+Expired
+$1,248
+$252
+SPX
+Short Put Spread
+3,835
+P
+3,840
+P
+Jul 6, 2022
+3:55pm → 3:56pm
+Touch
+$1,332
+-$32
+SPX
+Short Put Spread
+3,895
+P
+3,900
+P
+Jul 7, 2022
+3:55pm → 4:00pm
+Expired
+$1,143
+$357
+SPX
+Short Put Spread
+3,895
+P
+3,900
+P
+Jul 8, 2022
+3:55pm → 4:00pm
+Expired
+$1,320
+-$6
+SPX
+Short Put Spread
+3,840
+P
+3,845
+P
+Jul 11, 2022
+3:55pm → 4:00pm
+Expired
+$1,386
+$114
+SPX
+Short Put Spread
+3,815
+P
+3,820
+P
+Jul 12, 2022
+3:55pm → 3:57pm
+Touch
+$1,420
+-$220
+SPX
+Short Put Spread
+3,800
+P
+3,805
+P
+Jul 13, 2022
+3:55pm → 4:00pm
+Expired
+$1,500
+-$788
+SPX
+Short Put Spread
+3,785
+P
+3,790
+P
+Jul 14, 2022
+3:55pm → 4:00pm
+Expired
+$1,372
+$628
+SPX
+Short Put Spread
+3,845
+P
+3,850
+P
+Jul 15, 2022
+3:55pm → 4:00pm
+Expired
+$1,395
+$105
+SPX
+Short Put Spread
+3,825
+P
+3,830
+P
+Jul 18, 2022
+3:55pm → 3:56pm
+Touch
+$1,360
+-$120
+SPX
+Short Put Spread
+3,925
+P
+3,930
+P
+Jul 19, 2022
+3:55pm → 4:00pm
+Expired
+$1,350
+$150
+SPX
+Short Put Spread
+3,955
+P
+3,960
+P
+Jul 20, 2022
+3:55pm → 3:57pm
+Touch
+$1,368
+-$36
+SPX
+Short Put Spread
+3,985
+P
+3,990
+P
+Jul 21, 2022
+3:55pm → 4:00pm
+Expired
+$1,365
+$135
+SPX
+Short Put Spread
+3,950
+P
+3,955
+P
+Jul 22, 2022
+3:55pm → 4:00pm
+Expired
+$1,452
+$548
+SPX
+Short Put Spread
+3,955
+P
+3,960
+P
+Jul 25, 2022
+3:55pm → 4:00pm
+Expired
+$1,272
+$228
+SPX
+Short Put Spread
+3,915
+P
+3,920
+P
+Jul 26, 2022
+3:55pm → 3:59pm
+Touch
+$1,320
+-$231
+SPX
+Short Put Spread
+4,020
+P
+4,025
+P
+Jul 27, 2022
+3:55pm → 4:00pm
+Expired
+$1,278
+-$195
+SPX
+Short Put Spread
+4,065
+P
+4,070
+P
+Jul 28, 2022
+3:55pm → 4:00pm
+Expired
+$1,245
+$255
+SPX
+Short Put Spread
+4,125
+P
+4,130
+P
+Jul 29, 2022
+3:55pm → 3:57pm
+Touch
+$1,290
+-$285
+SPX
+Short Put Spread
+4,110
+P
+4,115
+P
+Aug 1, 2022
+3:55pm → 4:00pm
+Expired
+$1,335
+$165
+SPX
+Short Put Spread
+4,085
+P
+4,090
+P
+Aug 2, 2022
+3:55pm → 4:00pm
+Expired
+$1,410
+$90
+SPX
+Short Put Spread
+4,155
+P
+4,160
+P
+Aug 3, 2022
+3:55pm → 3:58pm
+Touch
+$1,374
+-$444
+SPX
+Short Put Spread
+4,145
+P
+4,150
+P
+Aug 4, 2022
+3:55pm → 3:56pm
+Touch
+$1,185
+-$255
+SPX
+Short Put Spread
+4,135
+P
+4,140
+P
+Aug 5, 2022
+3:55pm → 4:00pm
+Expired
+$1,374
+$126
+SPX
+Short Put Spread
+4,135
+P
+4,140
+P
+Aug 8, 2022
+3:55pm → 3:57pm
+Touch
+$1,281
+-$165
+SPX
+Short Put Spread
+4,115
+P
+4,120
+P
+Aug 9, 2022
+3:55pm → 3:56pm
+Touch
+$1,308
+-$207
+SPX
+Short Put Spread
+4,200
+P
+4,205
+P
+Aug 10, 2022
+3:55pm → 4:00pm
+Expired
+$1,386
+$114
+SPX
+Short Put Spread
+4,200
+P
+4,205
+P
+Aug 11, 2022
+3:55pm → 4:00pm
+Expired
+$1,434
+$66
+SPX
+Short Put Spread
+4,265
+P
+4,270
+P
+Aug 12, 2022
+3:55pm → 4:00pm
+Expired
+$1,434
+$66
+SPX
+Short Put Spread
+4,290
+P
+4,295
+P
+Aug 15, 2022
+3:55pm → 4:00pm
+Expired
+$1,236
+$264
+SPX
+Short Put Spread
+4,300
+P
+4,305
+P
+Aug 16, 2022
+3:55pm → 3:56pm
+Touch
+$1,305
+-$219
+SPX
+Short Put Spread
+4,270
+P
+4,275
+P
+Aug 17, 2022
+3:55pm → 3:57pm
+Touch
+$1,140
+-$291
+SPX
+Short Put Spread
+4,275
+P
+4,280
+P
+Aug 18, 2022
+3:55pm → 4:00pm
+Expired
+$1,290
+$210
+SPX
+Short Put Spread
+4,220
+P
+4,225
+P
+Aug 19, 2022
+3:55pm → 4:00pm
+Expired
+$1,389
+$111
+SPX
+Short Put Spread
+4,130
+P
+4,135
+P
+Aug 22, 2022
+3:55pm → 4:00pm
+Expired
+$1,305
+$195
+SPX
+Short Put Spread
+4,125
+P
+4,130
+P
+Aug 23, 2022
+3:55pm → 3:59pm
+Touch
+$1,236
+$78
+SPX
+Short Put Spread
+4,140
+P
+4,145
+P
+Aug 24, 2022
+3:55pm → 3:56pm
+Touch
+$1,266
+-$267
+SPX
+Short Put Spread
+4,185
+P
+4,190
+P
+Aug 25, 2022
+3:55pm → 4:00pm
+Expired
+$1,374
+$126
+SPX
+Short Put Spread
+4,050
+P
+4,055
+P
+Aug 26, 2022
+3:55pm → 4:00pm
+Expired
+$1,341
+$159
+SPX
+Short Put Spread
+4,030
+P
+4,035
+P
+Aug 29, 2022
+3:55pm → 4:00pm
+Expired
+$1,287
+-$1,104
+SPX
+Short Put Spread
+3,970
+P
+3,975
+P
+Aug 30, 2022
+3:55pm → 4:00pm
+Expired
+$1,215
+$285
+SPX
+Short Put Spread
+3,960
+P
+3,965
+P
+Aug 31, 2022
+3:55pm → 3:56pm
+Touch
+$1,203
+-$204
+SPX
+Short Put Spread
+3,950
+P
+3,955
+P
+Sep 1, 2022
+3:55pm → 4:00pm
+Expired
+$1,194
+$306
+SPX
+Short Put Spread
+3,915
+P
+3,920
+P
+Sep 2, 2022
+3:55pm → 3:57pm
+Touch
+$1,161
+-$501
+SPX
+Short Put Spread
+3,900
+P
+3,905
+P
+Sep 6, 2022
+3:55pm → 3:56pm
+Touch
+$1,332
+-$244
+SPX
+Short Put Spread
+3,975
+P
+3,980
+P
+Sep 7, 2022
+3:55pm → 3:56pm
+Touch
+$1,296
+-$480
+SPX
+Short Put Spread
+3,995
+P
+4,000
+P
+Sep 8, 2022
+3:55pm → 4:00pm
+Expired
+$1,230
+$270
+SPX
+Short Put Spread
+4,065
+P
+4,070
+P
+Sep 9, 2022
+3:55pm → 3:57pm
+Touch
+$1,176
+-$111
+SPX
+Short Put Spread
+4,100
+P
+4,105
+P
+Sep 12, 2022
+3:55pm → 4:00pm
+Expired
+$1,460
+$540
+SPX
+Short Put Spread
+3,925
+P
+3,930
+P
+Sep 13, 2022
+3:55pm → 3:56pm
+Touch
+$1,155
+-$390
+SPX
+Short Put Spread
+3,935
+P
+3,940
+P
+Sep 14, 2022
+3:55pm → 3:56pm
+Touch
+$1,245
+-$309
+SPX
+Short Put Spread
+3,895
+P
+3,900
+P
+Sep 15, 2022
+3:55pm → 4:00pm
+Expired
+$1,134
+$366
+SPX
+Short Put Spread
+3,865
+P
+3,870
+P
+Sep 16, 2022
+3:55pm → 4:00pm
+Expired
+$1,480
+$520
+SPX
+Short Put Spread
+3,890
+P
+3,895
+P
+Sep 19, 2022
+3:55pm → 4:00pm
+Expired
+$1,248
+$252
+SPX
+Short Put Spread
+3,855
+P
+3,860
+P
+Sep 20, 2022
+3:55pm → 3:56pm
+Touch
+$1,396
+-$176
+SPX
+Short Put Spread
+3,795
+P
+3,800
+P
+Sep 21, 2022
+3:55pm → 3:56pm
+Touch
+$1,500
+-$380
+SPX
+Short Put Spread
+3,765
+P
+3,770
+P
+Sep 22, 2022
+3:55pm → 3:56pm
+Touch
+$1,336
+-$776
+SPX
+Short Put Spread
+3,685
+P
+3,690
+P
+Sep 23, 2022
+3:55pm → 3:56pm
+Touch
+$1,392
+-$384
+SPX
+Short Put Spread
+3,670
+P
+3,675
+P
+Sep 26, 2022
+3:55pm → 4:00pm
+Expired
+$1,308
+-$1,308
+SPX
+Short Put Spread
+3,645
+P
+3,650
+P
+Sep 27, 2022
+3:55pm → 3:57pm
+Touch
+$1,492
+-$484
+SPX
+Short Put Spread
+3,720
+P
+3,725
+P
+Sep 28, 2022
+3:55pm → 3:59pm
+Touch
+$1,284
+-$549
+SPX
+Short Put Spread
+3,630
+P
+3,635
+P
+Sep 29, 2022
+3:55pm → 4:00pm
+Expired
+$1,290
+$210
+SPX
+Short Put Spread
+3,585
+P
+3,590
+P
+Sep 30, 2022
+3:55pm → 3:56pm
+Touch
+$1,420
+-$348
+SPX
+Short Put Spread
+3,675
+P
+3,680
+P
+Oct 3, 2022
+3:55pm → 3:56pm
+Touch
+$1,480
+-$800
+SPX
+Short Put Spread
+3,780
+P
+3,785
+P
+Oct 4, 2022
+3:55pm → 4:00pm
+Expired
+$1,359
+$141
+SPX
+Short Put Spread
+3,775
+P
+3,780
+P
+Oct 5, 2022
+3:55pm → 4:00pm
+Expired
+$1,440
+$560
+SPX
+Short Put Spread
+3,740
+P
+3,745
+P
+Oct 6, 2022
+3:55pm → 3:59pm
+Touch
+$1,200
+-$315
+SPX
+Short Put Spread
+3,630
+P
+3,635
+P
+Oct 7, 2022
+3:55pm → 4:00pm
+Expired
+$1,492
+$508
+SPX
+Short Put Spread
+3,615
+P
+3,620
+P
+Oct 10, 2022
+3:55pm → 3:56pm
+Touch
+$1,281
+-$342
+SPX
+Short Put Spread
+3,580
+P
+3,585
+P
+Oct 11, 2022
+3:55pm → 4:00pm
+Expired
+$1,245
+$255
+SPX
+Short Put Spread
+3,575
+P
+3,580
+P
+Oct 12, 2022
+3:55pm → 3:59pm
+Touch
+$1,320
+-$180
+SPX
+Short Put Spread
+3,670
+P
+3,675
+P
+Oct 13, 2022
+3:55pm → 3:56pm
+Touch
+$1,176
+-$237
+SPX
+Short Put Spread
+3,585
+P
+3,590
+P
+Oct 14, 2022
+3:55pm → 3:56pm
+Touch
+$1,215
+-$600
+SPX
+Short Put Spread
+3,675
+P
+3,680
+P
+Oct 17, 2022
+3:55pm → 3:56pm
+Touch
+$1,293
+-$504
+SPX
+Short Put Spread
+3,710
+P
+3,715
+P
+Oct 18, 2022
+3:55pm → 3:56pm
+Touch
+$1,492
+-$464
+SPX
+Short Put Spread
+3,685
+P
+3,690
+P
+Oct 19, 2022
+3:55pm → 4:00pm
+Expired
+$1,245
+$255
+SPX
+Short Put Spread
+3,665
+P
+3,670
+P
+Oct 20, 2022
+3:55pm → 3:56pm
+Touch
+$1,230
+-$231
+SPX
+Short Put Spread
+3,745
+P
+3,750
+P
+Oct 21, 2022
+3:55pm → 4:00pm
+Expired
+$1,284
+$216
+SPX
+Short Put Spread
+3,785
+P
+3,790
+P
+Oct 24, 2022
+3:55pm → 4:00pm
+Expired
+$1,272
+$228
+SPX
+Short Put Spread
+3,850
+P
+3,855
+P
+Oct 25, 2022
+3:55pm → 4:00pm
+Expired
+$1,476
+$524
+SPX
+Short Put Spread
+3,830
+P
+3,835
+P
+Oct 26, 2022
+3:55pm → 3:56pm
+Touch
+$1,341
+-$210
+SPX
+Short Put Spread
+3,800
+P
+3,805
+P
+Oct 27, 2022
+3:55pm → 3:56pm
+Touch
+$1,500
+-$160
+SPX
+Short Put Spread
+3,895
+P
+3,900
+P
+Oct 28, 2022
+3:55pm → 3:58pm
+Touch
+$1,350
+-$336
+SPX
+Short Put Spread
+3,865
+P
+3,870
+P
+Oct 31, 2022
+3:55pm → 4:00pm
+Expired
+$1,149
+$351
+SPX
+Short Put Spread
+3,855
+P
+3,860
+P
+Nov 1, 2022
+3:55pm → 3:56pm
+Touch
+$1,254
+-$9
+SPX
+Short Put Spread
+3,755
+P
+3,760
+P
+Nov 2, 2022
+3:55pm → 4:00pm
+Expired
+$1,149
+$258
+SPX
+Short Put Spread
+3,715
+P
+3,720
+P
+Nov 3, 2022
+3:55pm → 3:57pm
+Touch
+$1,299
+-$264
+SPX
+Short Put Spread
+3,755
+P
+3,760
+P
+Nov 4, 2022
+3:55pm → 4:00pm
+Expired
+$1,236
+$264
+SPX
+Short Put Spread
+3,800
+P
+3,805
+P
+Nov 7, 2022
+3:55pm → 3:56pm
+Touch
+$1,275
+-$210
+SPX
+Short Put Spread
+3,825
+P
+3,830
+P
+Nov 8, 2022
+3:55pm → 3:57pm
+Touch
+$1,335
+-$372
+SPX
+Short Put Spread
+3,740
+P
+3,745
+P
+Nov 9, 2022
+3:55pm → 4:00pm
+Expired
+$1,296
+$204
+SPX
+Short Put Spread
+3,950
+P
+3,955
+P
+Nov 10, 2022
+3:55pm → 3:56pm
+Touch
+$1,245
+-$300
+SPX
+Short Put Spread
+3,990
+P
+3,995
+P
+Nov 11, 2022
+3:55pm → 3:56pm
+Touch
+$1,296
+-$276
+SPX
+Short Put Spread
+3,960
+P
+3,965
+P
+Nov 14, 2022
+3:55pm → 3:56pm
+Touch
+$1,492
+-$732
+SPX
+Short Put Spread
+3,980
+P
+3,985
+P
+Nov 15, 2022
+3:55pm → 4:00pm
+Expired
+$1,412
+$588
+SPX
+Short Put Spread
+3,960
+P
+3,965
+P
+Nov 16, 2022
+3:55pm → 3:56pm
+Touch
+$1,206
+-$435
+SPX
+Short Put Spread
+3,930
+P
+3,935
+P
+Nov 17, 2022
+3:55pm → 4:00pm
+Expired
+$1,281
+$219
+SPX
+Short Put Spread
+3,950
+P
+3,955
+P
+Nov 18, 2022
+3:55pm → 4:00pm
+Expired
+$1,281
+$219
+SPX
+Short Put Spread
+3,945
+P
+3,950
+P
+Nov 21, 2022
+3:55pm → 3:57pm
+Touch
+$1,344
+-$219
+SPX
+Short Put Spread
+3,995
+P
+4,000
+P
+Nov 22, 2022
+3:55pm → 4:00pm
+Expired
+$1,389
+$111
+SPX
+Short Put Spread
+4,020
+P
+4,025
+P
+Nov 23, 2022
+3:55pm → 3:56pm
+Touch
+$1,236
+-$96
+SPX
+Short Put Spread
+3,955
+P
+3,960
+P
+Nov 28, 2022
+3:55pm → 4:00pm
+Expired
+$1,359
+$141
+SPX
+Short Put Spread
+3,945
+P
+3,950
+P
+Nov 29, 2022
+3:55pm → 4:00pm
+Expired
+$1,383
+$117
+SPX
+Short Put Spread
+4,065
+P
+4,070
+P
+Nov 30, 2022
+3:55pm → 3:57pm
+Touch
+$1,200
+-$69
+SPX
+Short Put Spread
+4,075
+P
+4,080
+P
+Dec 1, 2022
+3:55pm → 3:56pm
+Touch
+$1,161
+-$426
+SPX
+Short Put Spread
+4,060
+P
+4,065
+P
+Dec 2, 2022
+3:55pm → 4:00pm
+Expired
+$1,134
+$366
+SPX
+Short Put Spread
+3,990
+P
+3,995
+P
+Dec 5, 2022
+3:55pm → 4:00pm
+Expired
+$1,290
+$210
+SPX
+Short Put Spread
+3,935
+P
+3,940
+P
+Dec 6, 2022
+3:55pm → 3:57pm
+Touch
+$1,281
+-$366
+SPX
+Short Put Spread
+3,925
+P
+3,930
+P
+Dec 7, 2022
+3:55pm → 4:00pm
+Expired
+$1,410
+$90
+SPX
+Short Put Spread
+3,950
+P
+3,955
+P
+Dec 8, 2022
+3:55pm → 4:00pm
+Expired
+$1,386
+$114
+SPX
+Short Put Spread
+3,930
+P
+3,935
+P
+Dec 9, 2022
+3:55pm → 3:58pm
+Touch
+$1,290
+-$417
+SPX
+Short Put Spread
+3,975
+P
+3,980
+P
+Dec 12, 2022
+3:55pm → 4:00pm
+Expired
+$1,380
+$120
+SPX
+Short Put Spread
+4,020
+P
+4,025
+P
+Dec 13, 2022
+3:55pm → 3:56pm
+Touch
+$1,275
+-$546
+SPX
+Short Put Spread
+3,995
+P
+4,000
+P
+Dec 14, 2022
+3:55pm → 3:56pm
+Touch
+$1,239
+-$279
+SPX
+Short Put Spread
+3,885
+P
+3,890
+P
+Dec 15, 2022
+3:55pm → 4:00pm
+Expired
+$1,245
+$255
+SPX
+Short Put Spread
+3,850
+P
+3,855
+P
+Dec 16, 2022
+3:55pm → 3:59pm
+Touch
+$1,206
+-$198
+SPX
+Short Put Spread
+3,810
+P
+3,815
+P
+Dec 19, 2022
+3:55pm → 4:00pm
+Expired
+$1,158
+$342
+SPX
+Short Put Spread
+3,820
+P
+3,825
+P
+Dec 20, 2022
+3:55pm → 3:56pm
+Touch
+$1,200
+-$51
+SPX
+Short Put Spread
+3,865
+P
+3,870
+P
+Dec 21, 2022
+3:55pm → 4:00pm
+Expired
+$1,380
+$120
+SPX
+Short Put Spread
+3,815
+P
+3,820
+P
+Dec 22, 2022
+3:55pm → 3:56pm
+Touch
+$1,245
+-$156
+SPX
+Short Put Spread
+3,835
+P
+3,840
+P
+Dec 23, 2022
+3:55pm → 4:00pm
+Expired
+$1,314
+$186
+SPX
+Short Put Spread
+3,825
+P
+3,830
+P
+Dec 27, 2022
+3:55pm → 3:57pm
+Touch
+$1,209
+-$84
+SPX
+Short Put Spread
+3,775
+P
+3,780
+P
+Dec 28, 2022
+3:55pm → 4:00pm
+Expired
+$1,395
+$105
+SPX
+Short Put Spread
+3,845
+P
+3,850
+P
+Dec 29, 2022
+3:55pm → 3:58pm
+Touch
+$1,440
+-$171
+SPX
+Short Put Spread
+3,830
+P
+3,835
+P
+Dec 30, 2022
+3:55pm → 4:00pm
+Expired
+$1,395
+$105
+SPX
+Short Put Spread
+3,820
+P
+3,825
+P
+Jan 3, 2023
+3:55pm → 3:56pm
+Touch
+$1,140
+-$120
+SPX
+Short Put Spread
+3,835
+P
+3,840
+P
+Jan 4, 2023
+3:55pm → 4:00pm
+Expired
+$1,209
+$291
+SPX
+Short Put Spread
+3,795
+P
+3,800
+P
+Jan 5, 2023
+3:55pm → 4:00pm
+Expired
+$1,296
+$204
+SPX
+Short Put Spread
+3,885
+P
+3,890
+P
+Jan 6, 2023
+3:55pm → 4:00pm
+Expired
+$1,422
+$78
+SPX
+Short Put Spread
+3,890
+P
+3,895
+P
+Jan 9, 2023
+3:55pm → 3:56pm
+Touch
+$1,191
+-$531
+SPX
+Short Put Spread
+3,910
+P
+3,915
+P
+Jan 10, 2023
+3:55pm → 4:00pm
+Expired
+$1,176
+$324
+SPX
+Short Put Spread
+3,955
+P
+3,960
+P
+Jan 11, 2023
+3:55pm → 4:00pm
+Expired
+$1,458
+$42
+SPX
+Short Put Spread
+3,970
+P
+3,975
+P
+Jan 12, 2023
+3:55pm → 4:00pm
+Expired
+$1,395
+$105
+SPX
+Short Put Spread
+3,990
+P
+3,995
+P
+Jan 13, 2023
+3:55pm → 4:00pm
+Expired
+$1,302
+$198
+SPX
+Short Put Spread
+3,980
+P
+3,985
+P
+Jan 17, 2023
+3:55pm → 4:00pm
+Expired
+$1,350
+$150
+SPX
+Short Put Spread
+3,925
+P
+3,930
+P
+Jan 18, 2023
+3:55pm → 3:57pm
+Touch
+$1,260
+-$294
+SPX
+Short Put Spread
+3,895
+P
+3,900
+P
+Jan 19, 2023
+3:55pm → 4:00pm
+Expired
+$1,419
+-$264
+SPX
+Short Put Spread
+3,960
+P
+3,965
+P
+Jan 20, 2023
+3:55pm → 4:00pm
+Expired
+$1,410
+$90
+SPX
+Short Put Spread
+4,010
+P
+4,015
+P
+Jan 23, 2023
+3:55pm → 4:00pm
+Expired
+$1,416
+$84
+SPX
+Short Put Spread
+4,010
+P
+4,015
+P
+Jan 24, 2023
+3:55pm → 4:00pm
+Expired
+$1,200
+$300
+SPX
+Short Put Spread
+4,000
+P
+4,005
+P
+Jan 25, 2023
+3:55pm → 4:00pm
+Expired
+$1,419
+$81
+SPX
+Short Put Spread
+4,045
+P
+4,050
+P
+Jan 26, 2023
+3:55pm → 4:00pm
+Expired
+$1,374
+$126
+SPX
+Short Put Spread
+4,065
+P
+4,070
+P
+Jan 27, 2023
+3:55pm → 3:58pm
+Touch
+$1,404
+-$216
+SPX
+Short Put Spread
+4,010
+P
+4,015
+P
+Jan 30, 2023
+3:55pm → 4:00pm
+Expired
+$1,380
+$120
+SPX
+Short Put Spread
+4,065
+P
+4,070
+P
+Jan 31, 2023
+3:55pm → 3:56pm
+Touch
+$1,185
+-$120
+SPX
+Short Put Spread
+4,110
+P
+4,115
+P
+Feb 1, 2023
+3:55pm → 4:00pm
+Expired
+$1,260
+$740
+SPX
+Short Put Spread
+4,165
+P
+4,170
+P
+Feb 2, 2023
+3:55pm → 4:00pm
+Expired
+$1,239
+$261
+SPX
+Short Put Spread
+4,130
+P
+4,135
+P
+Feb 3, 2023
+3:55pm → 4:00pm
+Expired
+$1,500
+$500
+SPX
+Short Put Spread
+4,105
+P
+4,110
+P
+Feb 6, 2023
+3:55pm → 3:56pm
+Touch
+$1,251
+-$195
+SPX
+Short Put Spread
+4,170
+P
+4,175
+P
+Feb 7, 2023
+3:55pm → 3:56pm
+Touch
+$1,215
+-$855
+SPX
+Short Put Spread
+4,110
+P
+4,115
+P
+Feb 8, 2023
+3:55pm → 4:00pm
+Expired
+$1,323
+$177
+SPX
+Short Put Spread
+4,080
+P
+4,085
+P
+Feb 9, 2023
+3:55pm → 3:56pm
+Touch
+$1,374
+-$489
+SPX
+Short Put Spread
+4,085
+P
+4,090
+P
+Feb 10, 2023
+3:55pm → 3:57pm
+Touch
+$1,203
+-$123
+SPX
+Short Put Spread
+4,125
+P
+4,130
+P
+Feb 13, 2023
+3:55pm → 4:00pm
+Expired
+$1,209
+$291
+SPX
+Short Put Spread
+4,135
+P
+4,140
+P
+Feb 14, 2023
+3:55pm → 3:58pm
+Touch
+$1,320
+-$189
+SPX
+Short Put Spread
+4,135
+P
+4,140
+P
+Feb 15, 2023
+3:55pm → 4:00pm
+Expired
+$1,472
+$528
+SPX
+Short Put Spread
+4,090
+P
+4,095
+P
+Feb 16, 2023
+3:55pm → 3:56pm
+Touch
+$1,179
+-$213
+SPX
+Short Put Spread
+4,070
+P
+4,075
+P
+Feb 17, 2023
+3:55pm → 4:00pm
+Expired
+$1,146
+$354
+SPX
+Short Put Spread
+3,990
+P
+3,995
+P
+Feb 21, 2023
+3:55pm → 4:00pm
+Expired
+$1,341
+$159
+SPX
+Short Put Spread
+3,975
+P
+3,980
+P
+Feb 22, 2023
+3:55pm → 4:00pm
+Expired
+$1,410
+$90
+SPX
+Short Put Spread
+4,005
+P
+4,010
+P
+Feb 23, 2023
+3:55pm → 4:00pm
+Expired
+$1,188
+$312
+SPX
+Short Put Spread
+3,955
+P
+3,960
+P
+Feb 24, 2023
+3:55pm → 4:00pm
+Expired
+$1,305
+$195
+SPX
+Short Put Spread
+3,975
+P
+3,980
+P
+Feb 27, 2023
+3:55pm → 4:00pm
+Expired
+$1,194
+$306
+SPX
+Short Put Spread
+3,970
+P
+3,975
+P
+Feb 28, 2023
+3:55pm → 4:00pm
+Expired
+$1,266
+-$1,221
+SPX
+Short Put Spread
+3,945
+P
+3,950
+P
+Mar 1, 2023
+3:55pm → 4:00pm
+Expired
+$1,230
+$270
+SPX
+Short Put Spread
+3,970
+P
+3,975
+P
+Mar 2, 2023
+3:55pm → 4:00pm
+Expired
+$1,404
+$96
+SPX
+Short Put Spread
+4,035
+P
+4,040
+P
+Mar 3, 2023
+3:55pm → 4:00pm
+Expired
+$1,371
+$129
+SPX
+Short Put Spread
+4,040
+P
+4,045
+P
+Mar 6, 2023
+3:55pm → 4:00pm
+Expired
+$1,425
+$75
+SPX
+Short Put Spread
+3,980
+P
+3,985
+P
+Mar 7, 2023
+3:55pm → 4:00pm
+Expired
+$1,155
+$345
+SPX
+Short Put Spread
+3,985
+P
+3,990
+P
+Mar 8, 2023
+3:55pm → 4:00pm
+Expired
+$1,269
+$231
+SPX
+Short Put Spread
+3,920
+P
+3,925
+P
+Mar 9, 2023
+3:55pm → 3:56pm
+Touch
+$1,179
+-$468
+SPX
+Short Put Spread
+3,850
+P
+3,855
+P
+Mar 10, 2023
+3:55pm → 4:00pm
+Expired
+$1,492
+$508
+SPX
+Short Put Spread
+3,855
+P
+3,860
+P
+Mar 13, 2023
+3:55pm → 3:56pm
+Touch
+$1,292
+-$340
+SPX
+Short Put Spread
+3,900
+P
+3,905
+P
+Mar 14, 2023
+3:55pm → 4:00pm
+Expired
+$1,260
+$740
+SPX
+Short Put Spread
+3,865
+P
+3,870
+P
+Mar 15, 2023
+3:55pm → 4:00pm
+Expired
+$1,260
+$740
+SPX
+Short Put Spread
+3,950
+P
+3,955
+P
+Mar 16, 2023
+3:55pm → 3:56pm
+Touch
+$1,245
+-$210
+SPX
+Short Put Spread
+3,910
+P
+3,915
+P
+Mar 17, 2023
+3:55pm → 3:57pm
+Touch
+$1,224
+-$195
+SPX
+Short Put Spread
+3,945
+P
+3,950
+P
+Mar 20, 2023
+3:55pm → 3:56pm
+Touch
+$1,299
+-$210
+SPX
+Short Put Spread
+4,000
+P
+4,005
+P
+Mar 21, 2023
+3:55pm → 3:56pm
+Touch
+$1,209
+-$114
+SPX
+Short Put Spread
+3,945
+P
+3,950
+P
+Mar 22, 2023
+3:55pm → 3:56pm
+Touch
+$1,372
+-$212
+SPX
+Short Put Spread
+3,950
+P
+3,955
+P
+Mar 23, 2023
+3:55pm → 3:56pm
+Touch
+$1,340
+-$360
+SPX
+Short Put Spread
+3,955
+P
+3,960
+P
+Mar 24, 2023
+3:55pm → 3:56pm
+Touch
+$1,146
+-$141
+SPX
+Short Put Spread
+3,975
+P
+3,980
+P
+Mar 27, 2023
+3:55pm → 3:56pm
+Touch
+$1,254
+-$294
+SPX
+Short Put Spread
+3,960
+P
+3,965
+P
+Mar 28, 2023
+3:55pm → 4:00pm
+Expired
+$1,404
+$96
+SPX
+Short Put Spread
+4,020
+P
+4,025
+P
+Mar 29, 2023
+3:55pm → 3:57pm
+Touch
+$1,383
+-$165
+SPX
+Short Put Spread
+4,040
+P
+4,045
+P
+Mar 30, 2023
+3:55pm → 4:00pm
+Expired
+$1,434
+$66
+SPX
+Short Put Spread
+4,095
+P
+4,100
+P
+Mar 31, 2023
+3:55pm → 4:00pm
+Expired
+$1,155
+$345
+SPX
+Short Put Spread
+4,115
+P
+4,120
+P
+Apr 3, 2023
+3:55pm → 4:00pm
+Expired
+$1,344
+$156
+SPX
+Short Put Spread
+4,090
+P
+4,095
+P
+Apr 4, 2023
+3:55pm → 4:00pm
+Expired
+$1,353
+$147
+SPX
+Short Put Spread
+4,085
+P
+4,090
+P
+Apr 5, 2023
+3:55pm → 3:57pm
+Touch
+$1,284
+-$66
+SPX
+Short Put Spread
+4,095
+P
+4,100
+P
+Apr 6, 2023
+3:55pm → 4:00pm
+Expired
+$1,314
+$186
+SPX
+Short Put Spread
+4,095
+P
+4,100
+P
+Apr 10, 2023
+3:55pm → 4:00pm
+Expired
+$1,434
+$66
+SPX
+Short Put Spread
+4,100
+P
+4,105
+P
+Apr 11, 2023
+3:55pm → 4:00pm
+Expired
+$1,419
+$81
+SPX
+Short Put Spread
+4,085
+P
+4,090
+P
+Apr 12, 2023
+3:55pm → 3:56pm
+Touch
+$1,480
+-$312
+SPX
+Short Put Spread
+4,135
+P
+4,140
+P
+Apr 13, 2023
+3:55pm → 4:00pm
+Expired
+$1,440
+$60
+SPX
+Short Put Spread
+4,130
+P
+4,135
+P
+Apr 14, 2023
+3:55pm → 4:00pm
+Expired
+$1,194
+$306
+SPX
+Short Put Spread
+4,140
+P
+4,145
+P
+Apr 17, 2023
+3:55pm → 4:00pm
+Expired
+$1,458
+$42
+SPX
+Short Put Spread
+4,150
+P
+4,155
+P
+Apr 18, 2023
+3:55pm → 4:00pm
+Expired
+$1,215
+$246
+SPX
+Short Put Spread
+4,145
+P
+4,150
+P
+Apr 19, 2023
+3:55pm → 4:00pm
+Expired
+$1,344
+$156
+SPX
+Short Put Spread
+4,120
+P
+4,125
+P
+Apr 20, 2023
+3:55pm → 4:00pm
+Expired
+$1,209
+$291
+SPX
+Short Put Spread
+4,125
+P
+4,130
+P
+Apr 21, 2023
+3:55pm → 4:00pm
+Expired
+$1,380
+$120
+SPX
+Short Put Spread
+4,125
+P
+4,130
+P
+Apr 24, 2023
+3:55pm → 4:00pm
+Expired
+$1,473
+$27
+SPX
+Short Put Spread
+4,070
+P
+4,075
+P
+Apr 25, 2023
+3:55pm → 3:56pm
+Touch
+$1,170
+-$156
+SPX
+Short Put Spread
+4,045
+P
+4,050
+P
+Apr 26, 2023
+3:55pm → 4:00pm
+Expired
+$1,404
+$96
+SPX
+Short Put Spread
+4,130
+P
+4,135
+P
+Apr 27, 2023
+3:55pm → 3:57pm
+Touch
+$1,182
+$33
+SPX
+Short Put Spread
+4,155
+P
+4,160
+P
+Apr 28, 2023
+3:55pm → 4:00pm
+Expired
+$1,410
+$90
+SPX
+Short Put Spread
+4,160
+P
+4,165
+P
+May 1, 2023
+3:55pm → 4:00pm
+Expired
+$1,464
+$36
+SPX
+Short Put Spread
+4,115
+P
+4,120
+P
+May 2, 2023
+3:55pm → 4:00pm
+Expired
+$1,356
+$18
+SPX
+Short Put Spread
+4,085
+P
+4,090
+P
+May 3, 2023
+3:55pm → 3:58pm
+Touch
+$1,251
+-$114
+SPX
+Short Put Spread
+4,055
+P
+4,060
+P
+May 4, 2023
+3:55pm → 4:00pm
+Expired
+$1,170
+$330
+SPX
+Short Put Spread
+4,130
+P
+4,135
+P
+May 5, 2023
+3:55pm → 3:58pm
+Touch
+$1,161
+-$60
+SPX
+Short Put Spread
+4,130
+P
+4,135
+P
+May 8, 2023
+3:55pm → 4:00pm
+Expired
+$1,455
+$45
+SPX
+Short Put Spread
+4,115
+P
+4,120
+P
+May 9, 2023
+3:55pm → 3:57pm
+Touch
+$1,389
+-$144
+SPX
+Short Put Spread
+4,130
+P
+4,135
+P
+May 10, 2023
+3:55pm → 4:00pm
+Expired
+$1,455
+$45
+SPX
+Short Put Spread
+4,120
+P
+4,125
+P
+May 11, 2023
+3:55pm → 4:00pm
+Expired
+$1,458
+$42
+SPX
+Short Put Spread
+4,115
+P
+4,120
+P
+May 12, 2023
+3:55pm → 4:00pm
+Expired
+$1,377
+$123
+SPX
+Short Put Spread
+4,125
+P
+4,130
+P
+May 15, 2023
+3:55pm → 4:00pm
+Expired
+$1,464
+$36
+SPX
+Short Put Spread
+4,105
+P
+4,110
+P
+May 16, 2023
+3:55pm → 4:00pm
+Expired
+$1,224
+$246
+SPX
+Short Put Spread
+4,150
+P
+4,155
+P
+May 17, 2023
+3:55pm → 4:00pm
+Expired
+$1,473
+$27
+SPX
+Short Put Spread
+4,190
+P
+4,195
+P
+May 18, 2023
+3:55pm → 4:00pm
+Expired
+$1,341
+$159
+SPX
+Short Put Spread
+4,185
+P
+4,190
+P
+May 19, 2023
+3:55pm → 4:00pm
+Expired
+$1,464
+$36
+SPX
+Short Put Spread
+4,185
+P
+4,190
+P
+May 22, 2023
+3:55pm → 4:00pm
+Expired
+$1,404
+$96
+SPX
+Short Put Spread
+4,140
+P
+4,145
+P
+May 23, 2023
+3:55pm → 4:00pm
+Expired
+$1,425
+$75
+SPX
+Short Put Spread
+4,110
+P
+4,115
+P
+May 24, 2023
+3:55pm → 3:56pm
+Touch
+$1,251
+-$330
+SPX
+Short Put Spread
+4,145
+P
+4,150
+P
+May 25, 2023
+3:55pm → 4:00pm
+Expired
+$1,305
+$195
+SPX
+Short Put Spread
+4,200
+P
+4,205
+P
+May 26, 2023
+3:55pm → 4:00pm
+Expired
+$1,359
+$141
+SPX
+Short Put Spread
+4,195
+P
+4,200
+P
+May 30, 2023
+3:55pm → 4:00pm
+Expired
+$1,320
+$180
+SPX
+Short Put Spread
+4,175
+P
+4,180
+P
+May 31, 2023
+3:55pm → 4:00pm
+Expired
+$1,365
+$84
+SPX
+Short Put Spread
+4,210
+P
+4,215
+P
+Jun 1, 2023
+3:55pm → 4:00pm
+Expired
+$1,383
+$117
+SPX
+Short Put Spread
+4,280
+P
+4,285
+P
+Jun 2, 2023
+3:55pm → 3:56pm
+Touch
+$1,500
+-$208
+SPX
+Short Put Spread
+4,270
+P
+4,275
+P
+Jun 5, 2023
+3:55pm → 3:59pm
+Touch
+$1,266
+-$27
+SPX
+Short Put Spread
+4,280
+P
+4,285
+P
+Jun 6, 2023
+3:55pm → 4:00pm
+Expired
+$1,266
+-$111
+SPX
+Short Put Spread
+4,260
+P
+4,265
+P
+Jun 7, 2023
+3:55pm → 3:56pm
+Touch
+$1,386
+-$165
+SPX
+Short Put Spread
+4,285
+P
+4,290
+P
+Jun 8, 2023
+3:55pm → 4:00pm
+Expired
+$1,449
+$51
+SPX
+Short Put Spread
+4,290
+P
+4,295
+P
+Jun 9, 2023
+3:55pm → 4:00pm
+Expired
+$1,458
+$42
+SPX
+Short Put Spread
+4,330
+P
+4,335
+P
+Jun 12, 2023
+3:55pm → 4:00pm
+Expired
+$1,257
+$243
+SPX
+Short Put Spread
+4,360
+P
+4,365
+P
+Jun 13, 2023
+3:55pm → 4:00pm
+Expired
+$1,428
+$72
+SPX
+Short Put Spread
+4,355
+P
+4,360
+P
+Jun 14, 2023
+3:55pm → 4:00pm
+Expired
+$1,200
+$300
+SPX
+Short Put Spread
+4,420
+P
+4,425
+P
+Jun 15, 2023
+3:55pm → 3:59pm
+Touch
+$1,401
+-$369
+SPX
+Short Put Spread
+4,405
+P
+4,410
+P
+Jun 16, 2023
+3:55pm → 4:00pm
+Expired
+$1,266
+$111
+SPX
+Short Put Spread
+4,385
+P
+4,390
+P
+Jun 20, 2023
+3:55pm → 4:00pm
+Expired
+$1,380
+-$267
+SPX
+Short Put Spread
+4,365
+P
+4,370
+P
+Jun 21, 2023
+3:55pm → 3:56pm
+Touch
+$1,251
+-$369
+SPX
+Short Put Spread
+4,375
+P
+4,380
+P
+Jun 22, 2023
+3:55pm → 3:56pm
+Touch
+$1,341
+-$666
+SPX
+Short Put Spread
+4,345
+P
+4,350
+P
+Jun 23, 2023
+3:55pm → 3:58pm
+Touch
+$1,248
+-$57
+SPX
+Short Put Spread
+4,325
+P
+4,330
+P
+Jun 26, 2023
+3:55pm → 3:58pm
+Touch
+$1,419
+-$438
+SPX
+Short Put Spread
+4,370
+P
+4,375
+P
+Jun 27, 2023
+3:55pm → 4:00pm
+Expired
+$1,473
+$27
+SPX
+Short Put Spread
+4,365
+P
+4,370
+P
+Jun 28, 2023
+3:55pm → 4:00pm
+Expired
+$1,299
+$201
+SPX
+Short Put Spread
+4,385
+P
+4,390
+P
+Jun 29, 2023
+3:55pm → 4:00pm
+Expired
+$1,389
+$111
+SPX
+Short Put Spread
+4,450
+P
+4,455
+P
+Jun 30, 2023
+3:55pm → 3:57pm
+Touch
+$1,329
+-$354
+SPX
+Short Put Spread
+4,440
+P
+4,445
+P
+Jul 5, 2023
+3:55pm → 4:00pm
+Expired
+$1,446
+$54
+SPX
+Short Put Spread
+4,405
+P
+4,410
+P
+Jul 6, 2023
+3:55pm → 4:00pm
+Expired
+$1,215
+$285
+SPX
+Short Put Spread
+4,395
+P
+4,400
+P
+Jul 7, 2023
+3:55pm → 3:57pm
+Touch
+$1,281
+-$312
+SPX
+Short Put Spread
+4,400
+P
+4,405
+P
+Jul 10, 2023
+3:55pm → 3:57pm
+Touch
+$1,164
+-$3
+SPX
+Short Put Spread
+4,430
+P
+4,435
+P
+Jul 11, 2023
+3:55pm → 4:00pm
+Expired
+$1,320
+$180
+SPX
+Short Put Spread
+4,465
+P
+4,470
+P
+Jul 12, 2023
+3:55pm → 4:00pm
+Expired
+$1,380
+$120
+SPX
+Short Put Spread
+4,505
+P
+4,510
+P
+Jul 13, 2023
+3:55pm → 4:00pm
+Expired
+$1,353
+$147
+SPX
+Short Put Spread
+4,495
+P
+4,500
+P
+Jul 14, 2023
+3:55pm → 4:00pm
+Expired
+$1,395
+$105
+SPX
+Short Put Spread
+4,520
+P
+4,525
+P
+Jul 17, 2023
+3:55pm → 3:56pm
+Touch
+$1,284
+-$189
+SPX
+Short Put Spread
+4,550
+P
+4,555
+P
+Jul 18, 2023
+3:55pm → 4:00pm
+Expired
+$1,422
+$72
+SPX
+Short Put Spread
+4,560
+P
+4,565
+P
+Jul 19, 2023
+3:55pm → 4:00pm
+Expired
+$1,311
+$189
+SPX
+Short Put Spread
+4,525
+P
+4,530
+P
+Jul 20, 2023
+3:55pm → 4:00pm
+Expired
+$1,428
+$72
+SPX
+Short Put Spread
+4,530
+P
+4,535
+P
+Jul 21, 2023
+3:55pm → 4:00pm
+Expired
+$1,401
+$99
+SPX
+Short Put Spread
+4,545
+P
+4,550
+P
+Jul 24, 2023
+3:55pm → 4:00pm
+Expired
+$1,314
+$186
+SPX
+Short Put Spread
+4,565
+P
+4,570
+P
+Jul 25, 2023
+3:55pm → 3:56pm
+Touch
+$1,365
+-$261
+SPX
+Short Put Spread
+4,555
+P
+4,560
+P
+Jul 26, 2023
+3:55pm → 3:56pm
+Touch
+$1,260
+-$189
+SPX
+Short Put Spread
+4,530
+P
+4,535
+P
+Jul 27, 2023
+3:55pm → 3:56pm
+Touch
+$1,323
+-$198
+SPX
+Short Put Spread
+4,575
+P
+4,580
+P
+Jul 28, 2023
+3:55pm → 4:00pm
+Expired
+$1,428
+$72
+SPX
+Short Put Spread
+4,575
+P
+4,580
+P
+Jul 31, 2023
+3:55pm → 4:00pm
+Expired
+$1,191
+$309
+SPX
+Short Put Spread
+4,575
+P
+4,580
+P
+Aug 1, 2023
+3:55pm → 3:56pm
+Touch
+$1,230
+-$411
+SPX
+Short Put Spread
+4,510
+P
+4,515
+P
+Aug 2, 2023
+3:55pm → 3:56pm
+Touch
+$1,167
+-$246
+SPX
+Short Put Spread
+4,500
+P
+4,505
+P
+Aug 3, 2023
+3:55pm → 4:00pm
+Expired
+$1,155
+-$588
+SPX
+Short Put Spread
+4,470
+P
+4,475
+P
+Aug 4, 2023
+3:55pm → 4:00pm
+Expired
+$1,368
+$632
+SPX
+Short Put Spread
+4,510
+P
+4,515
+P
+Aug 7, 2023
+3:55pm → 4:00pm
+Expired
+$1,224
+$276
+SPX
+Short Put Spread
+4,490
+P
+4,495
+P
+Aug 8, 2023
+3:55pm → 4:00pm
+Expired
+$1,410
+$90
+SPX
+Short Put Spread
+4,465
+P
+4,470
+P
+Aug 9, 2023
+3:55pm → 3:56pm
+Touch
+$1,179
+-$534
+SPX
+Short Put Spread
+4,460
+P
+4,465
+P
+Aug 10, 2023
+3:55pm → 4:00pm
+Expired
+$1,305
+$195
+SPX
+Short Put Spread
+4,455
+P
+4,460
+P
+Aug 11, 2023
+3:55pm → 3:57pm
+Touch
+$1,356
+-$219
+SPX
+Short Put Spread
+4,475
+P
+4,480
+P
+Aug 14, 2023
+3:55pm → 4:00pm
+Expired
+$1,368
+$132
+SPX
+Short Put Spread
+4,430
+P
+4,435
+P
+Aug 15, 2023
+3:55pm → 4:00pm
+Expired
+$1,272
+$228
+SPX
+Short Put Spread
+4,400
+P
+4,405
+P
+Aug 16, 2023
+3:55pm → 4:00pm
+Expired
+$1,305
+-$6
+SPX
+Short Put Spread
+4,370
+P
+4,375
+P
+Aug 17, 2023
+3:55pm → 3:58pm
+Touch
+$1,326
+-$378
+SPX
+Short Put Spread
+4,360
+P
+4,365
+P
+Aug 18, 2023
+3:55pm → 4:00pm
+Expired
+$1,350
+$150
+SPX
+Short Put Spread
+4,395
+P
+4,400
+P
+Aug 21, 2023
+3:55pm → 4:00pm
+Expired
+$1,389
+$42
+SPX
+Short Put Spread
+4,380
+P
+4,385
+P
+Aug 22, 2023
+3:55pm → 4:00pm
+Expired
+$1,221
+$279
+SPX
+Short Put Spread
+4,425
+P
+4,430
+P
+Aug 23, 2023
+3:55pm → 4:00pm
+Expired
+$1,401
+$99
+SPX
+Short Put Spread
+4,375
+P
+4,380
+P
+Aug 24, 2023
+3:55pm → 3:56pm
+Touch
+$1,290
+-$474
+SPX
+Short Put Spread
+4,395
+P
+4,400
+P
+Aug 25, 2023
+3:55pm → 4:00pm
+Expired
+$1,245
+$255
+SPX
+Short Put Spread
+4,425
+P
+4,430
+P
+Aug 28, 2023
+3:55pm → 4:00pm
+Expired
+$1,176
+$324
+SPX
+Short Put Spread
+4,490
+P
+4,495
+P
+Aug 29, 2023
+3:55pm → 4:00pm
+Expired
+$1,245
+$255
+SPX
+Short Put Spread
+4,505
+P
+4,510
+P
+Aug 30, 2023
+3:55pm → 4:00pm
+Expired
+$1,311
+$189
+SPX
+Short Put Spread
+4,505
+P
+4,510
+P
+Aug 31, 2023
+3:55pm → 4:00pm
+Expired
+$1,371
+-$573
+SPX
+Short Put Spread
+4,510
+P
+4,515
+P
+Sep 1, 2023
+3:55pm → 4:00pm
+Expired
+$1,176
+$324
+SPX
+Short Put Spread
+4,495
+P
+4,500
+P
+Sep 5, 2023
+3:55pm → 3:56pm
+Touch
+$1,269
+-$243
+SPX
+Short Put Spread
+4,455
+P
+4,460
+P
+Sep 6, 2023
+3:55pm → 4:00pm
+Expired
+$1,341
+$159
+SPX
+Short Put Spread
+4,445
+P
+4,450
+P
+Sep 7, 2023
+3:55pm → 4:00pm
+Expired
+$1,359
+$141
+SPX
+Short Put Spread
+4,445
+P
+4,450
+P
+Sep 8, 2023
+3:55pm → 4:00pm
+Expired
+$1,425
+$75
+SPX
+Short Put Spread
+4,475
+P
+4,480
+P
+Sep 11, 2023
+3:55pm → 4:00pm
+Expired
+$1,473
+$27
+SPX
+Short Put Spread
+4,455
+P
+4,460
+P
+Sep 12, 2023
+3:55pm → 4:00pm
+Expired
+$1,458
+$42
+SPX
+Short Put Spread
+4,460
+P
+4,465
+P
+Sep 13, 2023
+3:55pm → 4:00pm
+Expired
+$1,350
+$150
+SPX
+Short Put Spread
+4,495
+P
+4,500
+P
+Sep 14, 2023
+3:55pm → 4:00pm
+Expired
+$1,473
+$27
+SPX
+Short Put Spread
+4,440
+P
+4,445
+P
+Sep 15, 2023
+3:55pm → 4:00pm
+Expired
+$1,449
+$51
+SPX
+Short Put Spread
+4,445
+P
+4,450
+P
+Sep 18, 2023
+3:55pm → 4:00pm
+Expired
+$1,260
+$240
+SPX
+Short Put Spread
+4,435
+P
+4,440
+P
+Sep 19, 2023
+3:55pm → 4:00pm
+Expired
+$1,479
+$21
+SPX
+Short Put Spread
+4,400
+P
+4,405
+P
+Sep 20, 2023
+3:55pm → 3:58pm
+Touch
+$1,305
+-$336
+SPX
+Short Put Spread
+4,330
+P
+4,335
+P
+Sep 21, 2023
+3:55pm → 3:56pm
+Touch
+$1,460
+-$332
+SPX
+Short Put Spread
+4,310
+P
+4,315
+P
+Sep 22, 2023
+3:55pm → 4:00pm
+Expired
+$1,329
+$171
+SPX
+Short Put Spread
+4,320
+P
+4,325
+P
+Sep 25, 2023
+3:55pm → 4:00pm
+Expired
+$1,239
+$261
+SPX
+Short Put Spread
+4,265
+P
+4,270
+P
+Sep 26, 2023
+3:55pm → 4:00pm
+Expired
+$1,290
+$210
+SPX
+Short Put Spread
+4,265
+P
+4,270
+P
+Sep 27, 2023
+3:55pm → 4:00pm
+Expired
+$1,350
+$150
+SPX
+Short Put Spread
+4,290
+P
+4,295
+P
+Sep 28, 2023
+3:55pm → 4:00pm
+Expired
+$1,260
+$240
+SPX
+Short Put Spread
+4,285
+P
+4,290
+P
+Sep 29, 2023
+3:55pm → 3:56pm
+Touch
+$1,239
+-$624
+SPX
+Short Put Spread
+4,275
+P
+4,280
+P
+Oct 2, 2023
+3:55pm → 4:00pm
+Expired
+$1,350
+$150
+SPX
+Short Put Spread
+4,220
+P
+4,225
+P
+Oct 3, 2023
+3:55pm → 4:00pm
+Expired
+$1,420
+$580
+SPX
+Short Put Spread
+4,260
+P
+4,265
+P
+Oct 4, 2023
+3:55pm → 4:00pm
+Expired
+$1,158
+-$33
+SPX
+Short Put Spread
+4,250
+P
+4,255
+P
+Oct 5, 2023
+3:55pm → 4:00pm
+Expired
+$1,380
+$120
+SPX
+Short Put Spread
+4,300
+P
+4,305
+P
+Oct 6, 2023
+3:55pm → 4:00pm
+Expired
+$1,383
+$117
+SPX
+Short Put Spread
+4,325
+P
+4,330
+P
+Oct 9, 2023
+3:55pm → 4:00pm
+Expired
+$1,365
+$135
+SPX
+Short Put Spread
+4,350
+P
+4,355
+P
+Oct 10, 2023
+3:55pm → 4:00pm
+Expired
+$1,311
+$189
+SPX
+Short Put Spread
+4,370
+P
+4,375
+P
+Oct 11, 2023
+3:55pm → 4:00pm
+Expired
+$1,257
+$243
+SPX
+Short Put Spread
+4,345
+P
+4,350
+P
+Oct 12, 2023
+3:55pm → 3:56pm
+Touch
+$1,452
+-$12
+SPX
+Short Put Spread
+4,320
+P
+4,325
+P
+Oct 13, 2023
+3:55pm → 4:00pm
+Expired
+$1,380
+$120
+SPX
+Short Put Spread
+4,370
+P
+4,375
+P
+Oct 16, 2023
+3:55pm → 4:00pm
+Expired
+$1,374
+-$285
+SPX
+Short Put Spread
+4,365
+P
+4,370
+P
+Oct 17, 2023
+3:55pm → 4:00pm
+Expired
+$1,134
+$366
+SPX
+Short Put Spread
+4,305
+P
+4,310
+P
+Oct 18, 2023
+3:55pm → 4:00pm
+Expired
+$1,284
+$216
+SPX
+Short Put Spread
+4,275
+P
+4,280
+P
+Oct 19, 2023
+3:55pm → 4:00pm
+Expired
+$1,179
+-$279
+SPX
+Short Put Spread
+4,215
+P
+4,220
+P
+Oct 20, 2023
+3:55pm → 4:00pm
+Expired
+$1,332
+$168
+SPX
+Short Put Spread
+4,210
+P
+4,215
+P
+Oct 23, 2023
+3:55pm → 3:59pm
+Touch
+$1,236
+$9
+SPX
+Short Put Spread
+4,240
+P
+4,245
+P
+Oct 24, 2023
+3:55pm → 4:00pm
+Expired
+$1,383
+$117
+SPX
+Short Put Spread
+4,180
+P
+4,185
+P
+Oct 25, 2023
+3:55pm → 4:00pm
+Expired
+$1,251
+$249
+SPX
+Short Put Spread
+4,130
+P
+4,135
+P
+Oct 26, 2023
+3:55pm → 4:00pm
+Expired
+$1,329
+$171
+SPX
+Short Put Spread
+4,105
+P
+4,110
+P
+Oct 27, 2023
+3:55pm → 4:00pm
+Expired
+$1,305
+$195
+SPX
+Short Put Spread
+4,165
+P
+4,170
+P
+Oct 30, 2023
+3:55pm → 3:57pm
+Touch
+$1,260
+-$45
+SPX
+Short Put Spread
+4,185
+P
+4,190
+P
+Oct 31, 2023
+3:55pm → 4:00pm
+Expired
+$1,329
+$171
+SPX
+Short Put Spread
+4,230
+P
+4,235
+P
+Nov 1, 2023
+3:55pm → 4:00pm
+Expired
+$1,371
+$129
+SPX
+Short Put Spread
+4,310
+P
+4,315
+P
+Nov 2, 2023
+3:55pm → 4:00pm
+Expired
+$1,458
+$42
+SPX
+Short Put Spread
+4,355
+P
+4,360
+P
+Nov 3, 2023
+3:55pm → 3:56pm
+Touch
+$1,275
+-$51
+SPX
+Short Put Spread
+4,355
+P
+4,360
+P
+Nov 6, 2023
+3:55pm → 4:00pm
+Expired
+$1,389
+$111
+SPX
+Short Put Spread
+4,370
+P
+4,375
+P
+Nov 7, 2023
+3:55pm → 3:56pm
+Touch
+$1,311
+-$456
+SPX
+Short Put Spread
+4,375
+P
+4,380
+P
+Nov 8, 2023
+3:55pm → 4:00pm
+Expired
+$1,440
+$60
+SPX
+Short Put Spread
+4,340
+P
+4,345
+P
+Nov 9, 2023
+3:55pm → 3:57pm
+Touch
+$1,164
+$42
+SPX
+Short Put Spread
+4,405
+P
+4,410
+P
+Nov 10, 2023
+3:55pm → 4:00pm
+Expired
+$1,488
+$12
+SPX
+Short Put Spread
+4,405
+P
+4,410
+P
+Nov 13, 2023
+3:55pm → 4:00pm
+Expired
+$1,380
+$120
+SPX
+Short Put Spread
+4,485
+P
+4,490
+P
+Nov 14, 2023
+3:55pm → 4:00pm
+Expired
+$1,383
+$117
+SPX
+Short Put Spread
+4,495
+P
+4,500
+P
+Nov 15, 2023
+3:55pm → 4:00pm
+Expired
+$1,251
+$249
+SPX
+Short Put Spread
+4,500
+P
+4,505
+P
+Nov 16, 2023
+3:55pm → 4:00pm
+Expired
+$1,230
+$270
+SPX
+Short Put Spread
+4,505
+P
+4,510
+P
+Nov 17, 2023
+3:55pm → 4:00pm
+Expired
+$1,419
+$81
+SPX
+Short Put Spread
+4,540
+P
+4,545
+P
+Nov 20, 2023
+3:55pm → 4:00pm
+Expired
+$1,356
+$144
+SPX
+Short Put Spread
+4,530
+P
+4,535
+P
+Nov 21, 2023
+3:55pm → 4:00pm
+Expired
+$1,473
+$27
+SPX
+Short Put Spread
+4,550
+P
+4,555
+P
+Nov 22, 2023
+3:55pm → 4:00pm
+Expired
+$1,374
+$126
+SPX
+Short Put Spread
+4,545
+P
+4,550
+P
+Nov 27, 2023
+3:55pm → 3:58pm
+Touch
+$1,395
+-$66
+SPX
+Short Put Spread
+4,545
+P
+4,550
+P
+Nov 28, 2023
+3:55pm → 4:00pm
+Expired
+$1,419
+$81
+SPX
+Short Put Spread
+4,545
+P
+4,550
+P
+Nov 29, 2023
+3:55pm → 3:57pm
+Touch
+$1,239
+-$21
+SPX
+Short Put Spread
+4,555
+P
+4,560
+P
+Nov 30, 2023
+3:55pm → 4:00pm
+Expired
+$1,416
+$84
+SPX
+Short Put Spread
+4,580
+P
+4,585
+P
+Dec 1, 2023
+3:55pm → 4:00pm
+Expired
+$1,434
+$66
+SPX
+Short Put Spread
+4,560
+P
+4,565
+P
+Dec 4, 2023
+3:55pm → 4:00pm
+Expired
+$1,455
+$45
+SPX
+Short Put Spread
+4,555
+P
+4,560
+P
+Dec 5, 2023
+3:55pm → 4:00pm
+Expired
+$1,473
+$27
+SPX
+Short Put Spread
+4,540
+P
+4,545
+P
+Dec 6, 2023
+3:55pm → 4:00pm
+Expired
+$1,359
+$141
+SPX
+Short Put Spread
+4,580
+P
+4,585
+P
+Dec 7, 2023
+3:55pm → 3:56pm
+Touch
+$1,278
+-$18
+SPX
+Short Put Spread
+4,600
+P
+4,605
+P
+Dec 8, 2023
+3:55pm → 3:56pm
+Touch
+$1,329
+-$99
+SPX
+Short Put Spread
+4,615
+P
+4,620
+P
+Dec 11, 2023
+3:55pm → 4:00pm
+Expired
+$1,329
+$171
+SPX
+Short Put Spread
+4,630
+P
+4,635
+P
+Dec 12, 2023
+3:55pm → 4:00pm
+Expired
+$1,485
+$15
+SPX
+Short Put Spread
+4,690
+P
+4,695
+P
+Dec 13, 2023
+3:55pm → 4:00pm
+Expired
+$1,419
+$81
+SPX
+Short Put Spread
+4,705
+P
+4,710
+P
+Dec 14, 2023
+3:55pm → 4:00pm
+Expired
+$1,464
+$36
+SPX
+Short Put Spread
+4,715
+P
+4,720
+P
+Dec 15, 2023
+3:55pm → 4:00pm
+Expired
+$1,380
+-$123
+SPX
+Short Put Spread
+4,735
+P
+4,740
+P
+Dec 18, 2023
+3:55pm → 4:00pm
+Expired
+$1,473
+$27
+SPX
+Short Put Spread
+4,755
+P
+4,760
+P
+Dec 19, 2023
+3:55pm → 4:00pm
+Expired
+$1,434
+$66
+SPX
+Short Put Spread
+4,705
+P
+4,710
+P
+Dec 20, 2023
+3:55pm → 3:56pm
+Touch
+$1,335
+-$555
+SPX
+Short Put Spread
+4,740
+P
+4,745
+P
+Dec 21, 2023
+3:55pm → 4:00pm
+Expired
+$1,179
+$321
+SPX
+Short Put Spread
+4,750
+P
+4,755
+P
+Dec 22, 2023
+3:55pm → 3:56pm
+Touch
+$1,440
+-$160
+SPX
+Short Put Spread
+4,765
+P
+4,770
+P
+Dec 26, 2023
+3:55pm → 4:00pm
+Expired
+$1,440
+$60
+SPX
+Short Put Spread
+4,765
+P
+4,770
+P
+Dec 27, 2023
+3:55pm → 4:00pm
+Expired
+$1,449
+$51
+SPX
+Short Put Spread
+4,775
+P
+4,780
+P
+Dec 28, 2023
+3:55pm → 4:00pm
+Expired
+$1,377
+$123
+SPX
+Short Put Spread
+4,760
+P
+4,765
+P
+Dec 29, 2023
+3:55pm → 4:00pm
+Expired
+$1,420
+$580
+SPX
+Short Put Spread
+4,730
+P
+4,735
+P
+Jan 2, 2024
+3:55pm → 4:00pm
+Expired
+$1,359
+$141
+SPX
+Short Put Spread
+4,695
+P
+4,700
+P
+Jan 3, 2024
+3:55pm → 4:00pm
+Expired
+$1,266
+$234
+SPX
+Short Put Spread
+4,680
+P
+4,685
+P
+Jan 4, 2024
+3:55pm → 4:00pm
+Expired
+$1,404
+$96
+SPX
+Short Put Spread
+4,690
+P
+4,695
+P
+Jan 5, 2024
+3:55pm → 4:00pm
+Expired
+$1,359
+$141
+SPX
+Short Put Spread
+4,755
+P
+4,760
+P
+Jan 8, 2024
+3:55pm → 4:00pm
+Expired
+$1,389
+$111
+SPX
+Short Put Spread
+4,750
+P
+4,755
+P
+Jan 9, 2024
+3:55pm → 3:58pm
+Touch
+$1,281
+$12
+SPX
+Short Put Spread
+4,770
+P
+4,775
+P
+Jan 10, 2024
+3:55pm → 4:00pm
+Expired
+$1,407
+$93
+SPX
+Short Put Spread
+4,770
+P
+4,775
+P
+Jan 11, 2024
+3:55pm → 4:00pm
+Expired
+$1,359
+$141
+SPX
+Short Put Spread
+4,775
+P
+4,780
+P
+Jan 12, 2024
+3:55pm → 4:00pm
+Expired
+$1,359
+$141
+SPX
+Short Put Spread
+4,755
+P
+4,760
+P
+Jan 16, 2024
+3:55pm → 4:00pm
+Expired
+$1,251
+$249
+SPX
+Short Put Spread
+4,730
+P
+4,735
+P
+Jan 17, 2024
+3:55pm → 4:00pm
+Expired
+$1,389
+$111
+SPX
+Short Put Spread
+4,775
+P
+4,780
+P
+Jan 18, 2024
+3:55pm → 3:56pm
+Touch
+$1,272
+-$159
+SPX
+Short Put Spread
+4,830
+P
+4,835
+P
+Jan 19, 2024
+3:55pm → 4:00pm
+Expired
+$1,419
+$81
+SPX
+Short Put Spread
+4,845
+P
+4,850
+P
+Jan 22, 2024
+3:55pm → 4:00pm
+Expired
+$1,266
+$234
+SPX
+Short Put Spread
+4,855
+P
+4,860
+P
+Jan 23, 2024
+3:55pm → 4:00pm
+Expired
+$1,473
+$27
+SPX
+Short Put Spread
+4,860
+P
+4,865
+P
+Jan 24, 2024
+3:55pm → 4:00pm
+Expired
+$1,371
+$129
+SPX
+Short Put Spread
+4,880
+P
+4,885
+P
+Jan 25, 2024
+3:55pm → 4:00pm
+Expired
+$1,431
+$69
+SPX
+Short Put Spread
+4,880
+P
+4,885
+P
+Jan 26, 2024
+3:55pm → 4:00pm
+Expired
+$1,428
+$72
+SPX
+Short Put Spread
+4,915
+P
+4,920
+P
+Jan 29, 2024
+3:55pm → 4:00pm
+Expired
+$1,365
+$135
+SPX
+Short Put Spread
+4,915
+P
+4,920
+P
+Jan 30, 2024
+3:55pm → 4:00pm
+Expired
+$1,449
+$51
+SPX
+Short Put Spread
+4,845
+P
+4,850
+P
+Jan 31, 2024
+3:55pm → 4:00pm
+Expired
+$1,500
+-$1,240
+SPX
+Short Put Spread
+4,890
+P
+4,895
+P
+Feb 1, 2024
+3:55pm → 4:00pm
+Expired
+$1,434
+$66
+SPX
+Short Put Spread
+4,960
+P
+4,965
+P
+Feb 2, 2024
+3:55pm → 3:56pm
+Touch
+$1,356
+-$342
+SPX
+Short Put Spread
+4,940
+P
+4,945
+P
+Feb 5, 2024
+3:55pm → 4:00pm
+Expired
+$1,365
+-$522
+SPX
+Short Put Spread
+4,940
+P
+4,945
+P
+Feb 6, 2024
+3:55pm → 4:00pm
+Expired
+$1,365
+$135
+SPX
+Short Put Spread
+4,985
+P
+4,990
+P
+Feb 7, 2024
+3:55pm → 4:00pm
+Expired
+$1,257
+$243
+SPX
+Short Put Spread
+4,985
+P
+4,990
+P
+Feb 8, 2024
+3:55pm → 4:00pm
+Expired
+$1,431
+$69
+SPX
+Short Put Spread
+5,015
+P
+5,020
+P
+Feb 9, 2024
+3:55pm → 4:00pm
+Expired
+$1,428
+$72
+SPX
+Short Put Spread
+5,015
+P
+5,020
+P
+Feb 12, 2024
+3:55pm → 3:56pm
+Touch
+$1,434
+-$348
+SPX
+Short Put Spread
+4,935
+P
+4,940
+P
+Feb 13, 2024
+3:55pm → 4:00pm
+Expired
+$1,386
+$114
+SPX
+Short Put Spread
+4,990
+P
+4,995
+P
+Feb 14, 2024
+3:55pm → 4:00pm
+Expired
+$1,500
+$500
+SPX
+Short Put Spread
+5,020
+P
+5,025
+P
+Feb 15, 2024
+3:55pm → 4:00pm
+Expired
+$1,404
+$96
+SPX
+Short Put Spread
+5,000
+P
+5,005
+P
+Feb 16, 2024
+3:55pm → 3:57pm
+Touch
+$1,400
+-$72
+SPX
+Short Put Spread
+4,965
+P
+4,970
+P
+Feb 20, 2024
+3:55pm → 3:56pm
+Touch
+$1,170
+-$276
+SPX
+Short Put Spread
+4,970
+P
+4,975
+P
+Feb 21, 2024
+3:55pm → 4:00pm
+Expired
+$1,371
+$129
+SPX
+Short Put Spread
+5,080
+P
+5,085
+P
+Feb 22, 2024
+3:55pm → 4:00pm
+Expired
+$1,359
+$141
+SPX
+Short Put Spread
+5,085
+P
+5,090
+P
+Feb 23, 2024
+3:55pm → 4:00pm
+Expired
+$1,440
+-$300
+SPX
+Short Put Spread
+5,065
+P
+5,070
+P
+Feb 26, 2024
+3:55pm → 4:00pm
+Expired
+$1,440
+-$81
+SPX
+Short Put Spread
+5,070
+P
+5,075
+P
+Feb 27, 2024
+3:55pm → 4:00pm
+Expired
+$1,449
+$51
+SPX
+Short Put Spread
+5,055
+P
+5,060
+P
+Feb 28, 2024
+3:55pm → 4:00pm
+Expired
+$1,440
+$60
+SPX
+Short Put Spread
+5,090
+P
+5,095
+P
+Feb 29, 2024
+3:55pm → 4:00pm
+Expired
+$1,236
+$264
+SPX
+Short Put Spread
+5,130
+P
+5,135
+P
+Mar 1, 2024
+3:55pm → 4:00pm
+Expired
+$1,305
+$195
+SPX
+Short Put Spread
+5,125
+P
+5,130
+P
+Mar 4, 2024
+3:55pm → 4:00pm
+Expired
+$1,266
+$234
+SPX
+Short Put Spread
+5,070
+P
+5,075
+P
+Mar 5, 2024
+3:55pm → 4:00pm
+Expired
+$1,179
+$321
+SPX
+Short Put Spread
+5,100
+P
+5,105
+P
+Mar 6, 2024
+3:55pm → 3:58pm
+Touch
+$1,164
+-$84
+SPX
+Short Put Spread
+5,155
+P
+5,160
+P
+Mar 7, 2024
+3:55pm → 3:57pm
+Touch
+$1,230
+-$165
+SPX
+Short Put Spread
+5,125
+P
+5,130
+P
+Mar 8, 2024
+3:55pm → 3:56pm
+Touch
+$1,440
+-$872
+SPX
+Short Put Spread
+5,105
+P
+5,110
+P
+Mar 11, 2024
+3:55pm → 4:00pm
+Expired
+$1,371
+$129
+SPX
+Short Put Spread
+5,170
+P
+5,175
+P
+Mar 12, 2024
+3:55pm → 4:00pm
+Expired
+$1,239
+$261
+SPX
+Short Put Spread
+5,160
+P
+5,165
+P
+Mar 13, 2024
+3:55pm → 3:56pm
+Touch
+$1,236
+-$453
+SPX
+Short Put Spread
+5,140
+P
+5,145
+P
+Mar 14, 2024
+3:55pm → 4:00pm
+Expired
+$1,245
+$255
+SPX
+Short Put Spread
+5,110
+P
+5,115
+P
+Mar 15, 2024
+3:55pm → 3:57pm
+Touch
+$1,368
+$12
+SPX
+Short Put Spread
+5,140
+P
+5,145
+P
+Mar 18, 2024
+3:55pm → 4:00pm
+Expired
+$1,329
+$171
+SPX
+Short Put Spread
+5,170
+P
+5,175
+P
+Mar 19, 2024
+3:55pm → 4:00pm
+Expired
+$1,440
+$60
+SPX
+Short Put Spread
+5,210
+P
+5,215
+P
+Mar 20, 2024
+3:55pm → 4:00pm
+Expired
+$1,140
+$360
+SPX
+Short Put Spread
+5,240
+P
+5,245
+P
+Mar 21, 2024
+3:55pm → 3:56pm
+Touch
+$1,176
+-$111
+SPX
+Short Put Spread
+5,235
+P
+5,240
+P
+Mar 22, 2024
+3:55pm → 3:56pm
+Touch
+$1,245
+-$231
+SPX
+Short Put Spread
+5,210
+P
+5,215
+P
+Mar 25, 2024
+3:55pm → 4:00pm
+Expired
+$1,428
+$72
+SPX
+Short Put Spread
+5,205
+P
+5,210
+P
+Mar 26, 2024
+3:55pm → 3:56pm
+Touch
+$1,254
+-$237
+SPX
+Short Put Spread
+5,240
+P
+5,245
+P
+Mar 27, 2024
+3:55pm → 4:00pm
+Expired
+$1,278
+$222
+SPX
+Short Put Spread
+5,250
+P
+5,255
+P
+Mar 28, 2024
+3:55pm → 4:00pm
+Expired
+$1,215
+$90
+SPX
+Short Put Spread
+5,235
+P
+5,240
+P
+Apr 1, 2024
+3:55pm → 4:00pm
+Expired
+$1,359
+$141
+SPX
+Short Put Spread
+5,200
+P
+5,205
+P
+Apr 2, 2024
+3:55pm → 4:00pm
+Expired
+$1,281
+$219
+SPX
+Short Put Spread
+5,205
+P
+5,210
+P
+Apr 3, 2024
+3:55pm → 3:56pm
+Touch
+$1,359
+-$273
+SPX
+Short Put Spread
+5,150
+P
+5,155
+P
+Apr 4, 2024
+3:55pm → 3:57pm
+Touch
+$1,248
+-$648
+SPX
+Short Put Spread
+5,200
+P
+5,205
+P
+Apr 5, 2024
+3:55pm → 3:59pm
+Touch
+$1,311
+-$96
+SPX
+Short Put Spread
+5,195
+P
+5,200
+P
+Apr 8, 2024
+3:55pm → 4:00pm
+Expired
+$1,386
+$114
+SPX
+Short Put Spread
+5,190
+P
+5,195
+P
+Apr 9, 2024
+3:55pm → 4:00pm
+Expired
+$1,386
+$114
+SPX
+Short Put Spread
+5,155
+P
+5,160
+P
+Apr 10, 2024
+3:55pm → 4:00pm
+Expired
+$1,164
+$336
+SPX
+Short Put Spread
+5,195
+P
+5,200
+P
+Apr 11, 2024
+3:55pm → 4:00pm
+Expired
+$1,284
+-$66
+SPX
+Short Put Spread
+5,110
+P
+5,115
+P
+Apr 12, 2024
+3:55pm → 4:00pm
+Expired
+$1,269
+$231
+SPX
+Short Put Spread
+5,060
+P
+5,065
+P
+Apr 15, 2024
+3:55pm → 3:59pm
+Touch
+$1,340
+-$468
+SPX
+Short Put Spread
+5,055
+P
+5,060
+P
+Apr 16, 2024
+3:55pm → 3:56pm
+Touch
+$1,146
+-$180
+SPX
+Short Put Spread
+5,025
+P
+5,030
+P
+Apr 17, 2024
+3:55pm → 3:56pm
+Touch
+$1,170
+-$465
+SPX
+Short Put Spread
+5,000
+P
+5,005
+P
+Apr 18, 2024
+3:55pm → 4:00pm
+Expired
+$1,269
+$231
+SPX
+Short Put Spread
+4,960
+P
+4,965
+P
+Apr 19, 2024
+3:55pm → 4:00pm
+Expired
+$1,352
+$648
+SPX
+Short Put Spread
+5,000
+P
+5,005
+P
+Apr 22, 2024
+3:55pm → 4:00pm
+Expired
+$1,236
+$264
+SPX
+Short Put Spread
+5,065
+P
+5,070
+P
+Apr 23, 2024
+3:55pm → 3:56pm
+Touch
+$1,468
+-$16
+SPX
+Short Put Spread
+5,065
+P
+5,070
+P
+Apr 24, 2024
+3:55pm → 4:00pm
+Expired
+$1,365
+$135
+SPX
+Short Put Spread
+5,040
+P
+5,045
+P
+Apr 25, 2024
+3:55pm → 4:00pm
+Expired
+$1,167
+$333
+SPX
+Short Put Spread
+5,095
+P
+5,100
+P
+Apr 26, 2024
+3:55pm → 4:00pm
+Expired
+$1,260
+$228
+SPX
+Short Put Spread
+5,105
+P
+5,110
+P
+Apr 29, 2024
+3:55pm → 4:00pm
+Expired
+$1,245
+$255
+SPX
+Short Put Spread
+5,040
+P
+5,045
+P
+Apr 30, 2024
+3:55pm → 3:56pm
+Touch
+$1,341
+-$501
+SPX
+Short Put Spread
+5,015
+P
+5,020
+P
+May 1, 2024
+3:55pm → 4:00pm
+Expired
+$1,155
+-$138
+SPX
+Short Put Spread
+5,050
+P
+5,055
+P
+May 2, 2024
+3:55pm → 4:00pm
+Expired
+$1,224
+$276
+SPX
+Short Put Spread
+5,120
+P
+5,125
+P
+May 3, 2024
+3:55pm → 4:00pm
+Expired
+$1,434
+$66
+SPX
+Short Put Spread
+5,170
+P
+5,175
+P
+May 6, 2024
+3:55pm → 4:00pm
+Expired
+$1,224
+$276
+SPX
+Short Put Spread
+5,185
+P
+5,190
+P
+May 7, 2024
+3:55pm → 3:56pm
+Touch
+$1,191
+-$162
+SPX
+Short Put Spread
+5,180
+P
+5,185
+P
+May 8, 2024
+3:55pm → 4:00pm
+Expired
+$1,440
+$60
+SPX
+Short Put Spread
+5,205
+P
+5,210
+P
+May 9, 2024
+3:55pm → 4:00pm
+Expired
+$1,404
+$96
+SPX
+Short Put Spread
+5,220
+P
+5,225
+P
+May 10, 2024
+3:55pm → 4:00pm
+Expired
+$1,281
+-$477
+SPX
+Short Put Spread
+5,215
+P
+5,220
+P
+May 13, 2024
+3:55pm → 3:57pm
+Touch
+$1,305
+-$96
+SPX
+Short Put Spread
+5,245
+P
+5,250
+P
+May 14, 2024
+3:55pm → 3:56pm
+Touch
+$1,221
+$18
+SPX
+Short Put Spread
+5,300
+P
+5,305
+P
+May 15, 2024
+3:55pm → 4:00pm
+Expired
+$1,365
+$135
+SPX
+Short Put Spread
+5,300
+P
+5,305
+P
+May 16, 2024
+3:55pm → 3:56pm
+Touch
+$1,428
+-$444
+SPX
+Short Put Spread
+5,295
+P
+5,300
+P
+May 17, 2024
+3:55pm → 4:00pm
+Expired
+$1,296
+$204
+SPX
+Short Put Spread
+5,300
+P
+5,305
+P
+May 20, 2024
+3:55pm → 4:00pm
+Expired
+$1,356
+$144
+SPX
+Short Put Spread
+5,315
+P
+5,320
+P
+May 21, 2024
+3:55pm → 4:00pm
+Expired
+$1,383
+$117
+SPX
+Short Put Spread
+5,290
+P
+5,295
+P
+May 22, 2024
+3:55pm → 4:00pm
+Expired
+$1,284
+$216
+SPX
+Short Put Spread
+5,260
+P
+5,265
+P
+May 23, 2024
+3:55pm → 3:56pm
+Touch
+$1,236
+-$381
+SPX
+Short Put Spread
+5,295
+P
+5,300
+P
+May 24, 2024
+3:55pm → 4:00pm
+Expired
+$1,311
+$189
+SPX
+Short Put Spread
+5,290
+P
+5,295
+P
+May 28, 2024
+3:55pm → 4:00pm
+Expired
+$1,434
+$66
+SPX
+Short Put Spread
+5,260
+P
+5,265
+P
+May 29, 2024
+3:55pm → 3:57pm
+Touch
+$1,269
+-$81
+SPX
+Short Put Spread
+5,225
+P
+5,230
+P
+May 30, 2024
+3:55pm → 4:00pm
+Expired
+$1,329
+$171
+SPX
+Short Put Spread
+5,260
+P
+5,265
+P
+May 31, 2024
+3:55pm → 4:00pm
+Expired
+$1,476
+$524
+SPX
+Short Put Spread
+5,265
+P
+5,270
+P
+Jun 3, 2024
+3:55pm → 4:00pm
+Expired
+$1,290
+$210
+SPX
+Short Put Spread
+5,285
+P
+5,290
+P
+Jun 4, 2024
+3:55pm → 3:56pm
+Touch
+$1,400
+-$52
+SPX
+Short Put Spread
+5,345
+P
+5,350
+P
+Jun 5, 2024
+3:55pm → 4:00pm
+Expired
+$1,305
+$195
+SPX
+Short Put Spread
+5,345
+P
+5,350
+P
+Jun 6, 2024
+3:55pm → 3:57pm
+Touch
+$1,272
+-$81
+SPX
+Short Put Spread
+5,340
+P
+5,345
+P
+Jun 7, 2024
+3:55pm → 4:00pm
+Expired
+$1,305
+$195
+SPX
+Short Put Spread
+5,350
+P
+5,355
+P
+Jun 10, 2024
+3:55pm → 4:00pm
+Expired
+$1,383
+$117
+SPX
+Short Put Spread
+5,365
+P
+5,370
+P
+Jun 11, 2024
+3:55pm → 4:00pm
+Expired
+$1,188
+$312
+SPX
+Short Put Spread
+5,415
+P
+5,420
+P
+Jun 12, 2024
+3:55pm → 4:00pm
+Expired
+$1,161
+$339
+SPX
+Short Put Spread
+5,430
+P
+5,435
+P
+Jun 13, 2024
+3:55pm → 3:56pm
+Touch
+$1,392
+-$8
+SPX
+Short Put Spread
+5,415
+P
+5,420
+P
+Jun 14, 2024
+3:55pm → 4:00pm
+Expired
+$1,401
+$99
+SPX
+Short Put Spread
+5,470
+P
+5,475
+P
+Jun 17, 2024
+3:55pm → 3:56pm
+Touch
+$1,164
+-$135
+SPX
+Short Put Spread
+5,480
+P
+5,485
+P
+Jun 18, 2024
+3:55pm → 4:00pm
+Expired
+$1,353
+$147
+SPX
+Short Put Spread
+5,475
+P
+5,480
+P
+Jun 20, 2024
+3:55pm → 3:56pm
+Touch
+$1,194
+-$390
+SPX
+Short Put Spread
+5,465
+P
+5,470
+P
+Jun 21, 2024
+3:55pm → 3:56pm
+Touch
+$1,149
+-$138
+SPX
+Short Put Spread
+5,450
+P
+5,455
+P
+Jun 24, 2024
+3:55pm → 3:56pm
+Touch
+$1,281
+-$177
+SPX
+Short Put Spread
+5,460
+P
+5,465
+P
+Jun 25, 2024
+3:55pm → 4:00pm
+Expired
+$1,215
+$285
+SPX
+Short Put Spread
+5,470
+P
+5,475
+P
+Jun 26, 2024
+3:55pm → 4:00pm
+Expired
+$1,209
+$291
+SPX
+Short Put Spread
+5,465
+P
+5,470
+P
+Jun 27, 2024
+3:55pm → 4:00pm
+Expired
+$1,233
+$267
+SPX
+Short Put Spread
+5,460
+P
+5,465
+P
+Jun 28, 2024
+3:55pm → 3:57pm
+Touch
+$1,332
+-$224
+SPX
+Short Put Spread
+5,470
+P
+5,475
+P
+Jul 1, 2024
+3:55pm → 3:59pm
+Touch
+$1,500
+$180
+SPX
+Short Put Spread
+5,495
+P
+5,500
+P
+Jul 2, 2024
+3:55pm → 4:00pm
+Expired
+$1,455
+$45
+SPX
+Short Put Spread
+5,560
+P
+5,565
+P
+Jul 5, 2024
+3:55pm → 4:00pm
+Expired
+$1,395
+$105
+SPX
+Short Put Spread
+5,565
+P
+5,570
+P
+Jul 8, 2024
+3:55pm → 3:59pm
+Touch
+$1,359
+-$51
+SPX
+Short Put Spread
+5,570
+P
+5,575
+P
+Jul 9, 2024
+3:55pm → 4:00pm
+Expired
+$1,380
+$120
+SPX
+Short Put Spread
+5,625
+P
+5,630
+P
+Jul 10, 2024
+3:55pm → 4:00pm
+Expired
+$1,281
+$219
+SPX
+Short Put Spread
+5,580
+P
+5,585
+P
+Jul 11, 2024
+3:55pm → 4:00pm
+Expired
+$1,209
+$153
+SPX
+Short Put Spread
+5,615
+P
+5,620
+P
+Jul 12, 2024
+3:55pm → 3:56pm
+Touch
+$1,134
+-$279
+SPX
+Short Put Spread
+5,620
+P
+5,625
+P
+Jul 15, 2024
+3:55pm → 4:00pm
+Expired
+$1,492
+$508
+SPX
+Short Put Spread
+5,660
+P
+5,665
+P
+Jul 16, 2024
+3:55pm → 4:00pm
+Expired
+$1,284
+$216
+SPX
+Short Put Spread
+5,585
+P
+5,590
+P
+Jul 17, 2024
+3:55pm → 3:56pm
+Touch
+$1,380
+-$88
+SPX
+Short Put Spread
+5,530
+P
+5,535
+P
+Jul 18, 2024
+3:55pm → 4:00pm
+Expired
+$1,161
+$339
+SPX
+Short Put Spread
+5,495
+P
+5,500
+P
+Jul 19, 2024
+3:55pm → 3:57pm
+Touch
+$1,492
+-$252
+SPX
+Short Put Spread
+5,555
+P
+5,560
+P
+Jul 22, 2024
+3:55pm → 4:00pm
+Expired
+$1,269
+$231
+SPX
+Short Put Spread
+5,545
+P
+5,550
+P
+Jul 23, 2024
+3:55pm → 4:00pm
+Expired
+$1,137
+$363
+SPX
+Short Put Spread
+5,415
+P
+5,420
+P
+Jul 24, 2024
+3:55pm → 4:00pm
+Expired
+$1,260
+$740
+SPX
+Short Put Spread
+5,400
+P
+5,405
+P
+Jul 25, 2024
+3:55pm → 3:59pm
+Touch
+$1,131
+-$402
+SPX
+Short Put Spread
+5,440
+P
+5,445
+P
+Jul 26, 2024
+3:55pm → 4:00pm
+Expired
+$1,488
+$512
+SPX
+Short Put Spread
+5,460
+P
+5,465
+P
+Jul 29, 2024
+3:55pm → 3:57pm
+Touch
+$1,251
+-$156
+SPX
+Short Put Spread
+5,435
+P
+5,440
+P
+Jul 30, 2024
+3:55pm → 4:00pm
+Expired
+$1,275
+-$843
+SPX
+Short Put Spread
+5,520
+P
+5,525
+P
+Jul 31, 2024
+3:55pm → 3:57pm
+Touch
+$1,248
+-$228
+SPX
+Short Put Spread
+5,425
+P
+5,430
+P
+Aug 1, 2024
+3:55pm → 4:00pm
+Expired
+$1,146
+$354
+SPX
+Short Put Spread
+5,330
+P
+5,335
+P
+Aug 2, 2024
+3:55pm → 4:00pm
+Expired
+$1,240
+$760
+SPX
+Short Put Spread
+5,165
+P
+5,170
+P
+Aug 5, 2024
+3:55pm → 4:00pm
+Expired
+$1,280
+$720
+SPX
+Short Put Spread
+5,240
+P
+5,245
+P
+Aug 6, 2024
+3:55pm → 3:58pm
+Touch
+$1,372
+-$524
+SPX
+Short Put Spread
+5,195
+P
+5,200
+P
+Aug 7, 2024
+3:55pm → 3:56pm
+Touch
+$1,488
+-$268
+SPX
+Short Put Spread
+5,305
+P
+5,310
+P
+Aug 8, 2024
+3:55pm → 3:57pm
+Touch
+$1,149
+-$183
+SPX
+Short Put Spread
+5,330
+P
+5,335
+P
+Aug 9, 2024
+3:55pm → 4:00pm
+Expired
+$1,500
+$500
+SPX
+Short Put Spread
+5,330
+P
+5,335
+P
+Aug 12, 2024
+3:55pm → 4:00pm
+Expired
+$1,134
+$366
+SPX
+Short Put Spread
+5,420
+P
+5,425
+P
+Aug 13, 2024
+3:55pm → 4:00pm
+Expired
+$1,176
+$324
+SPX
+Short Put Spread
+5,450
+P
+5,455
+P
+Aug 14, 2024
+3:55pm → 4:00pm
+Expired
+$1,480
+$520
+SPX
+Short Put Spread
+5,530
+P
+5,535
+P
+Aug 15, 2024
+3:55pm → 3:59pm
+Touch
+$1,380
+$228
+SPX
+Short Put Spread
+5,545
+P
+5,550
+P
+Aug 16, 2024
+3:55pm → 4:00pm
+Expired
+$1,215
+$285
+SPX
+Short Put Spread
+5,595
+P
+5,600
+P
+Aug 19, 2024
+3:55pm → 4:00pm
+Expired
+$1,236
+$264
+SPX
+Short Put Spread
+5,590
+P
+5,595
+P
+Aug 20, 2024
+3:55pm → 4:00pm
+Expired
+$1,239
+$261
+SPX
+Short Put Spread
+5,610
+P
+5,615
+P
+Aug 21, 2024
+3:55pm → 4:00pm
+Expired
+$1,356
+$144
+SPX
+Short Put Spread
+5,560
+P
+5,565
+P
+Aug 22, 2024
+3:55pm → 3:56pm
+Touch
+$1,492
+-$204
+SPX
+Short Put Spread
+5,630
+P
+5,635
+P
+Aug 23, 2024
+3:55pm → 3:56pm
+Touch
+$1,134
+-$243
+SPX
+Short Put Spread
+5,605
+P
+5,610
+P
+Aug 26, 2024
+3:55pm → 3:58pm
+Touch
+$1,359
+-$225
+SPX
+Short Put Spread
+5,615
+P
+5,620
+P
+Aug 27, 2024
+3:55pm → 4:00pm
+Expired
+$1,332
+$168
+SPX
+Short Put Spread
+5,595
+P
+5,600
+P
+Aug 28, 2024
+3:55pm → 3:56pm
+Touch
+$1,440
+-$208
+SPX
+Short Put Spread
+5,580
+P
+5,585
+P
+Aug 29, 2024
+3:55pm → 4:00pm
+Expired
+$1,440
+$560
+SPX
+Short Put Spread
+5,635
+P
+5,640
+P
+Aug 30, 2024
+3:55pm → 4:00pm
+Expired
+$1,158
+$342
+SPX
+Short Put Spread
+5,510
+P
+5,515
+P
+Sep 3, 2024
+3:55pm → 4:00pm
+Expired
+$1,164
+$336
+SPX
+Short Put Spread
+5,515
+P
+5,520
+P
+Sep 4, 2024
+3:55pm → 4:00pm
+Expired
+$1,228
+$772
+SPX
+Short Put Spread
+5,490
+P
+5,495
+P
+Sep 5, 2024
+3:55pm → 3:59pm
+Touch
+$1,292
+$36
+SPX
+Short Put Spread
+5,405
+P
+5,410
+P
+Sep 6, 2024
+3:55pm → 3:56pm
+Touch
+$1,240
+-$400
+SPX
+Short Put Spread
+5,455
+P
+5,460
+P
+Sep 9, 2024
+3:55pm → 4:00pm
+Expired
+$1,221
+$279
+SPX
+Short Put Spread
+5,490
+P
+5,495
+P
+Sep 10, 2024
+3:55pm → 3:56pm
+Touch
+$1,340
+-$172
+SPX
+Short Put Spread
+5,540
+P
+5,545
+P
+Sep 11, 2024
+3:55pm → 4:00pm
+Expired
+$1,155
+$345
+SPX
+Short Put Spread
+5,585
+P
+5,590
+P
+Sep 12, 2024
+3:55pm → 4:00pm
+Expired
+$1,388
+$612
+SPX
+Short Put Spread
+5,620
+P
+5,625
+P
+Sep 13, 2024
+3:55pm → 4:00pm
+Expired
+$1,242
+$258
+SPX
+Short Put Spread
+5,625
+P
+5,630
+P
+Sep 16, 2024
+3:55pm → 4:00pm
+Expired
+$1,374
+$126
+SPX
+Short Put Spread
+5,625
+P
+5,630
+P
+Sep 17, 2024
+3:55pm → 4:00pm
+Expired
+$1,200
+$300
+SPX
+Short Put Spread
+5,615
+P
+5,620
+P
+Sep 18, 2024
+3:55pm → 3:59pm
+Touch
+$1,400
+-$40
+SPX
+Short Put Spread
+5,705
+P
+5,710
+P
+Sep 19, 2024
+3:55pm → 4:00pm
+Expired
+$1,245
+$255
+SPX
+Short Put Spread
+5,700
+P
+5,705
+P
+Sep 20, 2024
+3:55pm → 3:56pm
+Touch
+$1,408
+-$360
+SPX
+Short Put Spread
+5,710
+P
+5,715
+P
+Sep 23, 2024
+3:55pm → 4:00pm
+Expired
+$1,404
+$96
+SPX
+Short Put Spread
+5,720
+P
+5,725
+P
+Sep 24, 2024
+3:55pm → 4:00pm
+Expired
+$1,395
+$105
+SPX
+Short Put Spread
+5,715
+P
+5,720
+P
+Sep 25, 2024
+3:55pm → 3:56pm
+Touch
+$1,170
+-$81
+SPX
+Short Put Spread
+5,735
+P
+5,740
+P
+Sep 26, 2024
+3:55pm → 4:00pm
+Expired
+$1,455
+$45
+SPX
+Short Put Spread
+5,735
+P
+5,740
+P
+Sep 27, 2024
+3:55pm → 3:59pm
+Touch
+$1,179
+-$120
+SPX
+Short Put Spread
+5,750
+P
+5,755
+P
+Sep 30, 2024
+3:55pm → 4:00pm
+Expired
+$1,452
+$548
+SPX
+Short Put Spread
+5,700
+P
+5,705
+P
+Oct 1, 2024
+3:55pm → 4:00pm
+Expired
+$1,164
+$336
+SPX
+Short Put Spread
+5,705
+P
+5,710
+P
+Oct 2, 2024
+3:55pm → 3:57pm
+Touch
+$1,230
+-$21
+SPX
+Short Put Spread
+5,685
+P
+5,690
+P
+Oct 3, 2024
+3:55pm → 4:00pm
+Expired
+$1,335
+$165
+SPX
+Short Put Spread
+5,740
+P
+5,745
+P
+Oct 4, 2024
+3:55pm → 4:00pm
+Expired
+$1,290
+$210
+SPX
+Short Put Spread
+5,695
+P
+5,700
+P
+Oct 7, 2024
+3:55pm → 3:56pm
+Touch
+$1,161
+-$672
+SPX
+Short Put Spread
+5,750
+P
+5,755
+P
+Oct 8, 2024
+3:55pm → 3:56pm
+Touch
+$1,170
+-$39
+SPX
+Short Put Spread
+5,790
+P
+5,795
+P
+Oct 9, 2024
+3:55pm → 3:56pm
+Touch
+$1,191
+-$30
+SPX
+Short Put Spread
+5,775
+P
+5,780
+P
+Oct 10, 2024
+3:55pm → 4:00pm
+Expired
+$1,299
+$201
+SPX
+Short Put Spread
+5,810
+P
+5,815
+P
+Oct 11, 2024
+3:55pm → 4:00pm
+Expired
+$1,371
+$129
+SPX
+Short Put Spread
+5,855
+P
+5,860
+P
+Oct 14, 2024
+3:55pm → 4:00pm
+Expired
+$1,404
+$51
+SPX
+Short Put Spread
+5,810
+P
+5,815
+P
+Oct 15, 2024
+3:55pm → 3:56pm
+Touch
+$1,326
+-$561
+SPX
+Short Put Spread
+5,835
+P
+5,840
+P
+Oct 16, 2024
+3:55pm → 4:00pm
+Expired
+$1,266
+$234
+SPX
+Short Put Spread
+5,835
+P
+5,840
+P
+Oct 17, 2024
+3:55pm → 4:00pm
+Expired
+$1,440
+$60
+SPX
+Short Put Spread
+5,855
+P
+5,860
+P
+Oct 18, 2024
+3:55pm → 4:00pm
+Expired
+$1,455
+$45
+SPX
+Short Put Spread
+5,840
+P
+5,845
+P
+Oct 21, 2024
+3:55pm → 4:00pm
+Expired
+$1,410
+$90
+SPX
+Short Put Spread
+5,850
+P
+5,855
+P
+Oct 22, 2024
+3:55pm → 3:59pm
+Touch
+$1,419
+-$339
+SPX
+Short Put Spread
+5,785
+P
+5,790
+P
+Oct 23, 2024
+3:55pm → 4:00pm
+Expired
+$1,404
+$96
+SPX
+Short Put Spread
+5,805
+P
+5,810
+P
+Oct 24, 2024
+3:55pm → 4:00pm
+Expired
+$1,362
+$96
+SPX
+Short Put Spread
+5,800
+P
+5,805
+P
+Oct 25, 2024
+3:55pm → 3:58pm
+Touch
+$1,281
+-$216
+SPX
+Short Put Spread
+5,820
+P
+5,825
+P
+Oct 28, 2024
+3:55pm → 3:56pm
+Touch
+$1,425
+-$369
+SPX
+Short Put Spread
+5,830
+P
+5,835
+P
+Oct 29, 2024
+3:55pm → 3:57pm
+Touch
+$1,254
+$66
+SPX
+Short Put Spread
+5,810
+P
+5,815
+P
+Oct 30, 2024
+3:55pm → 3:56pm
+Touch
+$1,335
+-$420
+SPX
+Short Put Spread
+5,710
+P
+5,715
+P
+Oct 31, 2024
+3:55pm → 4:00pm
+Expired
+$1,248
+-$1,248
+SPX
+Short Put Spread
+5,725
+P
+5,730
+P
+Nov 1, 2024
+3:55pm → 3:57pm
+Touch
+$1,372
+-$344
+SPX
+Short Put Spread
+5,705
+P
+5,710
+P
+Nov 4, 2024
+3:55pm → 3:57pm
+Touch
+$1,290
+-$159
+SPX
+Short Put Spread
+5,770
+P
+5,775
+P
+Nov 5, 2024
+3:55pm → 4:00pm
+Expired
+$1,492
+$508
+SPX
+Short Put Spread
+5,920
+P
+5,925
+P
+Nov 6, 2024
+3:55pm → 4:00pm
+Expired
+$1,188
+$312
+SPX
+Short Put Spread
+5,965
+P
+5,970
+P
+Nov 7, 2024
+3:55pm → 4:00pm
+Expired
+$1,200
+$300
+SPX
+Short Put Spread
+5,990
+P
+5,995
+P
+Nov 8, 2024
+3:55pm → 3:56pm
+Touch
+$1,188
+-$144
+SPX
+Short Put Spread
+5,990
+P
+5,995
+P
+Nov 11, 2024
+3:55pm → 4:00pm
+Expired
+$1,440
+$60
+SPX
+Short Put Spread
+5,980
+P
+5,985
+P
+Nov 12, 2024
+3:55pm → 3:56pm
+Touch
+$1,209
+-$234
+SPX
+Short Put Spread
+5,975
+P
+5,980
+P
+Nov 13, 2024
+3:55pm → 4:00pm
+Expired
+$1,356
+$144
+SPX
+Short Put Spread
+5,940
+P
+5,945
+P
+Nov 14, 2024
+3:55pm → 4:00pm
+Expired
+$1,290
+$210
+SPX
+Short Put Spread
+5,865
+P
+5,870
+P
+Nov 15, 2024
+3:55pm → 4:00pm
+Expired
+$1,200
+$300
+SPX
+Short Put Spread
+5,880
+P
+5,885
+P
+Nov 18, 2024
+3:55pm → 4:00pm
+Expired
+$1,404
+$96
+SPX
+Short Put Spread
+5,905
+P
+5,910
+P
+Nov 19, 2024
+3:55pm → 4:00pm
+Expired
+$1,275
+$225
+SPX
+Short Put Spread
+5,910
+P
+5,915
+P
+Nov 20, 2024
+3:55pm → 3:59pm
+Touch
+$1,472
+$288
+SPX
+Short Put Spread
+5,945
+P
+5,950
+P
+Nov 21, 2024
+3:55pm → 3:58pm
+Touch
+$1,290
+-$60
+SPX
+Short Put Spread
+5,960
+P
+5,965
+P
+Nov 22, 2024
+3:55pm → 4:00pm
+Expired
+$1,395
+$105
+SPX
+Short Put Spread
+5,980
+P
+5,985
+P
+Nov 25, 2024
+3:55pm → 4:00pm
+Expired
+$1,335
+$165
+SPX
+Short Put Spread
+6,015
+P
+6,020
+P
+Nov 26, 2024
+3:55pm → 4:00pm
+Expired
+$1,335
+$165
+SPX
+Short Put Spread
+5,990
+P
+5,995
+P
+Nov 27, 2024
+3:55pm → 4:00pm
+Expired
+$1,314
+$186
+SPX
+Short Put Spread
+6,040
+P
+6,045
+P
+Dec 2, 2024
+3:55pm → 4:00pm
+Expired
+$1,374
+$126
+SPX
+Short Put Spread
+6,045
+P
+6,050
+P
+Dec 3, 2024
+3:55pm → 3:59pm
+Touch
+$1,329
+$60
+SPX
+Short Put Spread
+6,080
+P
+6,085
+P
+Dec 4, 2024
+3:55pm → 4:00pm
+Expired
+$1,344
+$156
+SPX
+Short Put Spread
+6,070
+P
+6,075
+P
+Dec 5, 2024
+3:55pm → 3:56pm
+Touch
+$1,341
+-$276
+SPX
+Short Put Spread
+6,080
+P
+6,085
+P
+Dec 6, 2024
+3:55pm → 4:00pm
+Expired
+$1,359
+$141
+SPX
+Short Put Spread
+6,040
+P
+6,045
+P
+Dec 9, 2024
+3:55pm → 4:00pm
+Expired
+$1,470
+$30
+SPX
+Short Put Spread
+6,025
+P
+6,030
+P
+Dec 10, 2024
+3:55pm → 4:00pm
+Expired
+$1,272
+$228
+SPX
+Short Put Spread
+6,075
+P
+6,080
+P
+Dec 11, 2024
+3:55pm → 4:00pm
+Expired
+$1,470
+$30
+SPX
+Short Put Spread
+6,050
+P
+6,055
+P
+Dec 12, 2024
+3:55pm → 3:56pm
+Touch
+$1,290
+-$345
+SPX
+Short Put Spread
+6,040
+P
+6,045
+P
+Dec 13, 2024
+3:55pm → 4:00pm
+Expired
+$1,458
+$42
+SPX
+Short Put Spread
+6,060
+P
+6,065
+P
+Dec 16, 2024
+3:55pm → 4:00pm
+Expired
+$1,419
+$81
+SPX
+Short Put Spread
+6,045
+P
+6,050
+P
+Dec 17, 2024
+3:55pm → 4:00pm
+Expired
+$1,359
+$141
+SPX
+Short Put Spread
+5,900
+P
+5,905
+P
+Dec 18, 2024
+3:55pm → 4:00pm
+Expired
+$1,200
+-$1,200
+SPX
+Short Put Spread
+5,860
+P
+5,865
+P
+Dec 19, 2024
+3:55pm → 4:00pm
+Expired
+$1,468
+$532
+SPX
+Short Put Spread
+5,925
+P
+5,930
+P
+Dec 20, 2024
+3:55pm → 3:56pm
+Touch
+$1,232
+-$292
+SPX
+Short Put Spread
+5,965
+P
+5,970
+P
+Dec 23, 2024
+3:55pm → 4:00pm
+Expired
+$1,374
+$126
+SPX
+Short Put Spread
+6,035
+P
+6,040
+P
+Dec 26, 2024
+3:55pm → 3:59pm
+Touch
+$1,365
+-$210
+SPX
+Short Put Spread
+5,960
+P
+5,965
+P
+Dec 27, 2024
+3:55pm → 4:00pm
+Expired
+$1,296
+$204
+SPX
+Short Put Spread
+5,915
+P
+5,920
+P
+Dec 30, 2024
+3:55pm → 3:57pm
+Touch
+$1,328
+-$696
+SPX
+Short Put Spread
+5,870
+P
+5,875
+P
+Dec 31, 2024
+3:55pm → 3:56pm
+Touch
+$1,500
+-$312
+SPX
+Short Put Spread
+5,855
+P
+5,860
+P
+Jan 2, 2025
+3:55pm → 4:00pm
+Expired
+$1,224
+$276
+SPX
+Short Put Spread
+5,930
+P
+5,935
+P
+Jan 3, 2025
+3:55pm → 4:00pm
+Expired
+$1,230
+$270
+SPX
+Short Put Spread
+5,965
+P
+5,970
+P
+Jan 6, 2025
+3:55pm → 3:58pm
+Touch
+$1,480
+-$80
+SPX
+Short Put Spread
+5,900
+P
+5,905
+P
+Jan 7, 2025
+3:55pm → 4:00pm
+Expired
+$1,137
+$363
+SPX
+Short Put Spread
+5,910
+P
+5,915
+P
+Jan 8, 2025
+3:55pm → 4:00pm
+Expired
+$1,468
+$532
+SPX
+Short Put Spread
+5,825
+P
+5,830
+P
+Jan 10, 2025
+3:55pm → 3:56pm
+Touch
+$1,312
+-$340
+SPX
+Short Put Spread
+5,825
+P
+5,830
+P
+Jan 13, 2025
+3:55pm → 4:00pm
+Expired
+$1,230
+$270
+SPX
+Short Put Spread
+5,830
+P
+5,835
+P
+Jan 14, 2025
+3:55pm → 4:00pm
+Expired
+$1,134
+$366
+SPX
+Short Put Spread
+5,945
+P
+5,950
+P
+Jan 15, 2025
+3:55pm → 3:56pm
+Touch
+$1,460
+$72
+SPX
+Short Put Spread
+5,940
+P
+5,945
+P
+Jan 16, 2025
+3:55pm → 3:56pm
+Touch
+$1,472
+-$644
+SPX
+Short Put Spread
+5,995
+P
+6,000
+P
+Jan 17, 2025
+3:55pm → 3:56pm
+Touch
+$1,329
+-$228
+SPX
+Short Put Spread
+6,040
+P
+6,045
+P
+Jan 21, 2025
+3:55pm → 4:00pm
+Expired
+$1,434
+$66
+SPX
+Short Put Spread
+6,080
+P
+6,085
+P
+Jan 22, 2025
+3:55pm → 4:00pm
+Expired
+$1,389
+$111
+SPX
+Short Put Spread
+6,100
+P
+6,105
+P
+Jan 23, 2025
+3:55pm → 4:00pm
+Expired
+$1,395
+$105
+SPX
+Short Put Spread
+6,090
+P
+6,095
+P
+Jan 24, 2025
+3:55pm → 4:00pm
+Expired
+$1,140
+$360
+SPX
+Short Put Spread
+5,990
+P
+5,995
+P
+Jan 27, 2025
+3:55pm → 4:00pm
+Expired
+$1,290
+$210
+SPX
+Short Put Spread
+6,065
+P
+6,070
+P
+Jan 28, 2025
+3:55pm → 3:57pm
+Touch
+$1,140
+-$93
+SPX
+Short Put Spread
+6,030
+P
+6,035
+P
+Jan 29, 2025
+3:55pm → 4:00pm
+Expired
+$1,137
+$363
+SPX
+Short Put Spread
+6,060
+P
+6,065
+P
+Jan 30, 2025
+3:55pm → 4:00pm
+Expired
+$1,269
+$231
+SPX
+Short Put Spread
+6,030
+P
+6,035
+P
+Jan 31, 2025
+3:55pm → 4:00pm
+Expired
+$1,155
+$345
+SPX
+Short Put Spread
+5,995
+P
+6,000
+P
+Feb 3, 2025
+3:55pm → 3:56pm
+Touch
+$1,468
+-$236
+SPX
+Short Put Spread
+6,030
+P
+6,035
+P
+Feb 4, 2025
+3:55pm → 4:00pm
+Expired
+$1,320
+$180
+SPX
+Short Put Spread
+6,045
+P
+6,050
+P
+Feb 5, 2025
+3:55pm → 4:00pm
+Expired
+$1,410
+$90
+SPX
+Short Put Spread
+6,075
+P
+6,080
+P
+Feb 6, 2025
+3:55pm → 3:57pm
+Touch
+$1,152
+$102
+SPX
+Short Put Spread
+6,020
+P
+6,025
+P
+Feb 7, 2025
+3:55pm → 3:56pm
+Touch
+$1,320
+-$174
+SPX
+Short Put Spread
+6,055
+P
+6,060
+P
+Feb 10, 2025
+3:55pm → 4:00pm
+Expired
+$1,419
+$81
+SPX
+Short Put Spread
+6,060
+P
+6,065
+P
+Feb 11, 2025
+3:55pm → 4:00pm
+Expired
+$1,311
+$189
+SPX
+Short Put Spread
+6,040
+P
+6,045
+P
+Feb 12, 2025
+3:55pm → 4:00pm
+Expired
+$1,350
+$150
+SPX
+Short Put Spread
+6,105
+P
+6,110
+P
+Feb 13, 2025
+3:55pm → 4:00pm
+Expired
+$1,326
+$174
+SPX
+Short Put Spread
+6,110
+P
+6,115
+P
+Feb 14, 2025
+3:55pm → 4:00pm
+Expired
+$1,344
+$45
+SPX
+Short Put Spread
+6,110
+P
+6,115
+P
+Feb 18, 2025
+3:55pm → 4:00pm
+Expired
+$1,284
+$216
+SPX
+Short Put Spread
+6,135
+P
+6,140
+P
+Feb 19, 2025
+3:55pm → 4:00pm
+Expired
+$1,500
+$500
+SPX
+Short Put Spread
+6,110
+P
+6,115
+P
+Feb 20, 2025
+3:55pm → 4:00pm
+Expired
+$1,266
+$234
+SPX
+Short Put Spread
+6,010
+P
+6,015
+P
+Feb 21, 2025
+3:55pm → 3:57pm
+Touch
+$1,179
+-$489
+SPX
+Short Put Spread
+5,980
+P
+5,985
+P
+Feb 24, 2025
+3:55pm → 3:58pm
+Touch
+$1,215
+-$189
+SPX
+Short Put Spread
+5,945
+P
+5,950
+P
+Feb 25, 2025
+3:55pm → 4:00pm
+Expired
+$1,272
+$728
+SPX
+Short Put Spread
+5,955
+P
+5,960
+P
+Feb 26, 2025
+3:55pm → 3:56pm
+Touch
+$1,340
+$80
+SPX
+Short Put Spread
+5,860
+P
+5,865
+P
+Feb 27, 2025
+3:55pm → 3:57pm
+Touch
+$1,176
+-$306
+SPX
+Short Put Spread
+5,930
+P
+5,935
+P
+Feb 28, 2025
+3:55pm → 4:00pm
+Expired
+$1,452
+$548
+SPX
+Short Put Spread
+5,830
+P
+5,835
+P
+Mar 3, 2025
+3:55pm → 4:00pm
+Expired
+$1,292
+$708
+SPX
+Short Put Spread
+5,770
+P
+5,775
+P
+Mar 4, 2025
+3:55pm → 4:00pm
+Expired
+$1,252
+$748
+SPX
+Short Put Spread
+5,840
+P
+5,845
+P
+Mar 5, 2025
+3:55pm → 3:58pm
+Touch
+$1,432
+-$292
+SPX
+Short Put Spread
+5,735
+P
+5,740
+P
+Mar 6, 2025
+3:55pm → 3:57pm
+Touch
+$1,420
+-$228
+SPX
+Short Put Spread
+5,765
+P
+5,770
+P
+Mar 7, 2025
+3:55pm → 4:00pm
+Expired
+$1,140
+$360
+SPX
+Short Put Spread
+5,605
+P
+5,610
+P
+Mar 10, 2025
+3:55pm → 4:00pm
+Expired
+$1,450
+$1,050
+SPX
+Short Put Spread
+5,580
+P
+5,585
+P
+Mar 11, 2025
+3:55pm → 3:56pm
+Touch
+$1,272
+-$420
+SPX
+Short Put Spread
+5,595
+P
+5,600
+P
+Mar 12, 2025
+3:55pm → 4:00pm
+Expired
+$1,432
+$288
+SPX
+Short Put Spread
+5,510
+P
+5,515
+P
+Mar 13, 2025
+3:55pm → 4:00pm
+Expired
+$1,352
+$648
+SPX
+Short Put Spread
+5,680
+P
+5,685
+P
+Mar 17, 2025
+3:55pm → 3:56pm
+Touch
+$1,245
+-$600
+SPX
+Short Put Spread
+5,610
+P
+5,615
+P
+Mar 18, 2025
+3:55pm → 3:56pm
+Touch
+$1,380
+-$348
+SPX
+Short Put Spread
+5,675
+P
+5,680
+P
+Mar 19, 2025
+3:55pm → 3:56pm
+Touch
+$1,460
+-$600
+SPX
+Short Put Spread
+5,655
+P
+5,660
+P
+Mar 20, 2025
+3:55pm → 4:00pm
+Expired
+$1,200
+$300
+SPX
+Short Put Spread
+5,650
+P
+5,655
+P
+Mar 21, 2025
+3:55pm → 4:00pm
+Expired
+$1,155
+$345
+SPX
+Short Put Spread
+5,765
+P
+5,770
+P
+Mar 24, 2025
+3:55pm → 3:56pm
+Touch
+$1,269
+-$24
+SPX
+Short Put Spread
+5,770
+P
+5,775
+P
+Mar 25, 2025
+3:55pm → 3:59pm
+Touch
+$1,360
+$132
+SPX
+Short Put Spread
+5,710
+P
+5,715
+P
+Mar 26, 2025
+3:55pm → 3:56pm
+Touch
+$1,380
+-$280
+SPX
+Short Put Spread
+5,695
+P
+5,700
+P
+Mar 27, 2025
+3:55pm → 3:57pm
+Touch
+$1,300
+$52
+SPX
+Short Put Spread
+5,580
+P
+5,585
+P
+Mar 28, 2025
+3:55pm → 3:57pm
+Touch
+$1,260
+-$240
+SPX
+Short Put Spread
+5,610
+P
+5,615
+P
+Mar 31, 2025
+3:55pm → 3:57pm
+Touch
+$1,500
+$90
+SPX
+Short Put Spread
+5,625
+P
+5,630
+P
+Apr 1, 2025
+3:55pm → 3:56pm
+Touch
+$1,155
+-$201
+SPX
+Short Put Spread
+5,665
+P
+5,670
+P
+Apr 2, 2025
+3:55pm → 4:00pm
+Expired
+$1,440
+$560
+SPX
+Short Put Spread
+5,400
+P
+5,405
+P
+Apr 3, 2025
+3:55pm → 3:56pm
+Touch
+$1,450
+$115
+SPX
+Short Put Spread
+5,360
+P
+5,365
+P
+Apr 11, 2025
+3:55pm → 3:58pm
+Touch
+$1,360
+$212
+SPX
+Short Put Spread
+5,410
+P
+5,415
+P
+Apr 14, 2025
+3:55pm → 3:56pm
+Touch
+$1,212
+-$912
+SPX
+Short Put Spread
+5,395
+P
+5,400
+P
+Apr 15, 2025
+3:55pm → 3:56pm
+Touch
+$1,480
+-$340
+SPX
+Short Put Spread
+5,265
+P
+5,270
+P
+Apr 16, 2025
+3:55pm → 4:00pm
+Expired
+$1,272
+$728
+SPX
+Short Put Spread
+5,280
+P
+5,285
+P
+Apr 17, 2025
+3:55pm → 3:56pm
+Touch
+$1,332
+-$452
+SPX
+Short Put Spread
+5,145
+P
+5,150
+P
+Apr 21, 2025
+3:55pm → 4:00pm
+Expired
+$1,340
+$660
+SPX
+Short Put Spread
+5,275
+P
+5,280
+P
+Apr 22, 2025
+3:55pm → 4:00pm
+Expired
+$1,254
+$246
+SPX
+Short Put Spread
+5,380
+P
+5,385
+P
+Apr 23, 2025
+3:55pm → 3:56pm
+Touch
+$1,332
+$88
+SPX
+Short Put Spread
+5,480
+P
+5,485
+P
+Apr 24, 2025
+3:55pm → 4:00pm
+Expired
+$1,155
+$276
+SPX
+Short Put Spread
+5,515
+P
+5,520
+P
+Apr 25, 2025
+3:55pm → 4:00pm
+Expired
+$1,251
+$249
+SPX
+Short Put Spread
+5,530
+P
+5,535
+P
+Apr 28, 2025
+3:55pm → 3:59pm
+Touch
+$1,185
+-$45
+SPX
+Short Put Spread
+5,560
+P
+5,565
+P
+Apr 29, 2025
+3:55pm → 3:56pm
+Touch
+$1,348
+-$436
+SPX
+Short Put Spread
+5,560
+P
+5,565
+P
+Apr 30, 2025
+3:55pm → 4:00pm
+Expired
+$1,260
+$740
+SPX
+Short Put Spread
+5,615
+P
+5,620
+P
+May 1, 2025
+3:55pm → 3:56pm
+Touch
+$1,388
+-$876
+SPX
+Short Put Spread
+5,680
+P
+5,685
+P
+May 2, 2025
+3:55pm → 3:56pm
+Touch
+$1,239
+-$174
+SPX
+Short Put Spread
+5,645
+P
+5,650
+P
+May 5, 2025
+3:55pm → 3:57pm
+Touch
+$1,176
+$30
+SPX
+Short Put Spread
+5,610
+P
+5,615
+P
+May 6, 2025
+3:55pm → 4:00pm
+Expired
+$1,224
+-$1,224
+SPX
+Short Put Spread
+5,615
+P
+5,620
+P
+May 7, 2025
+3:55pm → 4:00pm
+Expired
+$1,428
+$572
+SPX
+Short Put Spread
+5,665
+P
+5,670
+P
+May 8, 2025
+3:55pm → 3:56pm
+Touch
+$1,352
+-$432
+SPX
+Short Put Spread
+5,660
+P
+5,665
+P
+May 9, 2025
+3:55pm → 3:56pm
+Touch
+$1,408
+-$1,048
+SPX
+Short Put Spread
+5,825
+P
+5,830
+P
+May 12, 2025
+3:55pm → 4:00pm
+Expired
+$1,359
+$141
+SPX
+Short Put Spread
+5,880
+P
+5,885
+P
+May 13, 2025
+3:55pm → 4:00pm
+Expired
+$1,260
+$240
+SPX
+Short Put Spread
+5,885
+P
+5,890
+P
+May 14, 2025
+3:55pm → 4:00pm
+Expired
+$1,230
+$270
+SPX
+Short Put Spread
+5,900
+P
+5,905
+P
+May 15, 2025
+3:55pm → 4:00pm
+Expired
+$1,209
+$291
+SPX
+Short Put Spread
+5,945
+P
+5,950
+P
+May 16, 2025
+3:55pm → 4:00pm
+Expired
+$1,290
+$210
+SPX
+Short Put Spread
+5,950
+P
+5,955
+P
+May 19, 2025
+3:55pm → 4:00pm
+Expired
+$1,275
+$225
+SPX
+Short Put Spread
+5,930
+P
+5,935
+P
+May 20, 2025
+3:55pm → 4:00pm
+Expired
+$1,185
+$315
+SPX
+Short Put Spread
+5,840
+P
+5,845
+P
+May 21, 2025
+3:55pm → 4:00pm
+Expired
+$1,468
+$376
+SPX
+Short Put Spread
+5,845
+P
+5,850
+P
+May 22, 2025
+3:55pm → 3:56pm
+Touch
+$1,230
+-$810
+SPX
+Short Put Spread
+5,795
+P
+5,800
+P
+May 23, 2025
+3:55pm → 3:56pm
+Touch
+$1,428
+-$120
+SPX
+Short Put Spread
+5,910
+P
+5,915
+P
+May 27, 2025
+3:55pm → 4:00pm
+Expired
+$1,452
+$548
+SPX
+Short Put Spread
+5,880
+P
+5,885
+P
+May 28, 2025
+3:55pm → 4:00pm
+Expired
+$1,460
+$540
+SPX
+Short Put Spread
+5,900
+P
+5,905
+P
+May 29, 2025
+3:55pm → 4:00pm
+Expired
+$1,292
+$708
+SPX
+Short Put Spread
+5,900
+P
+5,905
+P
+May 30, 2025
+3:55pm → 4:00pm
+Expired
+$1,490
+$1,010
+SPX
+Short Put Spread
+5,920
+P
+5,925
+P
+Jun 2, 2025
+3:55pm → 4:00pm
+Expired
+$1,371
+$129
+SPX
+Short Put Spread
+5,960
+P
+5,965
+P
+Jun 3, 2025
+3:55pm → 4:00pm
+Expired
+$1,344
+$156
+SPX
+Short Put Spread
+5,965
+P
+5,970
+P
+Jun 4, 2025
+3:55pm → 4:00pm
+Expired
+$1,320
+$180
+SPX
+Short Put Spread
+5,930
+P
+5,935
+P
+Jun 5, 2025
+3:55pm → 3:59pm
+Touch
+$1,488
+-$96
+SPX
+Short Put Spread
+6,000
+P
+6,005
+P
+Jun 6, 2025
+3:55pm → 3:56pm
+Touch
+$1,170
+-$135
+SPX
+Short Put Spread
+6,000
+P
+6,005
+P
+Jun 9, 2025
+3:55pm → 4:00pm
+Expired
+$1,389
+$111
+SPX
+Short Put Spread
+6,025
+P
+6,030
+P
+Jun 10, 2025
+3:55pm → 4:00pm
+Expired
+$1,239
+$261
+SPX
+Short Put Spread
+6,010
+P
+6,015
+P
+Jun 11, 2025
+3:55pm → 4:00pm
+Expired
+$1,149
+$351
+SPX
+Short Put Spread
+6,030
+P
+6,035
+P
+Jun 12, 2025
+3:55pm → 4:00pm
+Expired
+$1,140
+$360
+SPX
+Short Put Spread
+5,960
+P
+5,965
+P
+Jun 13, 2025
+3:55pm → 4:00pm
+Expired
+$1,492
+$508
+SPX
+Short Put Spread
+6,025
+P
+6,030
+P
+Jun 16, 2025
+3:55pm → 3:58pm
+Touch
+$1,185
+-$426
+SPX
+Short Put Spread
+5,975
+P
+5,980
+P
+Jun 17, 2025
+3:55pm → 4:00pm
+Expired
+$1,356
+$144
+SPX
+Short Put Spread
+5,975
+P
+5,980
+P
+Jun 18, 2025
+3:55pm → 3:59pm
+Touch
+$1,149
+-$93
+SPX
+Short Put Spread
+5,960
+P
+5,965
+P
+Jun 20, 2025
+3:55pm → 4:00pm
+Expired
+$1,440
+$560
+SPX
+Short Put Spread
+6,015
+P
+6,020
+P
+Jun 23, 2025
+3:55pm → 4:00pm
+Expired
+$1,275
+$225
+SPX
+Short Put Spread
+6,085
+P
+6,090
+P
+Jun 24, 2025
+3:55pm → 4:00pm
+Expired
+$1,425
+$75
+SPX
+Short Put Spread
+6,080
+P
+6,085
+P
+Jun 25, 2025
+3:55pm → 4:00pm
+Expired
+$1,395
+$105
+SPX
+Short Put Spread
+6,135
+P
+6,140
+P
+Jun 26, 2025
+3:55pm → 4:00pm
+Expired
+$1,305
+$195
+SPX
+Short Put Spread
+6,160
+P
+6,165
+P
+Jun 27, 2025
+3:55pm → 4:00pm
+Expired
+$1,380
+$620
+SPX
+Short Put Spread
+6,205
+P
+6,210
+P
+Jun 30, 2025
+3:55pm → 3:56pm
+Touch
+$1,260
+-$174
+SPX
+Short Put Spread
+6,195
+P
+6,200
+P
+Jul 1, 2025
+3:55pm → 3:58pm
+Touch
+$1,329
+-$183
+SPX
+Short Put Spread
+6,220
+P
+6,225
+P
+Jul 2, 2025
+3:55pm → 4:00pm
+Expired
+$1,170
+$330
+SPX
+Short Put Spread
+6,215
+P
+6,220
+P
+Jul 7, 2025
+3:55pm → 4:00pm
+Expired
+$1,410
+$90
+SPX
+Short Put Spread
+6,215
+P
+6,220
+P
+Jul 8, 2025
+3:55pm → 4:00pm
+Expired
+$1,449
+$51
+SPX
+Short Put Spread
+6,255
+P
+6,260
+P
+Jul 9, 2025
+3:55pm → 4:00pm
+Expired
+$1,194
+$306
+SPX
+Short Put Spread
+6,270
+P
+6,275
+P
+Jul 10, 2025
+3:55pm → 4:00pm
+Expired
+$1,164
+$336
+SPX
+Short Put Spread
+6,255
+P
+6,260
+P
+Jul 11, 2025
+3:55pm → 3:57pm
+Touch
+$1,488
+-$208
+SPX
+Short Put Spread
+6,260
+P
+6,265
+P
+Jul 14, 2025
+3:55pm → 4:00pm
+Expired
+$1,344
+$156
+SPX
+Short Put Spread
+6,245
+P
+6,250
+P
+Jul 15, 2025
+3:55pm → 3:56pm
+Touch
+$1,230
+-$30
+SPX
+Short Put Spread
+6,255
+P
+6,260
+P
+Jul 16, 2025
+3:55pm → 4:00pm
+Expired
+$1,359
+$141
+SPX
+Short Put Spread
+6,295
+P
+6,300
+P
+Jul 17, 2025
+3:55pm → 4:00pm
+Expired
+$1,245
+-$537
+SPX
+Short Put Spread
+6,290
+P
+6,295
+P
+Jul 18, 2025
+3:55pm → 4:00pm
+Expired
+$1,254
+$246
+SPX
+Short Put Spread
+6,300
+P
+6,305
+P
+Jul 21, 2025
+3:55pm → 3:58pm
+Touch
+$1,350
+-$240
+SPX
+Short Put Spread
+6,305
+P
+6,310
+P
+Jul 22, 2025
+3:55pm → 4:00pm
+Expired
+$1,290
+$96
+SPX
+Short Put Spread
+6,345
+P
+6,350
+P
+Jul 23, 2025
+3:55pm → 4:00pm
+Expired
+$1,449
+$51
+SPX
+Short Put Spread
+6,360
+P
+6,365
+P
+Jul 24, 2025
+3:55pm → 4:00pm
+Expired
+$1,401
+-$396
+SPX
+Short Put Spread
+6,380
+P
+6,385
+P
+Jul 25, 2025
+3:55pm → 4:00pm
+Expired
+$1,410
+$90
+SPX
+Short Put Spread
+6,380
+P
+6,385
+P
+Jul 28, 2025
+3:55pm → 4:00pm
+Expired
+$1,215
+$285
+SPX
+Short Put Spread
+6,365
+P
+6,370
+P
+Jul 29, 2025
+3:55pm → 3:57pm
+Touch
+$1,161
+-$171
+SPX
+Short Put Spread
+6,345
+P
+6,350
+P
+Jul 30, 2025
+3:55pm → 4:00pm
+Expired
+$1,290
+$210
+SPX
+Short Put Spread
+6,325
+P
+6,330
+P
+Jul 31, 2025
+3:55pm → 4:00pm
+Expired
+$1,240
+$760
+SPX
+Short Put Spread
+6,235
+P
+6,240
+P
+Aug 1, 2025
+3:55pm → 3:59pm
+Touch
+$1,328
+$12
+SPX
+Short Put Spread
+6,320
+P
+6,325
+P
+Aug 4, 2025
+3:55pm → 4:00pm
+Expired
+$1,314
+$186
+SPX
+Short Put Spread
+6,295
+P
+6,300
+P
+Aug 5, 2025
+3:55pm → 3:58pm
+Touch
+$1,221
+-$36
+SPX
+Short Put Spread
+6,340
+P
+6,345
+P
+Aug 6, 2025
+3:55pm → 3:56pm
+Touch
+$1,305
+-$165
+SPX
+Short Put Spread
+6,320
+P
+6,325
+P
+Aug 7, 2025
+3:55pm → 4:00pm
+Expired
+$1,374
+$126
+SPX
+Short Put Spread
+6,380
+P
+6,385
+P
+Aug 8, 2025
+3:55pm → 4:00pm
+Expired
+$1,389
+$111
+SPX
+Short Put Spread
+6,360
+P
+6,365
+P
+Aug 11, 2025
+3:55pm → 4:00pm
+Expired
+$1,236
+$264
+SPX
+Short Put Spread
+6,435
+P
+6,440
+P
+Aug 12, 2025
+3:55pm → 4:00pm
+Expired
+$1,410
+$90
+SPX
+Short Put Spread
+6,460
+P
+6,465
+P
+Aug 13, 2025
+3:55pm → 4:00pm
+Expired
+$1,185
+$315
+SPX
+Short Put Spread
+6,465
+P
+6,470
+P
+Aug 14, 2025
+3:55pm → 4:00pm
+Expired
+$1,359
+-$297
+SPX
+Short Put Spread
+6,445
+P
+6,450
+P
+Aug 15, 2025
+3:55pm → 3:56pm
+Touch
+$1,146
+-$96
+SPX
+Short Put Spread
+6,445
+P
+6,450
+P
+Aug 18, 2025
+3:55pm → 4:00pm
+Expired
+$1,419
+-$174
+SPX
+Short Put Spread
+6,395
+P
+6,400
+P
+Aug 19, 2025
+3:55pm → 4:00pm
+Expired
+$1,365
+$135
+SPX
+Short Put Spread
+6,395
+P
+6,400
+P
+Aug 20, 2025
+3:55pm → 3:57pm
+Touch
+$1,314
+-$639
+SPX
+Short Put Spread
+6,365
+P
+6,370
+P
+Aug 21, 2025
+3:55pm → 3:58pm
+Touch
+$1,448
+-$248
+SPX
+Short Put Spread
+6,460
+P
+6,465
+P
+Aug 22, 2025
+3:55pm → 3:56pm
+Touch
+$1,230
+-$201
+SPX
+Short Put Spread
+6,440
+P
+6,445
+P
+Aug 25, 2025
+3:55pm → 3:58pm
+Touch
+$1,434
+-$714
+SPX
+Short Put Spread
+6,455
+P
+6,460
+P
+Aug 26, 2025
+3:55pm → 4:00pm
+Expired
+$1,191
+$309
+SPX
+Short Put Spread
+6,475
+P
+6,480
+P
+Aug 27, 2025
+3:55pm → 4:00pm
+Expired
+$1,389
+$111
+SPX
+Short Put Spread
+6,500
+P
+6,505
+P
+Aug 28, 2025
+3:55pm → 3:59pm
+Touch
+$1,305
+-$135
+SPX
+Short Put Spread
+6,445
+P
+6,450
+P
+Aug 29, 2025
+3:55pm → 4:00pm
+Expired
+$1,452
+$548
+SPX
+Short Put Spread
+6,405
+P
+6,410
+P
+Sep 2, 2025
+3:55pm → 4:00pm
+Expired
+$1,290
+$210
+SPX
+Short Put Spread
+6,435
+P
+6,440
+P
+Sep 3, 2025
+3:55pm → 4:00pm
+Expired
+$1,155
+$345
+SPX
+Short Put Spread
+6,490
+P
+6,495
+P
+Sep 4, 2025
+3:55pm → 4:00pm
+Expired
+$1,365
+$135
+SPX
+Short Put Spread
+6,470
+P
+6,475
+P
+Sep 5, 2025
+3:55pm → 4:00pm
+Expired
+$1,308
+$692
+SPX
+Short Put Spread
+6,485
+P
+6,490
+P
+Sep 8, 2025
+3:55pm → 4:00pm
+Expired
+$1,404
+$96
+SPX
+Short Put Spread
+6,505
+P
+6,510
+P
+Sep 9, 2025
+3:55pm → 4:00pm
+Expired
+$1,401
+$99
+SPX
+Short Put Spread
+6,525
+P
+6,530
+P
+Sep 10, 2025
+3:55pm → 4:00pm
+Expired
+$1,200
+$300
+SPX
+Short Put Spread
+6,585
+P
+6,590
+P
+Sep 11, 2025
+3:55pm → 3:56pm
+Touch
+$1,269
+-$225
+SPX
+Short Put Spread
+6,585
+P
+6,590
+P
+Sep 12, 2025
+3:55pm → 3:56pm
+Touch
+$1,341
+-$177
+SPX
+Short Put Spread
+6,605
+P
+6,610
+P
+Sep 15, 2025
+3:55pm → 4:00pm
+Expired
+$1,275
+$225
+SPX
+Short Put Spread
+6,605
+P
+6,610
+P
+Sep 16, 2025
+3:55pm → 3:58pm
+Touch
+$1,320
+-$126
+SPX
+Short Put Spread
+6,595
+P
+6,600
+P
+Sep 17, 2025
+3:55pm → 3:57pm
+Touch
+$1,468
+-$916
+SPX
+Short Put Spread
+6,630
+P
+6,635
+P
+Sep 18, 2025
+3:55pm → 3:56pm
+Touch
+$1,245
+-$645
+SPX
+Short Put Spread
+6,665
+P
+6,670
+P
+Sep 19, 2025
+3:55pm → 3:56pm
+Touch
+$1,440
+-$80
+SPX
+Short Put Spread
+6,690
+P
+6,695
+P
+Sep 22, 2025
+3:55pm → 4:00pm
+Expired
+$1,296
+-$171
+SPX
+Short Put Spread
+6,655
+P
+6,660
+P
+Sep 23, 2025
+3:55pm → 3:56pm
+Touch
+$1,228
+-$28
+SPX
+Short Put Spread
+6,630
+P
+6,635
+P
+Sep 24, 2025
+3:55pm → 4:00pm
+Expired
+$1,260
+$240
+SPX
+Short Put Spread
+6,595
+P
+6,600
+P
+Sep 25, 2025
+3:55pm → 4:00pm
+Expired
+$1,284
+$216
+SPX
+Short Put Spread
+6,635
+P
+6,640
+P
+Sep 26, 2025
+3:55pm → 4:00pm
+Expired
+$1,389
+$111
+SPX
+Short Put Spread
+6,650
+P
+6,655
+P
+Sep 29, 2025
+3:55pm → 4:00pm
+Expired
+$1,344
+$156
+SPX
+Short Put Spread
+6,680
+P
+6,685
+P
+Sep 30, 2025
+3:55pm → 4:00pm
+Expired
+$1,260
+$240
+SPX
+Short Put Spread
+6,705
+P
+6,710
+P
+Oct 1, 2025
+3:55pm → 4:00pm
+Expired
+$1,335
+$165
+SPX
+Short Put Spread
+6,705
+P
+6,710
+P
+Oct 2, 2025
+3:55pm → 4:00pm
+Expired
+$1,464
+$36
+SPX
+Short Put Spread
+6,710
+P
+6,715
+P
+Oct 3, 2025
+3:55pm → 3:58pm
+Touch
+$1,359
+-$264
+SPX
+Short Put Spread
+6,735
+P
+6,740
+P
+Oct 6, 2025
+3:55pm → 4:00pm
+Expired
+$1,440
+$60
+SPX
+Short Put Spread
+6,710
+P
+6,715
+P
+Oct 7, 2025
+3:55pm → 3:58pm
+Touch
+$1,254
+-$420
+SPX
+Short Put Spread
+6,745
+P
+6,750
+P
+Oct 8, 2025
+3:55pm → 4:00pm
+Expired
+$1,470
+$30
+SPX
+Short Put Spread
+6,730
+P
+6,735
+P
+Oct 9, 2025
+3:55pm → 3:56pm
+Touch
+$1,194
+-$204
+SPX
+Short Put Spread
+6,550
+P
+6,555
+P
+Oct 10, 2025
+3:55pm → 3:57pm
+Touch
+$1,292
+-$412
+SPX
+Short Put Spread
+6,650
+P
+6,655
+P
+Oct 13, 2025
+3:55pm → 3:58pm
+Touch
+$1,299
+-$234
+SPX
+Short Put Spread
+6,635
+P
+6,640
+P
+Oct 14, 2025
+3:55pm → 4:00pm
+Expired
+$1,452
+$548
+SPX
+Short Put Spread
+6,650
+P
+6,655
+P
+Oct 15, 2025
+3:55pm → 4:00pm
+Expired
+$1,170
+$330
+SPX
+Short Put Spread
+6,625
+P
+6,630
+P
+Oct 16, 2025
+3:55pm → 3:57pm
+Touch
+$1,272
+-$332
+SPX
+Short Put Spread
+6,660
+P
+6,665
+P
+Oct 17, 2025
+3:55pm → 3:57pm
+Touch
+$1,194
+-$168
+SPX
+Short Put Spread
+6,735
+P
+6,740
+P
+Oct 20, 2025
+3:55pm → 3:56pm
+Touch
+$1,230
+-$246
+SPX
+Short Put Spread
+6,740
+P
+6,745
+P
+Oct 21, 2025
+3:55pm → 3:56pm
+Touch
+$1,290
+-$231
+SPX
+Short Put Spread
+6,730
+P
+6,735
+P
+Oct 23, 2025
+3:55pm → 4:00pm
+Expired
+$1,425
+$75
+SPX
+Short Put Spread
+6,790
+P
+6,795
+P
+Oct 24, 2025
+3:55pm → 3:57pm
+Touch
+$1,404
+-$255
+SPX
+Short Put Spread
+6,870
+P
+6,875
+P
+Oct 27, 2025
+3:55pm → 4:00pm
+Expired
+$1,305
+$195
+SPX
+Short Put Spread
+6,890
+P
+6,895
+P
+Oct 28, 2025
+3:55pm → 3:58pm
+Touch
+$1,440
+-$100
+SPX
+Short Put Spread
+6,880
+P
+6,885
+P
+Oct 29, 2025
+3:55pm → 4:00pm
+Expired
+$1,480
+$520
+SPX
+Short Put Spread
+6,820
+P
+6,825
+P
+Oct 30, 2025
+3:55pm → 3:56pm
+Touch
+$1,428
+-$180
+SPX
+Short Put Spread
+6,845
+P
+6,850
+P
+Oct 31, 2025
+3:55pm → 3:57pm
+Touch
+$1,146
+-$156
+SPX
+Short Put Spread
+6,845
+P
+6,850
+P
+Nov 3, 2025
+3:55pm → 3:58pm
+Touch
+$1,488
+$132
+SPX
+Short Put Spread
+6,765
+P
+6,770
+P
+Nov 4, 2025
+3:55pm → 3:56pm
+Touch
+$1,460
+-$340
+SPX
+Short Put Spread
+6,800
+P
+6,805
+P
+Nov 5, 2025
+3:55pm → 3:57pm
+Touch
+$1,296
+-$57
+SPX
+Short Put Spread
+6,720
+P
+6,725
+P
+Nov 6, 2025
+3:55pm → 3:56pm
+Touch
+$1,468
+-$28
+SPX
+Short Put Spread
+6,710
+P
+6,715
+P
+Nov 7, 2025
+3:55pm → 4:00pm
+Expired
+$1,200
+$300
+SPX
+Short Put Spread
+6,830
+P
+6,835
+P
+Nov 10, 2025
+3:55pm → 3:56pm
+Touch
+$1,374
+-$288
+SPX
+Short Put Spread
+6,845
+P
+6,850
+P
+Nov 11, 2025
+3:55pm → 3:56pm
+Touch
+$1,284
+-$345
+SPX
+Short Put Spread
+6,845
+P
+6,850
+P
+Nov 12, 2025
+3:55pm → 3:57pm
+Touch
+$1,380
+-$210
+SPX
+Short Put Spread
+6,720
+P
+6,725
+P
+Nov 13, 2025
+3:55pm → 4:00pm
+Expired
+$1,420
+$580
+SPX
+Short Put Spread
+6,725
+P
+6,730
+P
+Nov 14, 2025
+3:55pm → 4:00pm
+Expired
+$1,230
+$270
+SPX
+Short Put Spread
+6,655
+P
+6,660
+P
+Nov 17, 2025
+3:55pm → 4:00pm
+Expired
+$1,230
+$270
+SPX
+Short Put Spread
+6,620
+P
+6,625
+P
+Nov 18, 2025
+3:55pm → 3:58pm
+Touch
+$1,146
+-$300
+SPX
+Short Put Spread
+6,640
+P
+6,645
+P
+Nov 19, 2025
+3:55pm → 3:57pm
+Touch
+$1,320
+$12
+SPX
+Short Put Spread
+6,535
+P
+6,540
+P
+Nov 20, 2025
+3:55pm → 3:59pm
+Touch
+$1,480
+-$220
+SPX
+Short Put Spread
+6,595
+P
+6,600
+P
+Nov 21, 2025
+3:55pm → 3:56pm
+Touch
+$1,500
+-$360
+SPX
+Short Put Spread
+6,705
+P
+6,710
+P
+Nov 24, 2025
+3:55pm → 3:58pm
+Touch
+$1,200
+-$816
+SPX
+Short Put Spread
+6,765
+P
+6,770
+P
+Nov 25, 2025
+3:55pm → 3:58pm
+Touch
+$1,284
+-$294
+SPX
+Short Put Spread
+6,810
+P
+6,815
+P
+Nov 26, 2025
+3:55pm → 4:00pm
+Expired
+$1,239
+-$456
+SPX
+Short Put Spread
+6,805
+P
+6,810
+P
+Dec 1, 2025
+3:55pm → 3:57pm
+Touch
+$1,185
+-$354
+SPX
+Short Put Spread
+6,820
+P
+6,825
+P
+Dec 2, 2025
+3:55pm → 4:00pm
+Expired
+$1,344
+$156
+SPX
+Short Put Spread
+6,840
+P
+6,845
+P
+Dec 3, 2025
+3:55pm → 4:00pm
+Expired
+$1,434
+$66
+SPX
+Short Put Spread
+6,840
+P
+6,845
+P
+Dec 4, 2025
+3:55pm → 4:00pm
+Expired
+$1,395
+$105
+SPX
+Short Put Spread
+6,855
+P
+6,860
+P
+Dec 5, 2025
+3:55pm → 4:00pm
+Expired
+$1,275
+$225
+SPX
+Short Put Spread
+6,830
+P
+6,835
+P
+Dec 8, 2025
+3:55pm → 4:00pm
+Expired
+$1,179
+$321
+SPX
+Short Put Spread
+6,830
+P
+6,835
+P
+Dec 9, 2025
+3:55pm → 4:00pm
+Expired
+$1,380
+$120
+SPX
+Short Put Spread
+6,885
+P
+6,890
+P
+Dec 10, 2025
+3:55pm → 3:56pm
+Touch
+$1,215
+-$120
+SPX
+Short Put Spread
+6,890
+P
+6,895
+P
+Dec 11, 2025
+3:55pm → 3:57pm
+Touch
+$1,314
+-$234
+SPX
+Short Put Spread
+6,815
+P
+6,820
+P
+Dec 12, 2025
+3:55pm → 4:00pm
+Expired
+$1,320
+$180
+SPX
+Short Put Spread
+6,810
+P
+6,815
+P
+Dec 15, 2025
+3:55pm → 4:00pm
+Expired
+$1,314
+$186
+SPX
+Short Put Spread
+6,800
+P
+6,805
+P
+Dec 16, 2025
+3:55pm → 4:00pm
+Expired
+$1,299
+-$1,221
+SPX
+Short Put Spread
+6,720
+P
+6,725
+P
+Dec 17, 2025
+3:55pm → 3:56pm
+Touch
+$1,408
+-$528
+SPX
+Short Put Spread
+6,775
+P
+6,780
+P
+Dec 18, 2025
+3:55pm → 3:57pm
+Touch
+$1,194
+-$204
+SPX
+Short Put Spread
+6,825
+P
+6,830
+P
+Dec 19, 2025
+3:55pm → 4:00pm
+Expired
+$1,329
+$171
+SPX
+Short Put Spread
+6,870
+P
+6,875
+P
+Dec 22, 2025
+3:55pm → 4:00pm
+Expired
+$1,440
+$60
+SPX
+Short Put Spread
+6,900
+P
+6,905
+P
+Dec 23, 2025
+3:55pm → 4:00pm
+Expired
+$1,425
+$75
+SPX
+Short Put Spread
+6,920
+P
+6,925
+P
+Dec 26, 2025
+3:55pm → 4:00pm
+Expired
+$1,455
+$45
+SPX
+Short Put Spread
+6,895
+P
+6,900
+P
+Dec 29, 2025
+3:55pm → 4:00pm
+Expired
+$1,455
+$45
+SPX
+Short Put Spread
+6,895
+P
+6,900
+P
+Dec 30, 2025
+3:55pm → 3:58pm
+Touch
+$1,290
+--
+SPX
+Short Put Spread
+6,845
+P
+6,850
+P
+Dec 31, 2025
+3:55pm → 3:59pm
+Touch
+$1,185
+-$171
+SPX
+Short Put Spread
+6,845
+P
+6,850
+P
+Jan 2, 2026
+3:55pm → 3:56pm
+Touch
+$1,500
+-$72
+SPX
+Short Put Spread
+6,890
+P
+6,895
+P
+Jan 5, 2026
+3:55pm → 4:00pm
+Expired
+$1,389
+$111
+SPX
+Short Put Spread
+6,940
+P
+6,945
+P
+Jan 6, 2026
+3:55pm → 4:00pm
+Expired
+$1,380
+$66
+SPX
+Short Put Spread
+6,915
+P
+6,920
+P
+Jan 7, 2026
+3:55pm → 4:00pm
+Expired
+$1,314
+$186
+SPX
+Short Put Spread
+6,915
+P
+6,920
+P
+Jan 8, 2026
+3:55pm → 4:00pm
+Expired
+$1,359
+$141
+SPX
+Short Put Spread
+6,965
+P
+6,970
+P
+Jan 9, 2026
+3:55pm → 3:56pm
+Touch
+$1,365
+-$165
+SPX
+Short Put Spread
+6,975
+P
+6,980
+P
+Jan 12, 2026
+3:55pm → 3:56pm
+Touch
+$1,194
+-$195
+SPX
+Short Put Spread
+6,950
+P
+6,955
+P
+Jan 13, 2026
+3:55pm → 4:00pm
+Expired
+$1,305
+$195
+SPX
+Short Put Spread
+6,915
+P
+6,920
+P
+Jan 14, 2026
+3:55pm → 4:00pm
+Expired
+$1,488
+$512
+SPX
+Short Put Spread
+6,935
+P
+6,940
+P
+Jan 15, 2026
+3:55pm → 4:00pm
+Expired
+$1,269
+$231
+SPX
+Short Put Spread
+6,940
+P
+6,945
+P
+Jan 16, 2026
+3:55pm → 3:56pm
+Touch
+$1,299
+-$390
+SPX
+Short Put Spread
+6,785
+P
+6,790
+P
+Jan 20, 2026
+3:55pm → 4:00pm
+Expired
+$1,440
+$560
+SPX
+Short Put Spread
+6,870
+P
+6,875
+P
+Jan 21, 2026
+3:55pm → 3:56pm
+Touch
+$1,460
+-$132
+SPX
+Short Put Spread
+6,905
+P
+6,910
+P
+Jan 22, 2026
+3:55pm → 4:00pm
+Expired
+$1,206
+$294
+SPX
+Short Put Spread
+6,905
+P
+6,910
+P
+Jan 23, 2026
+3:55pm → 4:00pm
+Expired
+$1,380
+$120
+SPX
+Short Put Spread
+6,945
+P
+6,950
+P
+Jan 26, 2026
+3:55pm → 4:00pm
+Expired
+$1,419
+$81
+SPX
+Short Put Spread
+6,970
+P
+6,975
+P
+Jan 27, 2026
+3:55pm → 4:00pm
+Expired
+$1,449
+$51
+SPX
+Short Put Spread
+6,975
+P
+6,980
+P
+Jan 28, 2026
+3:55pm → 4:00pm
+Expired
+$1,155
+-$246
+SPX
+Short Put Spread
+6,955
+P
+6,960
+P
+Jan 29, 2026
+3:55pm → 4:00pm
+Expired
+$1,420
+$580
+SPX
+Short Put Spread
+6,930
+P
+6,935
+P
+Jan 30, 2026
+3:55pm → 4:00pm
+Expired
+$1,372
+$628
+SPX
+Short Put Spread
+6,970
+P
+6,975
+P
+Feb 2, 2026
+3:55pm → 4:00pm
+Expired
+$1,194
+$306
+SPX
+Short Put Spread
+6,910
+P
+6,915
+P
+Feb 3, 2026
+3:55pm → 4:00pm
+Expired
+$1,408
+$592
+SPX
+Short Put Spread
+6,880
+P
+6,885
+P
+Feb 4, 2026
+3:55pm → 3:56pm
+Touch
+$1,432
+-$312
+SPX
+Short Put Spread
+6,785
+P
+6,790
+P
+Feb 5, 2026
+3:55pm → 4:00pm
+Expired
+$1,480
+$520
+SPX
+Short Put Spread
+6,935
+P
+6,940
+P
+Feb 6, 2026
+3:55pm → 3:56pm
+Touch
+$1,179
+-$339
+SPX
+Short Put Spread
+6,960
+P
+6,965
+P
+Feb 9, 2026
+3:55pm → 3:57pm
+Touch
+$1,320
+$152
+SPX
+Short Put Spread
+6,935
+P
+6,940
+P
+Feb 10, 2026
+3:55pm → 3:57pm
+Touch
+$1,341
+-$486
+SPX
+Short Put Spread
+6,940
+P
+6,945
+P
+Feb 11, 2026
+3:55pm → 3:56pm
+Touch
+$1,260
+-$111
+SPX
+Short Put Spread
+6,830
+P
+6,835
+P
+Feb 12, 2026
+3:55pm → 3:57pm
+Touch
+$1,420
+-$680
+SPX
+Short Put Spread
+6,825
+P
+6,830
+P
+Feb 13, 2026
+3:55pm → 4:00pm
+Expired
+$1,480
+$520
+SPX
+Short Put Spread
+6,835
+P
+6,840
+P
+Feb 17, 2026
+3:55pm → 3:59pm
+Touch
+$1,194
+-$24
+SPX
+Short Put Spread
+6,880
+P
+6,885
+P
+Feb 18, 2026
+3:55pm → 3:59pm
+Touch
+$1,230
+-$15
+SPX
+Short Put Spread
+6,850
+P
+6,855
+P
+Feb 19, 2026
+3:55pm → 4:00pm
+Expired
+$1,500
+$500
+SPX
+Short Put Spread
+6,900
+P
+6,905
+P
+Feb 20, 2026
+3:55pm → 4:00pm
+Expired
+$1,440
+$560
+SPX
+Short Put Spread
+6,820
+P
+6,825
+P
+Feb 23, 2026
+3:55pm → 4:00pm
+Expired
+$1,170
+$330
+SPX
+Short Put Spread
+6,885
+P
+6,890
+P
+Feb 24, 2026
+3:55pm → 4:00pm
+Expired
+$1,395
+$105
+SPX
+Short Put Spread
+6,945
+P
+6,950
+P
+Feb 25, 2026
+3:55pm → 3:56pm
+Touch
+$1,209
+-$24
+SPX
+Short Put Spread
+6,900
+P
+6,905
+P
+Feb 26, 2026
+3:55pm → 4:00pm
+Expired
+$1,500
+$500
+SPX
+Short Put Spread
+6,865
+P
+6,870
+P
+Feb 27, 2026
+3:55pm → 3:56pm
+Touch
+$1,420
+-$120
+SPX
+Short Put Spread
+6,875
+P
+6,880
+P
+Mar 2, 2026
+3:55pm → 4:00pm
+Expired
+$1,194
+$306
+SPX
+Short Put Spread
+6,810
+P
+6,815
+P
+Mar 3, 2026
+3:55pm → 3:57pm
+Touch
+$1,420
+-$280
+SPX
+Short Put Spread
+6,870
+P
+6,875
+P
+Mar 4, 2026
+3:55pm → 3:56pm
+Touch
+$1,352
+-$32
+SPX
+Short Put Spread
+6,820
+P
+6,825
+P
+Mar 5, 2026
+3:55pm → 3:56pm
+Touch
+$1,194
+-$168
+SPX
+Short Put Spread
+6,730
+P
+6,735
+P
+Mar 6, 2026
+3:55pm → 4:00pm
+Expired
+$1,185
+$315
+SPX
+Short Put Spread
+6,775
+P
+6,780
+P
+Mar 9, 2026
+3:55pm → 4:00pm
+Expired
+$1,468
+$532
+SPX
+Short Put Spread
+6,770
+P
+6,775
+P
+Mar 10, 2026
+3:55pm → 4:00pm
+Expired
+$1,224
+$276
+SPX
+Short Put Spread
+6,770
+P
+6,775
+P
+Mar 11, 2026
+3:55pm → 3:57pm
+Touch
+$1,332
+-$80
+SPX
+Short Put Spread
+6,670
+P
+6,675
+P
+Mar 12, 2026
+3:55pm → 3:56pm
+Touch
+$1,251
+-$411
+SPX
+Short Put Spread
+6,625
+P
+6,630
+P
+Mar 13, 2026
+3:55pm → 4:00pm
+Expired
+$1,320
+$680
+SPX
+Short Put Spread
+6,690
+P
+6,695
+P
+Mar 16, 2026
+3:55pm → 4:00pm
+Expired
+$1,420
+$580
+SPX
+Short Put Spread
+6,715
+P
+6,720
+P
+Mar 17, 2026
+3:55pm → 3:56pm
+Touch
+$1,284
+-$624
+SPX
+Short Put Spread
+6,620
+P
+6,625
+P
+Mar 18, 2026
+3:55pm → 3:59pm
+Touch
+$1,320
+-$255
+SPX
+Short Put Spread
+6,600
+P
+6,605
+P
+Mar 19, 2026
+3:55pm → 4:00pm
+Expired
+$1,500
+$500
+SPX
+Short Put Spread
+6,495
+P
+6,500
+P
+Mar 20, 2026
+3:55pm → 4:00pm
+Expired
+$1,155
+$345
+SPX
+Short Put Spread
+6,585
+P
+6,590
+P
+Mar 23, 2026
+3:55pm → 3:56pm
+Touch
+$1,260
+-$300
+SPX
+Short Put Spread
+6,545
+P
+6,550
+P
+Mar 24, 2026
+3:55pm → 4:00pm
+Expired
+$1,350
+$150
+SPX
+Short Put Spread
+6,585
+P
+6,590
+P
+Mar 25, 2026
+3:55pm → 3:59pm
+Touch
+$1,170
+-$111
+SPX
+Short Put Spread
+6,465
+P
+6,470
+P
+Mar 26, 2026
+3:55pm → 4:00pm
+Expired
+$1,350
+$150
+SPX
+Short Put Spread
+6,360
+P
+6,365
+P
+Mar 27, 2026
+3:55pm → 4:00pm
+Expired
+$1,280
+$720
+SPX
+Short Put Spread
+6,335
+P
+6,340
+P
+Mar 30, 2026
+3:55pm → 4:00pm
+Expired
+$1,299
+$201
+SPX
+Short Put Spread
+6,515
+P
+6,520
+P
+Mar 31, 2026
+3:55pm → 3:57pm
+Touch
+$1,146
+-$81
+SPX
+Short Put Spread
+6,570
+P
+6,575
+P
+Apr 1, 2026
+3:55pm → 3:56pm
+Touch
+$1,254
+-$129
