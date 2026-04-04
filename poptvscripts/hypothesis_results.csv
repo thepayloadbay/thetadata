@@ -1,1 +1,13 @@
 hypothesis_id,date_tested,strategy,filter_name,parameter,value,baseline_trades,test_trades,baseline_pnl,test_pnl,baseline_wr,test_wr,baseline_sharpe,test_sharpe,baseline_dd,test_dd,skipped_days,pct_trades_kept,verdict,notes
+H2-V16-1a,2026-04-04,LastFive,RANGE_BUDGET,min,0.5,1659,1514,357778,332433,73.9,74.2,10.77,10.89,-2739,-2276,77,91%,GOOD,DD -17% with only 4.6% trades skipped. Best filter efficiency ever found. Range budget concept validated.
+H2-V16-1b,2026-04-04,LastFive,RANGE_BUDGET,min,0.7,1659,1100,357778,244926,73.9,72.9,10.77,10.84,-2739,-2757,296,66%,NEUTRAL,DD unchanged. Too many trades removed.
+H2-V16-1c,2026-04-04,LastFive,RANGE_BUDGET,min,0.9,1659,686,357778,159904,73.9,71.6,10.77,11.11,-2739,-2276,519,41%,OK,Sharpe +3% but 59% trades removed.
+H2-V16-1d,2026-04-04,LastFive,RANGE_BUDGET+VIX16+W10,combo,0.9+0.5+10,1659,571,357778,51844,73.9,83.5,10.77,8.18,-2739,-1262,519,34%,ULTRA SAFE,WR 83.5% DD -54%. Conservative variant.
+H2-ORB-4a,2026-04-04,MEIC,ORB_CONTAINMENT,orb_filter,true,1310,380,63928,30831,65.8,70.8,2.29,3.54,-na,-na,0,29%,GOOD,Sharpe +55%! WR +5pts. Avg P&L +65%. Only trades range-bound days. Needs WF validation.
+H2-HTF3-1a,2026-04-04,MEIC,PRIOR_DAY_BULLISH,prior_day_bullish,true,1310,499,63928,9272,65.8,63.5,2.29,0.70,-na,-na,0,38%,WORSE,MEIC works BETTER after bearish days (selling exhaustion). Opposite of hypothesis. Rejected.
+H2-ORB+HTF3,2026-04-04,MEIC,ORB+BULLISH,combo,true+true,1310,119,63928,6060,65.8,70.6,2.29,1.85,-na,-na,0,9%,TOO FEW,Only 119 trades. Both together is too restrictive.
+WF-LF-BUDGET-IS,2026-04-04,LastFive,RANGE_BUDGET,IS,2022-2024,1043,1043,201154,201154,75.3,75.3,9.54,9.54,-2276,-2276,0,100%,WALK-FORWARD,IS reference for range budget.
+WF-LF-BUDGET-OOS,2026-04-04,LastFive,RANGE_BUDGET,OOS,2025-2026,471,471,131279,131279,72.0,72.0,14.37,14.37,-1466,-1466,0,100%,VALIDATED,OOS Sharpe 14.37 >> IS 9.54. Range budget concept is real and persists.
+WF-MEIC-ORB-IS,2026-04-04,MEIC,ORB_CONTAINMENT,IS,2022-2024,223,223,26438,26438,75.3,75.3,6.10,6.10,-na,-na,0,100%,WALK-FORWARD,IS reference. Strong Sharpe 6.10.
+WF-MEIC-ORB-OOS,2026-04-04,MEIC,ORB_CONTAINMENT,OOS,2025-2026,157,157,4393,4393,64.3,64.3,0.99,0.99,-na,-na,0,100%,DEGRADED,OOS Sharpe drops from 6.10 to 0.99. ORB containment does NOT persist for MEIC. Use with caution.
+H2-WPR-1a,2026-04-04,Zenith,DUAL_WPR,wpr_filter,21+112,387,79,39964,4710,78.3,81.0,10.61,8.62,-652,-366,308,20%,TOO AGGRESSIVE,Slow %R(112) rarely reaches extremes due to long-term SPX uptrend. Kills 80% trades. WR +2.7% but Sharpe drops.

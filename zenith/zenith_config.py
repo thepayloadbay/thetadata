@@ -342,6 +342,16 @@ POST_FILTER_STOCH_MIN: float | None = None
 POST_FILTER_DIST_SMA_MIN: float | None = None
 POST_FILTER_CLUSTER_MAX: int | None = None
 
+# -- H2-WPR-1: Dual Williams %R Exhaustion Filter --
+# Require BOTH fast and slow %R to confirm exhaustion direction.
+# Call side: both > OB level (overbought). Put side: both < OS level (oversold).
+# When fast and slow disagree, exhaustion is not confirmed → skip trade.
+USE_WPR_FILTER     = False
+WPR_FAST_PERIOD    = 21     # Fast Williams %R lookback
+WPR_SLOW_PERIOD    = 112    # Slow Williams %R lookback
+WPR_OB_LEVEL       = -20.0  # Overbought threshold (above this = overbought)
+WPR_OS_LEVEL       = -80.0  # Oversold threshold (below this = oversold)
+
 # -- H4: Skip call trades after big up days (+1%) —
 # After a +1% up day, call spread WR drops to 61% (vs 82% after down days).
 # The exhaustion signal is weakest when the move was huge — likely trend continuation.

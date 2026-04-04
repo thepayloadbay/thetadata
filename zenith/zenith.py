@@ -107,6 +107,7 @@ if __name__ == "__main__":
     _parser.add_argument("--rocket-thresh",    default=None, type=float, help="Override RISING_ROCKET_THRESHOLD")
     _parser.add_argument("--orb-max-width",    default=None, type=float, help="Enable ORB width filter (max width in pts)")
     _parser.add_argument("--orb-containment",  action="store_true",      help="Enable ORB containment filter (range-bound days only)")
+    _parser.add_argument("--wpr-filter",       action="store_true",      help="Enable dual Williams %%R exhaustion filter (H2-WPR-1)")
     _args = _parser.parse_args()
 
     # Apply CLI overrides
@@ -131,6 +132,8 @@ if __name__ == "__main__":
         _cfg.ORB_MAX_WIDTH = _args.orb_max_width
     if _args.orb_containment:
         _cfg.USE_ORB_CONTAINMENT_FILTER = True
+    if _args.wpr_filter:
+        _cfg.USE_WPR_FILTER = True
 
     # Dispatch
     if _args.marathon or not any([

@@ -228,6 +228,14 @@ def build_daily_indicators() -> dict:
             d["orb_width"] = np.nan
             d["orb_contained"] = np.nan
 
+    # -- Williams %R (fast and slow) --
+    # %R = (highest(high, n) - close) / (highest(high, n) - lowest(low, n)) * -100
+    # Range: 0 to -100. Above -20 = overbought. Below -80 = oversold.
+    for label, period in [("wpr_fast", _cfg.WPR_FAST_PERIOD), ("wpr_slow", _cfg.WPR_SLOW_PERIOD)]:
+        hh = d["high"].rolling(period, min_periods=1).max()
+        ll = d["low"].rolling(period, min_periods=1).min()
+        d[label] = (hh - d["close"]) / (hh - ll).clip(lower=0.01) * -100
+
     # -- Relative Volume: volume / SMA(volume, 20) --
     # SPX has no native volume — default to 1.0 (passes threshold 0.25)
     if d["volume"].sum() > 0:
@@ -248,6 +256,7 @@ def build_daily_indicators() -> dict:
         "dVarPct", "dBodySize", "dGapPercent", "dRange",
         "dSma5", "dSma20", "dSma200", "distFromSma", "risingRocket",
         "dATR", "dRsi", "dStoch", "dRelVol", "clusterCount",
+        "wpr_fast", "wpr_slow",
     ]
     if "vix_close" in d.columns:
         cols_to_keep.extend(["vix_close", "vix_sma20"])
@@ -1220,6 +1229,19 @@ def _run_backtest_inner(
             if _cfg.ENABLE_BIG_UP_DAY_SKIP:
                 day_ret = (signal_ind["close"] - signal_ind["open"]) / signal_ind["open"]
                 if day_ret > _cfg.BIG_UP_DAY_THRESHOLD:
+                    total_skips += 1
+                    continue
+
+        # H2-WPR-1: Dual Williams %R exhaustion confirmation (uses T-1 data via signal_ind)
+        if _cfg.USE_WPR_FILTER:
+            wpr_f = signal_ind.get("wpr_fast", -50.0)
+            wpr_s = signal_ind.get("wpr_slow", -50.0)
+            if trade_type == "call":
+                if not (wpr_f > _cfg.WPR_OB_LEVEL and wpr_s > _cfg.WPR_OB_LEVEL):
+                    total_skips += 1
+                    continue
+            elif trade_type == "put":
+                if not (wpr_f < _cfg.WPR_OS_LEVEL and wpr_s < _cfg.WPR_OS_LEVEL):
                     total_skips += 1
                     continue
 

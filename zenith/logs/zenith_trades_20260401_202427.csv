@@ -1,0 +1,3 @@
+signal_date,trade_date,signal_mode,spx_close_signal,spx_close_exit,short_strike,long_strike,credit_received,spread_value_exit,raw_return,capped_return,pnl_earned,win,loss,equity_after,vix_level,variance_pct,rel_vol,rising_rocket,exhaustion_score,body_size,atr,rsi,stoch,gap_pct,cluster_count,dist_from_sma
+20220103,20220104,dynamic,4796.59,4793.53,4820,4830,2.9043249210740214,0,0.4093,0.4093,366.38,1,0,100366.38,16.6,99.87,1.0,0.0,148.72,18.45,38.47,nan,99.9,nan,0,0.0
+20220103,20220104,dynamic,4796.59,4793.53,4775,4765,2.9366518672463826,0,0.4158,0.4158,559.27,1,0,100925.65,16.6,99.87,1.0,0.0,148.72,18.45,38.47,nan,99.9,nan,0,0.0

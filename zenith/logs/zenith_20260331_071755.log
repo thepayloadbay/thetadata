@@ -1,0 +1,8 @@
+2026-03-31 07:17:55 | INFO     | Log file  : /Users/jeerapongwongchote/Documents/thetadata/zenith/logs/zenith_20260331_071755.log
+2026-03-31 07:17:56 | WARNING  | No SPX volume data — dRelVol defaulted to 1.0
+2026-03-31 07:17:56 | INFO     | Built daily indicators: 1060 bars
+2026-03-31 07:17:56 | INFO     | 
+======================================================================
+2026-03-31 07:17:56 | INFO     |   SWEEP: TP/SL Cap (30 combinations)
+2026-03-31 07:17:56 | INFO     | ======================================================================
+2026-03-31 07:17:56 | INFO     |   [1/30] TP_CAP=0.3, SL_CAP=-0.5 -> P&L $  -13,932 | WR 58.7% | Sharpe -1.17 | Trades 815

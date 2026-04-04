@@ -1,0 +1,124 @@
+2026-03-31 07:17:28 | INFO     | Log file  : /Users/jeerapongwongchote/Documents/thetadata/zenith/logs/zenith_20260331_071728.log
+2026-03-31 07:17:28 | INFO     | Building daily indicators for all sweeps...
+2026-03-31 07:17:29 | WARNING  | No SPX volume data — dRelVol defaulted to 1.0
+2026-03-31 07:17:30 | INFO     | Built daily indicators: 1060 bars
+2026-03-31 07:17:30 | INFO     | 
+######################################################################
+2026-03-31 07:17:30 | INFO     |   COMPREHENSIVE SWEEP — 2026-03-31 07:17
+2026-03-31 07:17:30 | INFO     | ######################################################################
+
+2026-03-31 07:17:30 | INFO     | 
+======================================================================
+2026-03-31 07:17:30 | INFO     |   SWEEP: Score Threshold (31 combinations)
+2026-03-31 07:17:30 | INFO     | ======================================================================
+2026-03-31 07:17:30 | INFO     |   [1/31] SCORE_THRESHOLD=30, SIGNAL_MODE=dynamic -> P&L $    1,435 | WR 59.6% | Sharpe 0.05 | Trades 904
+2026-03-31 07:17:30 | INFO     |   [10/31] SCORE_THRESHOLD=48, SIGNAL_MODE=dynamic -> P&L $   -9,046 | WR 58.3% | Sharpe -0.39 | Trades 782
+2026-03-31 07:17:30 | INFO     |   [20/31] SCORE_THRESHOLD=68, SIGNAL_MODE=dynamic -> P&L $    2,155 | WR 59.7% | Sharpe 0.11 | Trades 663
+2026-03-31 07:17:31 | INFO     |   [30/31] SCORE_THRESHOLD=88, SIGNAL_MODE=dynamic -> P&L $   -8,616 | WR 57.9% | Sharpe -0.53 | Trades 542
+2026-03-31 07:17:31 | INFO     | 
+------------------------------------------------------------------------------------------
+2026-03-31 07:17:31 | INFO     |   TOP 10 BY TOTAL_PNL
+2026-03-31 07:17:31 | INFO     | ------------------------------------------------------------------------------------------
+2026-03-31 07:17:31 | INFO     |   # 1 | P&L $    2,155 | DD -$  10,270 | Sharpe  0.11 | WR  59.7% | PF 1.01 | Trades  663 | SCORE_THRESHOLD=68, SIGNAL_MODE=dynamic
+2026-03-31 07:17:31 | INFO     |   # 2 | P&L $    1,435 | DD -$  17,424 | Sharpe  0.05 | WR  59.6% | PF 1.01 | Trades  904 | SCORE_THRESHOLD=30, SIGNAL_MODE=dynamic
+2026-03-31 07:17:31 | INFO     |   # 3 | P&L $    1,359 | DD -$  18,190 | Sharpe  0.05 | WR  59.6% | PF 1.01 | Trades  886 | SCORE_THRESHOLD=32, SIGNAL_MODE=dynamic
+2026-03-31 07:17:31 | INFO     |   # 4 | P&L $      413 | DD -$  10,994 | Sharpe  0.02 | WR  59.4% | PF 1.00 | Trades  670 | SCORE_THRESHOLD=66, SIGNAL_MODE=dynamic
+2026-03-31 07:17:31 | INFO     |   # 5 | P&L $     -247 | DD -$  10,667 | Sharpe -0.02 | WR  59.4% | PF 1.00 | Trades  684 | SCORE_THRESHOLD=64, SIGNAL_MODE=dynamic
+2026-03-31 07:17:31 | INFO     |   # 6 | P&L $   -1,044 | DD -$  17,372 | Sharpe -0.04 | WR  59.3% | PF 0.99 | Trades  870 | SCORE_THRESHOLD=34, SIGNAL_MODE=dynamic
+2026-03-31 07:17:31 | INFO     |   # 7 | P&L $   -1,516 | DD -$  10,248 | Sharpe -0.08 | WR  59.2% | PF 0.99 | Trades  640 | SCORE_THRESHOLD=72, SIGNAL_MODE=dynamic
+2026-03-31 07:17:31 | INFO     |   # 8 | P&L $   -1,560 | DD -$  11,058 | Sharpe -0.08 | WR  59.2% | PF 0.99 | Trades  650 | SCORE_THRESHOLD=70, SIGNAL_MODE=dynamic
+2026-03-31 07:17:31 | INFO     |   # 9 | P&L $   -2,494 | DD -$  10,305 | Sharpe -0.14 | WR  59.1% | PF 0.98 | Trades  628 | SCORE_THRESHOLD=74, SIGNAL_MODE=dynamic
+2026-03-31 07:17:31 | INFO     |   #10 | P&L $   -2,970 | DD -$  17,766 | Sharpe -0.12 | WR  59.1% | PF 0.98 | Trades  855 | SCORE_THRESHOLD=36, SIGNAL_MODE=dynamic
+2026-03-31 07:17:31 | INFO     | 
+  BOTTOM 5:
+2026-03-31 07:17:31 | INFO     |        | P&L $   -7,871 | DD -$  15,844 | Sharpe -0.36 | WR  58.3% | PF 0.95 | Trades  736 | SCORE_THRESHOLD=56, SIGNAL_MODE=dynamic
+2026-03-31 07:17:31 | INFO     |        | P&L $   -8,616 | DD -$  15,279 | Sharpe -0.53 | WR  57.9% | PF 0.93 | Trades  542 | SCORE_THRESHOLD=88, SIGNAL_MODE=dynamic
+2026-03-31 07:17:31 | INFO     |        | P&L $   -8,674 | DD -$  19,339 | Sharpe -0.37 | WR  58.4% | PF 0.95 | Trades  788 | SCORE_THRESHOLD=46, SIGNAL_MODE=dynamic
+2026-03-31 07:17:31 | INFO     |        | P&L $   -8,966 | DD -$  16,045 | Sharpe -0.56 | WR  57.8% | PF 0.93 | Trades  531 | SCORE_THRESHOLD=90, SIGNAL_MODE=dynamic
+2026-03-31 07:17:31 | INFO     |        | P&L $   -9,046 | DD -$  19,131 | Sharpe -0.39 | WR  58.3% | PF 0.95 | Trades  782 | SCORE_THRESHOLD=48, SIGNAL_MODE=dynamic
+2026-03-31 07:17:31 | INFO     | ------------------------------------------------------------------------------------------
+2026-03-31 07:17:31 | INFO     | 
+======================================================================
+2026-03-31 07:17:31 | INFO     |   SWEEP: Variance Threshold (12 combinations)
+2026-03-31 07:17:31 | INFO     | ======================================================================
+2026-03-31 07:17:31 | INFO     |   [1/12] VARIANCE_THRESHOLD=30, SIGNAL_MODE=classic -> P&L $   -4,871 | WR 58.8% | Sharpe -0.22 | Trades 742
+2026-03-31 07:17:31 | INFO     |   [10/12] VARIANCE_THRESHOLD=75, SIGNAL_MODE=classic -> P&L $   -2,326 | WR 58.8% | Sharpe -0.20 | Trades 388
+2026-03-31 07:17:31 | INFO     | 
+------------------------------------------------------------------------------------------
+2026-03-31 07:17:31 | INFO     |   TOP 10 BY TOTAL_PNL
+2026-03-31 07:17:31 | INFO     | ------------------------------------------------------------------------------------------
+2026-03-31 07:17:31 | INFO     |   # 1 | P&L $    3,322 | DD -$   8,867 | Sharpe  0.17 | WR  60.0% | PF 1.02 | Trades  627 | VARIANCE_THRESHOLD=45, SIGNAL_MODE=classic
+2026-03-31 07:17:31 | INFO     |   # 2 | P&L $      651 | DD -$  12,770 | Sharpe  0.03 | WR  59.5% | PF 1.00 | Trades  661 | VARIANCE_THRESHOLD=40, SIGNAL_MODE=classic
+2026-03-31 07:17:31 | INFO     |   # 3 | P&L $       87 | DD -$  10,433 | Sharpe  0.00 | WR  59.6% | PF 1.00 | Trades  445 | VARIANCE_THRESHOLD=70, SIGNAL_MODE=classic
+2026-03-31 07:17:31 | INFO     |   # 4 | P&L $   -1,357 | DD -$  11,723 | Sharpe -0.10 | WR  59.2% | PF 0.99 | Trades  478 | VARIANCE_THRESHOLD=65, SIGNAL_MODE=classic
+2026-03-31 07:17:31 | INFO     |   # 5 | P&L $   -2,326 | DD -$  13,299 | Sharpe -0.20 | WR  58.8% | PF 0.97 | Trades  388 | VARIANCE_THRESHOLD=75, SIGNAL_MODE=classic
+2026-03-31 07:17:31 | INFO     |   # 6 | P&L $   -3,191 | DD -$  10,365 | Sharpe -0.18 | WR  59.0% | PF 0.98 | Trades  588 | VARIANCE_THRESHOLD=50, SIGNAL_MODE=classic
+2026-03-31 07:17:31 | INFO     |   # 7 | P&L $   -3,431 | DD -$  12,015 | Sharpe -0.21 | WR  58.9% | PF 0.97 | Trades  552 | VARIANCE_THRESHOLD=55, SIGNAL_MODE=classic
+2026-03-31 07:17:31 | INFO     |   # 8 | P&L $   -4,388 | DD -$  13,711 | Sharpe -0.29 | WR  58.6% | PF 0.96 | Trades  510 | VARIANCE_THRESHOLD=60, SIGNAL_MODE=classic
+2026-03-31 07:17:31 | INFO     |   # 9 | P&L $   -4,871 | DD -$  16,620 | Sharpe -0.22 | WR  58.8% | PF 0.97 | Trades  742 | VARIANCE_THRESHOLD=30, SIGNAL_MODE=classic
+2026-03-31 07:17:31 | INFO     |   #10 | P&L $   -7,575 | DD -$  15,986 | Sharpe -0.36 | WR  58.3% | PF 0.96 | Trades  714 | VARIANCE_THRESHOLD=35, SIGNAL_MODE=classic
+2026-03-31 07:17:31 | INFO     | 
+  BOTTOM 5:
+2026-03-31 07:17:31 | INFO     |        | P&L $   -4,388 | DD -$  13,711 | Sharpe -0.29 | WR  58.6% | PF 0.96 | Trades  510 | VARIANCE_THRESHOLD=60, SIGNAL_MODE=classic
+2026-03-31 07:17:31 | INFO     |        | P&L $   -4,871 | DD -$  16,620 | Sharpe -0.22 | WR  58.8% | PF 0.97 | Trades  742 | VARIANCE_THRESHOLD=30, SIGNAL_MODE=classic
+2026-03-31 07:17:31 | INFO     |        | P&L $   -7,575 | DD -$  15,986 | Sharpe -0.36 | WR  58.3% | PF 0.96 | Trades  714 | VARIANCE_THRESHOLD=35, SIGNAL_MODE=classic
+2026-03-31 07:17:31 | INFO     |        | P&L $   -9,156 | DD -$  14,791 | Sharpe -0.91 | WR  56.6% | PF 0.89 | Trades  334 | VARIANCE_THRESHOLD=80, SIGNAL_MODE=classic
+2026-03-31 07:17:31 | INFO     |        | P&L $  -11,550 | DD -$  12,732 | Sharpe -1.43 | WR  54.7% | PF 0.83 | Trades  265 | VARIANCE_THRESHOLD=85, SIGNAL_MODE=classic
+2026-03-31 07:17:31 | INFO     | ------------------------------------------------------------------------------------------
+2026-03-31 07:17:31 | INFO     | 
+======================================================================
+2026-03-31 07:17:31 | INFO     |   SWEEP: Strike Offset (7 combinations)
+2026-03-31 07:17:31 | INFO     | ======================================================================
+2026-03-31 07:17:32 | INFO     |   [1/7] STRIKE_OFFSET=0 -> P&L $  -39,739 | WR 55.5% | Sharpe -1.62 | Trades 815
+2026-03-31 07:17:32 | INFO     | 
+------------------------------------------------------------------------------------------
+2026-03-31 07:17:32 | INFO     |   TOP 10 BY TOTAL_PNL
+2026-03-31 07:17:32 | INFO     | ------------------------------------------------------------------------------------------
+2026-03-31 07:17:32 | INFO     |   # 1 | P&L $  152,521 | DD -$   2,036 | Sharpe  7.60 | WR  78.4% | PF 2.60 | Trades  815 | STRIKE_OFFSET=30
+2026-03-31 07:17:32 | INFO     |   # 2 | P&L $  121,772 | DD -$   2,317 | Sharpe  5.75 | WR  74.4% | PF 2.09 | Trades  815 | STRIKE_OFFSET=25
+2026-03-31 07:17:32 | INFO     |   # 3 | P&L $   88,024 | DD -$   2,968 | Sharpe  3.93 | WR  70.3% | PF 1.66 | Trades  815 | STRIKE_OFFSET=20
+2026-03-31 07:17:32 | INFO     |   # 4 | P&L $   55,354 | DD -$   5,235 | Sharpe  2.37 | WR  66.4% | PF 1.36 | Trades  815 | STRIKE_OFFSET=15
+2026-03-31 07:17:32 | INFO     |   # 5 | P&L $   24,133 | DD -$   8,513 | Sharpe  1.00 | WR  62.3% | PF 1.14 | Trades  815 | STRIKE_OFFSET=10
+2026-03-31 07:17:32 | INFO     |   # 6 | P&L $   -5,861 | DD -$  16,642 | Sharpe -0.24 | WR  58.7% | PF 0.97 | Trades  815 | STRIKE_OFFSET=5
+2026-03-31 07:17:32 | INFO     |   # 7 | P&L $  -39,739 | DD -$  43,952 | Sharpe -1.62 | WR  55.5% | PF 0.81 | Trades  815 | STRIKE_OFFSET=0
+2026-03-31 07:17:32 | INFO     | 
+  BOTTOM 5:
+2026-03-31 07:17:32 | INFO     |        | P&L $   88,024 | DD -$   2,968 | Sharpe  3.93 | WR  70.3% | PF 1.66 | Trades  815 | STRIKE_OFFSET=20
+2026-03-31 07:17:32 | INFO     |        | P&L $   55,354 | DD -$   5,235 | Sharpe  2.37 | WR  66.4% | PF 1.36 | Trades  815 | STRIKE_OFFSET=15
+2026-03-31 07:17:32 | INFO     |        | P&L $   24,133 | DD -$   8,513 | Sharpe  1.00 | WR  62.3% | PF 1.14 | Trades  815 | STRIKE_OFFSET=10
+2026-03-31 07:17:32 | INFO     |        | P&L $   -5,861 | DD -$  16,642 | Sharpe -0.24 | WR  58.7% | PF 0.97 | Trades  815 | STRIKE_OFFSET=5
+2026-03-31 07:17:32 | INFO     |        | P&L $  -39,739 | DD -$  43,952 | Sharpe -1.62 | WR  55.5% | PF 0.81 | Trades  815 | STRIKE_OFFSET=0
+2026-03-31 07:17:32 | INFO     | ------------------------------------------------------------------------------------------
+2026-03-31 07:17:32 | INFO     | 
+======================================================================
+2026-03-31 07:17:32 | INFO     |   SWEEP: Spread Width (10 combinations)
+2026-03-31 07:17:32 | INFO     | ======================================================================
+2026-03-31 07:17:32 | INFO     |   [1/10] SPREAD_WIDTH=5.0, FIXED_CREDIT=2.0 -> P&L $  -21,232 | WR 57.5% | Sharpe -0.85 | Trades 815
+2026-03-31 07:17:32 | INFO     |   [10/10] SPREAD_WIDTH=50.0, FIXED_CREDIT=20.0 -> P&L $  115,098 | WR 71.3% | Sharpe 6.23 | Trades 815
+2026-03-31 07:17:32 | INFO     | 
+------------------------------------------------------------------------------------------
+2026-03-31 07:17:32 | INFO     |   TOP 10 BY TOTAL_PNL
+2026-03-31 07:17:32 | INFO     | ------------------------------------------------------------------------------------------
+2026-03-31 07:17:32 | INFO     |   # 1 | P&L $  115,098 | DD -$   1,756 | Sharpe  6.23 | WR  71.3% | PF 2.30 | Trades  815 | SPREAD_WIDTH=50.0, FIXED_CREDIT=20.0
+2026-03-31 07:17:32 | INFO     |   # 2 | P&L $  101,662 | DD -$   2,169 | Sharpe  5.26 | WR  69.6% | PF 2.02 | Trades  815 | SPREAD_WIDTH=45.0, FIXED_CREDIT=18.0
+2026-03-31 07:17:32 | INFO     |   # 3 | P&L $   88,062 | DD -$   2,390 | Sharpe  4.38 | WR  68.1% | PF 1.79 | Trades  815 | SPREAD_WIDTH=40.0, FIXED_CREDIT=16.0
+2026-03-31 07:17:32 | INFO     |   # 4 | P&L $   72,902 | DD -$   2,734 | Sharpe  3.48 | WR  66.4% | PF 1.59 | Trades  815 | SPREAD_WIDTH=35.0, FIXED_CREDIT=14.0
+2026-03-31 07:17:32 | INFO     |   # 5 | P&L $   57,334 | DD -$   3,601 | Sharpe  2.64 | WR  64.8% | PF 1.42 | Trades  815 | SPREAD_WIDTH=30.0, FIXED_CREDIT=12.0
+2026-03-31 07:17:32 | INFO     |   # 6 | P&L $   40,802 | DD -$   5,232 | Sharpe  1.81 | WR  63.2% | PF 1.27 | Trades  815 | SPREAD_WIDTH=25.0, FIXED_CREDIT=10.0
+2026-03-31 07:17:32 | INFO     |   # 7 | P&L $   24,862 | DD -$   6,449 | Sharpe  1.07 | WR  62.0% | PF 1.15 | Trades  815 | SPREAD_WIDTH=20.0, FIXED_CREDIT=8.0
+2026-03-31 07:17:32 | INFO     |   # 8 | P&L $    9,083 | DD -$  11,344 | Sharpe  0.38 | WR  60.4% | PF 1.05 | Trades  815 | SPREAD_WIDTH=15.0, FIXED_CREDIT=6.0
+2026-03-31 07:17:32 | INFO     |   # 9 | P&L $   -5,861 | DD -$  16,642 | Sharpe -0.24 | WR  58.7% | PF 0.97 | Trades  815 | SPREAD_WIDTH=10.0, FIXED_CREDIT=4.0
+2026-03-31 07:17:32 | INFO     |   #10 | P&L $  -21,232 | DD -$  27,938 | Sharpe -0.85 | WR  57.5% | PF 0.90 | Trades  815 | SPREAD_WIDTH=5.0, FIXED_CREDIT=2.0
+2026-03-31 07:17:32 | INFO     | 
+  BOTTOM 5:
+2026-03-31 07:17:32 | INFO     |        | P&L $   40,802 | DD -$   5,232 | Sharpe  1.81 | WR  63.2% | PF 1.27 | Trades  815 | SPREAD_WIDTH=25.0, FIXED_CREDIT=10.0
+2026-03-31 07:17:32 | INFO     |        | P&L $   24,862 | DD -$   6,449 | Sharpe  1.07 | WR  62.0% | PF 1.15 | Trades  815 | SPREAD_WIDTH=20.0, FIXED_CREDIT=8.0
+2026-03-31 07:17:32 | INFO     |        | P&L $    9,083 | DD -$  11,344 | Sharpe  0.38 | WR  60.4% | PF 1.05 | Trades  815 | SPREAD_WIDTH=15.0, FIXED_CREDIT=6.0
+2026-03-31 07:17:32 | INFO     |        | P&L $   -5,861 | DD -$  16,642 | Sharpe -0.24 | WR  58.7% | PF 0.97 | Trades  815 | SPREAD_WIDTH=10.0, FIXED_CREDIT=4.0
+2026-03-31 07:17:32 | INFO     |        | P&L $  -21,232 | DD -$  27,938 | Sharpe -0.85 | WR  57.5% | PF 0.90 | Trades  815 | SPREAD_WIDTH=5.0, FIXED_CREDIT=2.0
+2026-03-31 07:17:32 | INFO     | ------------------------------------------------------------------------------------------
+2026-03-31 07:17:32 | INFO     | 
+======================================================================
+2026-03-31 07:17:32 | INFO     |   SWEEP: TP/SL Cap (30 combinations)
+2026-03-31 07:17:32 | INFO     | ======================================================================
+2026-03-31 07:17:32 | INFO     |   [1/30] TP_CAP=0.3, SL_CAP=-0.5 -> P&L $  -13,932 | WR 58.7% | Sharpe -1.17 | Trades 815

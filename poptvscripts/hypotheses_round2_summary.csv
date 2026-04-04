@@ -1,0 +1,21 @@
+hypothesis_id,script,target_strategy,type,concept,priority,data_needed,data_available,notes
+H2-V16-1,VIX Rule of 16,LastFive,Strike Selection,Range budget (fraction of expected range consumed by 15:55),P1,SPX intraday + VIX,YES,Most promising Round 2 hypothesis. Uses data we already compute.
+H2-MMA-1,Market Microstructure,LastFive,Strike Selection,Parkinson vol RATIO (closing vs full-day) as relative calm metric,P1,SPX 1-min OHLC,YES,Fixes the flaw in raw Parkinson (which failed): relative vol is what matters.
+H2-VCP-1,VIX Curve Pro,ALL,Sizing,VIX9D/VIX as continuous sizing multiplier (not binary filter),P1,VIX + VIX9D daily,YES,Addresses the trade-off that killed binary term structure filter.
+H2-ORB-4,Kanes ORB,MEIC,Filter,ORB containment at 14:00 = range-bound day = highest MEIC WR,P1,SPX 1-min OHLC,YES,ORB validated for Zenith. MEIC is the next priority.
+H2-ORB-5,Kanes ORB,ALL,Filter,Dual ORB: morning + lunch range. Nested = contracting = safe,P1,SPX 1-min OHLC,YES,Novel extension of ORB concept.
+H2-WPR-1,%R Trend Exhaustion,Zenith,Side Selection,Dual %R fast+slow for call/put side selection,P1,SPX daily OHLC,YES,Directly overlaps Zenith's exhaustion concept.
+H2-VCP-2,VIX Curve Pro + ORB,Zenith,Filter,Contango + ORB width < 20 combo = two validated signals stacked,P1,VIX + VIX9D + SPX OHLC,YES,Both individually validated. Test combo.
+H2-VXC-2,VIX Crossing,LastFive,Strike Selection,Calm streak (days since VIX cross) as VIX/16 multiplier tightener,P2,VIX daily,YES,Extended calm = safer to be closer to ATM.
+H2-HTF3-1,HTF Candle Direction,MEIC,Side Selection,Prior-day candle direction as MEIC side selector,P1,SPX daily OHLC,YES,One line of code. Zero parameters. Test immediately.
+H2-LOR-2,Lorentzian Classification,LastFive,Filter,KNN confidence (vote split) inverted: low confidence = ambiguous = safe,P2,Trade features,YES,Novel: INVERT the ML signal for credit spreads.
+H2-TSO-1,TASC Synthetic Oscillator,Zenith,Timing,Ehlers cycle peak timing for Zenith entries,P2,SPX daily OHLC,YES,Most novel concept in entire project.
+H2-DEN-1,Denial [MMT],LastFive,Side Selection,Morning/evening star at 15:54 for side selection,P2,SPX 1-min OHLC,YES,Zero data dependency. Pattern-based.
+H2-SMC-4,Smart Money Concepts,LastFive,Side Selection,Premium/discount zone (above/below 50% of day range) for side selection,P2,SPX daily OHLC,YES,Simplest SMC concept. One line.
+H2-VSA-2,Volume Spread Analysis,LastFive,Filter,VIX bar compression at 15:50 (proxy for institutional calm),P2,VIX 1-min OHLC,YES,Bypasses SPX no-volume problem.
+H2-LIQ-1,Liquidity Hunter,ALL,Filter,Post-sweep day detection = calmer = higher WR for credit spreads,P2,SPX daily OHLC,YES,Sweep + reversal = institutional stop hunt complete.
+H2-MC-1,Monte Carlo CT,LastFive,Validation,Monte Carlo confidence intervals for VIX/16 hybrid variant,P1,Trade data,YES,Statistical validation of our best finding.
+H2-FVA-1,Fractal Velocity,LastFive,Filter,Fractal efficiency < 0.5 at 15:50 = mean-reverting close = safest,P2,SPX 1-min OHLC,YES,Different from ER. Captures full path structure.
+H2-KER-1,SuperTrendy (ER),MEIC,Direction,ER as MEIC direction signal (not filter) at 14:00,P1,SPX 1-min OHLC,YES,ER failed as LastFive filter but may work as MEIC direction signal.
+H2-WVF-4,CM Williams VIX Fix,MEIC,Filter,Morning WVF + afternoon recovery = best MEIC setup,P2,SPX 1-min OHLC,YES,Cross-timeframe WVF concept.
+H2-BLS-1,Bastion Level,LastFive,Strike Selection,Place short strikes ON round numbers instead of computed distances,P3,SPX price,YES,Failed as filter but may work for strike placement.
