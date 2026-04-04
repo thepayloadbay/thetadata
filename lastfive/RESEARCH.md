@@ -589,3 +589,104 @@ Losers decelerate (acceleration = -0.35) while winners accelerate (+0.08). Cohen
 ### Verdict
 
 Credit velocity is **the strongest diagnostic signal we've found** (d=1.54) but **cannot be used for early exit** because the exit cost exceeds the loss avoided. The current touch system is already optimal — it lets losing trades partially recover before closing. Velocity would be actionable if exit costs were lower (tighter bid-ask spreads), but in the last 5 minutes of 0DTE options, spreads are at their widest.
+
+---
+
+## VIX Range Budget Research (2026-04-04)
+
+### Concept
+
+VIX implies an expected daily range: `Expected Range = SPX × VIX/100 / √252 × 1.6`. By 15:50, some fraction of that range has been consumed. If >100% is consumed, the day has already exceeded its "budget" — the remaining movement may be larger (momentum) or smaller (exhaustion). The hypothesis: days with low range consumed are safer for premium selling.
+
+### Range Consumed vs Last-8-Min |Move|
+
+| Range Consumed | N | |Move| Mean | |Move| Median | P95 | Avg VIX |
+|---|---|---|---|---|---|
+| < 50% (quiet day) | 425 | **$3.99** | $3.02 | $10.4 | 17.3 |
+| 50-75% | 379 | $5.35 | $4.10 | $14.4 | 20.0 |
+| 75-100% | 149 | $5.91 | $4.65 | $15.4 | 21.2 |
+| 100-150% (overshot) | 53 | $8.57 | $6.72 | $21.2 | 22.0 |
+| > 150% | 7 | $8.80 | $8.06 | — | 26.4 |
+
+Spearman ρ = 0.201 (p < 1e-10). Clear monotonic: overconsumed days have 2x larger last-8-min moves. But confounded with VIX (avg VIX 22.0 for overconsumed vs 17.3 for quiet).
+
+### Adaptive Distance Backtests
+
+All tests use 15:52 entry, OA-style touch (Call $0 / Put -$1), tiered sizing.
+
+**A) Budget-only distance (replace VIX entirely):**
+
+| Config | P&L | DD | Sharpe | Calmar |
+|---|---|---|---|---|
+| **Baseline (VIX C3)** | **$348,808** | **-$2,739** | **6.71** | **127.3** |
+| Budget: <50%→ATM, 50-75%→$3, 75-100%→$5, >100%→$7 | $299,060 | -$2,739 | 6.21 | 109.2 |
+| Budget: <50%→ATM, 50-75%→$2, 75-100%→$3, >100%→$5 | $325,694 | -$3,156 | 6.17 | 103.2 |
+
+Budget-only is worse than VIX. VIX is the better distance driver.
+
+**B) VIX + Budget combo:**
+
+| Config | P&L | DD | Sharpe | Calmar |
+|---|---|---|---|---|
+| **Baseline** | **$348,808** | **-$2,739** | **6.71** | **127.3** |
+| C3 + widen $2 if consumed>100% | $342,136 | -$2,739 | 6.66 | 124.9 |
+| C3 + widen $2 if consumed>75% | $321,435 | -$2,739 | 6.53 | 117.4 |
+| **C3 - tighten $2 if consumed<50%** | **$360,299** | **-$2,739** | **6.71** | **131.5** |
+| C3 + tighten quiet + widen overconsumed | $353,627 | -$2,739 | 6.66 | 129.1 |
+
+**Tightening on quiet days** (+$11.5k, same DD) is the only variant that helps — on quiet days with budget remaining, moving closer collects more credit safely. But the Sharpe doesn't improve (6.71 = same), so it's marginal.
+
+**C) Budget-scaled distance:**
+
+| Config | P&L | DD | Sharpe | Calmar |
+|---|---|---|---|---|
+| C3 × clamp(consumed, 0.5, 2.0) | $368,312 | -$2,739 | 6.59 | 134.5 |
+| C3 × 1.5 if consumed>75% | $344,388 | -$2,739 | 6.71 | 125.7 |
+
+Scaling by consumed ratio adds $19.5k P&L (best variant) but Sharpe drops to 6.59. More aggressive = more credit but also more touch exits.
+
+**D) Skip overconsumed days:**
+
+| Config | P&L | DD | Sharpe | Calmar |
+|---|---|---|---|---|
+| Skip if consumed > 100% (26 days) | $337,334 | -$2,739 | 6.77 | 123.2 |
+| Skip if consumed > 125% (5 days) | $349,116 | -$2,739 | 6.78 | 127.5 |
+
+Highest Sharpe (6.78) but loses $11.5k P&L for just 5 skipped days.
+
+### Verdict
+
+The VIX range budget signal is real (ρ=0.201) but **does not meaningfully improve the strategy**. Every variant either costs P&L or provides only marginal Sharpe improvement (≤0.07). The reason: VIX already captures most of the information, and touch exits handle the tail risk that budget would otherwise filter. The best variant (C3 × consumed scaling) adds $19.5k but at the cost of Sharpe, suggesting it's capturing noise not signal.
+
+**Not adopted.** Current VIX-adaptive C3 at 15:52 entry remains optimal.
+
+---
+
+## 50 Hypotheses Sweep (2026-04-04)
+
+### Tested 15 of 50 hypotheses. Results:
+
+**Winner — adopted:**
+- **#19 Entry at 15:52**: +$142k P&L (+69%), DD -45%, Sharpe 4.20→6.71. Best single improvement ever found.
+
+**Marginal positives — not adopted (too little benefit for complexity):**
+- #22 VVIX > 120 skip: Sharpe +0.03, -$4k P&L, only 23 days
+- #21 VIX/VIX9D > 1.20 skip: Sharpe -0.09, -$26k P&L
+- #41 Day range > P75 skip: Sharpe +0.11, -$34k P&L
+
+**Rejected (no improvement or negative):**
+- #20 Exit at 15:59: -$115k P&L, DD doubles. Misses final mean-reversion.
+- #4 Pin risk: No edge at any threshold.
+- #29 Day-after-large-move: Marginal, costs P&L.
+- #49 Previous day's last-5-min move: No predictive power.
+- #30 Day-of-week: No actionable signal.
+- #31 Vol-scaled sizing: Neutral to worse.
+- #17 FOMC days: Too few to matter.
+- #18 OpEx Fridays: Too few to matter.
+
+**Not yet tested (may be worth exploring):**
+- #43 VIX1D as distance driver
+- #50 ML ensemble of top features
+- #8 Skew steepness
+- #38 Partial position + add at 15:57
+- #11 Staggered entry
