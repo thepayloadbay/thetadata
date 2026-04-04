@@ -1,0 +1,10 @@
+2026-04-03 15:19:18 | INFO     | Log file: /Users/jeerapongwongchote/Documents/thetadata/apex/logs/apex_run_20260403_151918.log
+2026-04-03 15:19:23 | INFO     | Built daily indicators: 1065 dates (20220103 → 20260401)
+2026-04-03 15:19:28 | INFO     | [ITER 271] fill_sim_Baseline_(15:55_bid/ → VALIDATION | P&L=$15,358, Sharpe=13.06, DD=$0
+2026-04-03 15:19:32 | INFO     | [ITER 272] fill_sim_10%%_credit_haircut → VALIDATION | P&L=$12,600, Sharpe=18.11, DD=$0
+2026-04-03 15:19:36 | INFO     | [ITER 273] fill_sim_20%%_credit_haircut → VALIDATION | P&L=$11,060, Sharpe=17.92, DD=$0
+2026-04-03 15:19:41 | INFO     | [ITER 274] fill_sim_30%%_credit_haircut → VALIDATION | P&L=$9,520, Sharpe=17.66, DD=$0
+2026-04-03 15:19:45 | INFO     | [ITER 275] fill_sim_50%%_credit_haircut → VALIDATION | P&L=$5,936, Sharpe=19.31, DD=$0
+2026-04-03 15:19:48 | INFO     | [ITER 276] fill_sim_Stale_quote_(15:54_f → VALIDATION | P&L=$29,610, Sharpe=11.01, DD=$0
+2026-04-03 15:19:52 | INFO     | [ITER 277] fill_sim_Stale_+_10%%_haircut → VALIDATION | P&L=$25,459, Sharpe=13.47, DD=$0
+2026-04-03 15:19:56 | INFO     | [ITER 278] fill_sim_Stale_+_20%%_haircut → VALIDATION | P&L=$22,442, Sharpe=13.37, DD=$0

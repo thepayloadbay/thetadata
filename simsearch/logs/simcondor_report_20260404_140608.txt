@@ -1,0 +1,45 @@
+======================================================================
+SimCondor — Iron Condor Strategy (SimSearch Range Prediction)
+======================================================================
+
+Period: 20220601 to 20260325
+Total days: 957
+Traded: 199 | Skipped: 758
+
+RESULTS
+--------------------------------------------------
+  Total P&L:    $888
+  Max DD:       $-15,334
+  Sharpe:       0.09
+  Calmar:       0.06
+  Win Rate:     75.4%
+  Trades:       199
+  Avg Win:      $414
+  Avg Loss:     $-1,249
+  Profit Factor: 1.01
+  Best Day:     $926
+  Worst Day:    $-2,648
+
+BY REGIME
+--------------------------------------------------
+  CALM      :  102 trades, $  10,566 P&L, 79% WR, avg credit $214
+  CALM      :  278 skipped
+  NORMAL    :   97 trades, $  -9,678 P&L, 71% WR, avg credit $216
+  NORMAL    :  218 skipped
+  VOLATILE  :   64 skipped
+  DANGER    :  198 skipped
+
+STRIKE DISTANCES
+--------------------------------------------------
+  Avg OTM distance: 45 pts
+  Min OTM distance: 30 pts
+  Max OTM distance: 100 pts
+  Avg credit:       $215
+
+WORST 5 DAYS
+--------------------------------------------------
+  20230920: $-2,648  regime=NORMAL  OTM=35  credit=$335  range=1.34%
+  20230207: $-2,628  regime=NORMAL  OTM=55  credit=$345  range=2.15%
+  20231213: $-2,198  regime=NORMAL  OTM=40  credit=$190  range=1.43%
+  20241218: $-2,188  regime=NORMAL  OTM=60  credit=$135  range=3.35%
+  20221130: $-2,008  regime=NORMAL  OTM=55  credit=$480  range=3.56%

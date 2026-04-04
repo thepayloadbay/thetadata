@@ -1,0 +1,336 @@
+2026-04-03 07:52:25 | INFO     | Log file: /Users/jeerapongwongchote/Documents/thetadata/apex/logs/apex_run_20260403_075225.log
+2026-04-03 07:52:29 | INFO     | Built daily indicators: 1065 dates (20220103 → 20260401)
+2026-04-03 07:52:29 | DEBUG    | [20220105] 2 trades, day P&L=$+160, equity=$100,160
+2026-04-03 07:52:29 | DEBUG    | [20220110] 2 trades, day P&L=$+60, equity=$100,220
+2026-04-03 07:52:29 | DEBUG    | [20220114] 1 trades, day P&L=$+130, equity=$100,350
+2026-04-03 07:52:29 | DEBUG    | [20220118] 2 trades, day P&L=$+210, equity=$100,560
+2026-04-03 07:52:29 | DEBUG    | [20220119] 2 trades, day P&L=$+110, equity=$100,670
+2026-04-03 07:52:29 | DEBUG    | [20220121] 2 trades, day P&L=$+510, equity=$101,180
+2026-04-03 07:52:29 | DEBUG    | [20220124] 2 trades, day P&L=$+3410, equity=$104,590
+2026-04-03 07:52:29 | DEBUG    | [20220126] 2 trades, day P&L=$+1210, equity=$105,800
+2026-04-03 07:52:29 | DEBUG    | [20220128] 2 trades, day P&L=$+510, equity=$106,310
+2026-04-03 07:52:29 | DEBUG    | [20220131] 2 trades, day P&L=$+160, equity=$106,470
+2026-04-03 07:52:29 | DEBUG    | [20220202] 1 trades, day P&L=$+30, equity=$106,500
+2026-04-03 07:52:29 | DEBUG    | [20220204] 1 trades, day P&L=$+280, equity=$106,780
+2026-04-03 07:52:29 | DEBUG    | [20220207] 2 trades, day P&L=$+360, equity=$107,140
+2026-04-03 07:52:29 | DEBUG    | [20220209] 1 trades, day P&L=$+30, equity=$107,170
+2026-04-03 07:52:29 | DEBUG    | [20220211] 2 trades, day P&L=$+2510, equity=$109,680
+2026-04-03 07:52:29 | DEBUG    | [20220214] 2 trades, day P&L=$+660, equity=$110,340
+2026-04-03 07:52:29 | DEBUG    | [20220216] 1 trades, day P&L=$+30, equity=$110,370
+2026-04-03 07:52:29 | DEBUG    | [20220218] 2 trades, day P&L=$+510, equity=$110,880
+2026-04-03 07:52:29 | DEBUG    | [20220222] 2 trades, day P&L=$+760, equity=$111,640
+2026-04-03 07:52:29 | DEBUG    | [20220223] 2 trades, day P&L=$+210, equity=$111,850
+2026-04-03 07:52:29 | DEBUG    | [20220225] 2 trades, day P&L=$+260, equity=$112,110
+2026-04-03 07:52:29 | DEBUG    | [20220228] 2 trades, day P&L=$+560, equity=$112,670
+2026-04-03 07:52:29 | DEBUG    | [20220302] 2 trades, day P&L=$+110, equity=$112,780
+2026-04-03 07:52:29 | DEBUG    | [20220304] 2 trades, day P&L=$+260, equity=$113,040
+2026-04-03 07:52:29 | DEBUG    | [20220307] 2 trades, day P&L=$+410, equity=$113,450
+2026-04-03 07:52:29 | DEBUG    | [20220309] 2 trades, day P&L=$+510, equity=$113,960
+2026-04-03 07:52:29 | DEBUG    | [20220311] 1 trades, day P&L=$+280, equity=$114,240
+2026-04-03 07:52:29 | DEBUG    | [20220314] 1 trades, day P&L=$+130, equity=$114,370
+2026-04-03 07:52:29 | DEBUG    | [20220316] 1 trades, day P&L=$+30, equity=$114,400
+2026-04-03 07:52:29 | DEBUG    | [20220323] 1 trades, day P&L=$+180, equity=$114,580
+2026-04-03 07:52:29 | DEBUG    | [20220330] 1 trades, day P&L=$+130, equity=$114,710
+2026-04-03 07:52:29 | DEBUG    | [20220331] 1 trades, day P&L=$+480, equity=$115,190
+2026-04-03 07:52:29 | DEBUG    | [20220401] 1 trades, day P&L=$+80, equity=$115,270
+2026-04-03 07:52:29 | DEBUG    | [20220406] 2 trades, day P&L=$+460, equity=$115,730
+2026-04-03 07:52:29 | DEBUG    | [20220408] 2 trades, day P&L=$+60, equity=$115,790
+2026-04-03 07:52:29 | DEBUG    | [20220418] 1 trades, day P&L=$+30, equity=$115,820
+2026-04-03 07:52:29 | DEBUG    | [20220420] 1 trades, day P&L=$+30, equity=$115,850
+2026-04-03 07:52:29 | DEBUG    | [20220422] 1 trades, day P&L=$+580, equity=$116,430
+2026-04-03 07:52:29 | DEBUG    | [20220425] 1 trades, day P&L=$+30, equity=$116,460
+2026-04-03 07:52:29 | DEBUG    | [20220427] 2 trades, day P&L=$+260, equity=$116,720
+2026-04-03 07:52:29 | DEBUG    | [20220429] 1 trades, day P&L=$+580, equity=$117,300
+2026-04-03 07:52:29 | DEBUG    | [20220502] 1 trades, day P&L=$+30, equity=$117,330
+2026-04-03 07:52:29 | DEBUG    | [20220504] 1 trades, day P&L=$+130, equity=$117,460
+2026-04-03 07:52:29 | DEBUG    | [20220506] 2 trades, day P&L=$+860, equity=$118,320
+2026-04-03 07:52:29 | DEBUG    | [20220509] 1 trades, day P&L=$+580, equity=$118,900
+2026-04-03 07:52:29 | DEBUG    | [20220510] 1 trades, day P&L=$+130, equity=$119,030
+2026-04-03 07:52:29 | DEBUG    | [20220511] 1 trades, day P&L=$+230, equity=$119,260
+2026-04-03 07:52:29 | DEBUG    | [20220513] 1 trades, day P&L=$+180, equity=$119,440
+2026-04-03 07:52:29 | DEBUG    | [20220518] 1 trades, day P&L=$+180, equity=$119,620
+2026-04-03 07:52:29 | DEBUG    | [20220519] 1 trades, day P&L=$+30, equity=$119,650
+2026-04-03 07:52:29 | DEBUG    | [20220520] 1 trades, day P&L=$+180, equity=$119,830
+2026-04-03 07:52:29 | DEBUG    | [20220524] 2 trades, day P&L=$+60, equity=$119,890
+2026-04-03 07:52:29 | DEBUG    | [20220526] 1 trades, day P&L=$+80, equity=$119,970
+2026-04-03 07:52:29 | DEBUG    | [20220531] 2 trades, day P&L=$+310, equity=$120,280
+2026-04-03 07:52:29 | DEBUG    | [20220603] 1 trades, day P&L=$+30, equity=$120,310
+2026-04-03 07:52:29 | DEBUG    | [20220610] 1 trades, day P&L=$+280, equity=$120,590
+2026-04-03 07:52:29 | DEBUG    | [20220613] 1 trades, day P&L=$+30, equity=$120,620
+2026-04-03 07:52:29 | DEBUG    | [20220615] 1 trades, day P&L=$+380, equity=$121,000
+2026-04-03 07:52:29 | DEBUG    | [20220616] 1 trades, day P&L=$+30, equity=$121,030
+2026-04-03 07:52:29 | DEBUG    | [20220617] 1 trades, day P&L=$+80, equity=$121,110
+2026-04-03 07:52:29 | DEBUG    | [20220623] 1 trades, day P&L=$+30, equity=$121,140
+2026-04-03 07:52:29 | DEBUG    | [20220624] 1 trades, day P&L=$+30, equity=$121,170
+2026-04-03 07:52:29 | DEBUG    | [20220627] 1 trades, day P&L=$+30, equity=$121,200
+2026-04-03 07:52:29 | DEBUG    | [20220630] 2 trades, day P&L=$-620, equity=$120,580
+2026-04-03 07:52:29 | DEBUG    | [20220705] 1 trades, day P&L=$+30, equity=$120,610
+2026-04-03 07:52:30 | DEBUG    | [20220706] 1 trades, day P&L=$+30, equity=$120,640
+2026-04-03 07:52:30 | DEBUG    | [20220713] 1 trades, day P&L=$+30, equity=$120,670
+2026-04-03 07:52:30 | DEBUG    | [20220902] 1 trades, day P&L=$+130, equity=$120,800
+2026-04-03 07:52:30 | DEBUG    | [20220913] 1 trades, day P&L=$+80, equity=$120,880
+2026-04-03 07:52:30 | DEBUG    | [20220915] 1 trades, day P&L=$+130, equity=$121,010
+2026-04-03 07:52:30 | DEBUG    | [20220916] 2 trades, day P&L=$+210, equity=$121,220
+2026-04-03 07:52:30 | DEBUG    | [20220921] 1 trades, day P&L=$+0, equity=$121,220
+2026-04-03 07:52:30 | DEBUG    | [20220923] 1 trades, day P&L=$+130, equity=$121,350
+2026-04-03 07:52:30 | DEBUG    | [20220926] 2 trades, day P&L=$-4220, equity=$117,130
+2026-04-03 07:52:30 | DEBUG    | [20220927] 1 trades, day P&L=$+180, equity=$117,310
+2026-04-03 07:52:30 | DEBUG    | [20220929] 1 trades, day P&L=$+80, equity=$117,390
+2026-04-03 07:52:30 | DEBUG    | [20220930] 1 trades, day P&L=$+880, equity=$118,270
+2026-04-03 07:52:30 | DEBUG    | [20221003] 1 trades, day P&L=$+30, equity=$118,300
+2026-04-03 07:52:30 | DEBUG    | [20221006] 1 trades, day P&L=$+130, equity=$118,430
+2026-04-03 07:52:30 | DEBUG    | [20221007] 1 trades, day P&L=$+280, equity=$118,710
+2026-04-03 07:52:30 | DEBUG    | [20221011] 1 trades, day P&L=$+30, equity=$118,740
+2026-04-03 07:52:30 | DEBUG    | [20221013] 1 trades, day P&L=$+130, equity=$118,870
+2026-04-03 07:52:30 | DEBUG    | [20221014] 1 trades, day P&L=$+30, equity=$118,900
+2026-04-03 07:52:30 | DEBUG    | [20221020] 1 trades, day P&L=$+30, equity=$118,930
+2026-04-03 07:52:30 | DEBUG    | [20221102] 1 trades, day P&L=$+180, equity=$119,110
+2026-04-03 07:52:30 | DEBUG    | [20221115] 1 trades, day P&L=$+80, equity=$119,190
+2026-04-03 07:52:30 | DEBUG    | [20221118] 1 trades, day P&L=$+30, equity=$119,220
+2026-04-03 07:52:30 | DEBUG    | [20221209] 1 trades, day P&L=$+30, equity=$119,250
+2026-04-03 07:52:30 | DEBUG    | [20221213] 1 trades, day P&L=$+30, equity=$119,280
+2026-04-03 07:52:30 | DEBUG    | [20221214] 1 trades, day P&L=$+30, equity=$119,310
+2026-04-03 07:52:30 | DEBUG    | [20221215] 1 trades, day P&L=$+30, equity=$119,340
+2026-04-03 07:52:30 | DEBUG    | [20221216] 1 trades, day P&L=$+30, equity=$119,370
+2026-04-03 07:52:30 | DEBUG    | [20221230] 1 trades, day P&L=$+180, equity=$119,550
+2026-04-03 07:52:30 | DEBUG    | [20230201] 1 trades, day P&L=$+230, equity=$119,780
+2026-04-03 07:52:30 | DEBUG    | [20230202] 1 trades, day P&L=$+30, equity=$119,810
+2026-04-03 07:52:30 | DEBUG    | [20230203] 2 trades, day P&L=$+60, equity=$119,870
+2026-04-03 07:52:30 | DEBUG    | [20230309] 1 trades, day P&L=$+130, equity=$120,000
+2026-04-03 07:52:30 | DEBUG    | [20230315] 2 trades, day P&L=$-7010, equity=$112,990
+2026-04-03 07:52:30 | DEBUG    | [20230316] 1 trades, day P&L=$+130, equity=$113,120
+2026-04-03 07:52:30 | DEBUG    | [20230317] 1 trades, day P&L=$+130, equity=$113,250
+2026-04-03 07:52:30 | DEBUG    | [20230322] 1 trades, day P&L=$+80, equity=$113,330
+2026-04-03 07:52:30 | DEBUG    | [20230323] 1 trades, day P&L=$+30, equity=$113,360
+2026-04-03 07:52:31 | DEBUG    | [20230707] 1 trades, day P&L=$+80, equity=$113,440
+2026-04-03 07:52:31 | DEBUG    | [20230816] 1 trades, day P&L=$+30, equity=$113,470
+2026-04-03 07:52:31 | DEBUG    | [20230825] 1 trades, day P&L=$+30, equity=$113,500
+2026-04-03 07:52:31 | DEBUG    | [20230922] 1 trades, day P&L=$+30, equity=$113,530
+2026-04-03 07:52:31 | DEBUG    | [20230927] 1 trades, day P&L=$+30, equity=$113,560
+2026-04-03 07:52:31 | DEBUG    | [20230929] 1 trades, day P&L=$+80, equity=$113,640
+2026-04-03 07:52:31 | DEBUG    | [20231018] 1 trades, day P&L=$+30, equity=$113,670
+2026-04-03 07:52:31 | DEBUG    | [20231019] 1 trades, day P&L=$+30, equity=$113,700
+2026-04-03 07:52:31 | DEBUG    | [20240216] 1 trades, day P&L=$+30, equity=$113,730
+2026-04-03 07:52:32 | DEBUG    | [20240404] 1 trades, day P&L=$+80, equity=$113,810
+2026-04-03 07:52:32 | DEBUG    | [20240410] 2 trades, day P&L=$+110, equity=$113,920
+2026-04-03 07:52:32 | DEBUG    | [20240412] 1 trades, day P&L=$+30, equity=$113,950
+2026-04-03 07:52:32 | DEBUG    | [20240415] 1 trades, day P&L=$+30, equity=$113,980
+2026-04-03 07:52:32 | DEBUG    | [20240416] 2 trades, day P&L=$+110, equity=$114,090
+2026-04-03 07:52:32 | DEBUG    | [20240417] 1 trades, day P&L=$+80, equity=$114,170
+2026-04-03 07:52:32 | DEBUG    | [20240418] 1 trades, day P&L=$+30, equity=$114,200
+2026-04-03 07:52:32 | DEBUG    | [20240419] 1 trades, day P&L=$+30, equity=$114,230
+2026-04-03 07:52:32 | DEBUG    | [20240422] 1 trades, day P&L=$+30, equity=$114,260
+2026-04-03 07:52:32 | DEBUG    | [20240501] 2 trades, day P&L=$+510, equity=$114,770
+2026-04-03 07:52:32 | DEBUG    | [20240531] 1 trades, day P&L=$+80, equity=$114,850
+2026-04-03 07:52:32 | DEBUG    | [20240607] 1 trades, day P&L=$+30, equity=$114,880
+2026-04-03 07:52:32 | DEBUG    | [20240612] 2 trades, day P&L=$+360, equity=$115,240
+2026-04-03 07:52:32 | DEBUG    | [20240627] 1 trades, day P&L=$+30, equity=$115,270
+2026-04-03 07:52:32 | DEBUG    | [20240628] 1 trades, day P&L=$+230, equity=$115,500
+2026-04-03 07:52:32 | DEBUG    | [20240712] 1 trades, day P&L=$+80, equity=$115,580
+2026-04-03 07:52:32 | DEBUG    | [20240715] 1 trades, day P&L=$+30, equity=$115,610
+2026-04-03 07:52:32 | DEBUG    | [20240718] 1 trades, day P&L=$+180, equity=$115,790
+2026-04-03 07:52:32 | DEBUG    | [20240719] 1 trades, day P&L=$+80, equity=$115,870
+2026-04-03 07:52:32 | DEBUG    | [20240724] 1 trades, day P&L=$+80, equity=$115,950
+2026-04-03 07:52:32 | DEBUG    | [20240725] 1 trades, day P&L=$+180, equity=$116,130
+2026-04-03 07:52:32 | DEBUG    | [20240726] 2 trades, day P&L=$+660, equity=$116,790
+2026-04-03 07:52:32 | DEBUG    | [20240729] 1 trades, day P&L=$+30, equity=$116,820
+2026-04-03 07:52:32 | DEBUG    | [20240730] 1 trades, day P&L=$+80, equity=$116,900
+2026-04-03 07:52:32 | DEBUG    | [20240731] 1 trades, day P&L=$+530, equity=$117,430
+2026-04-03 07:52:32 | DEBUG    | [20240801] 1 trades, day P&L=$+330, equity=$117,760
+2026-04-03 07:52:32 | DEBUG    | [20240802] 1 trades, day P&L=$+380, equity=$118,140
+2026-04-03 07:52:32 | DEBUG    | [20240805] 1 trades, day P&L=$-700, equity=$117,440
+2026-04-03 07:52:32 | DEBUG    | [20240806] 1 trades, day P&L=$+330, equity=$117,770
+2026-04-03 07:52:32 | DEBUG    | [20240807] 1 trades, day P&L=$+580, equity=$118,350
+2026-04-03 07:52:32 | DEBUG    | [20240808] 1 trades, day P&L=$+30, equity=$118,380
+2026-04-03 07:52:32 | DEBUG    | [20240809] 1 trades, day P&L=$+130, equity=$118,510
+2026-04-03 07:52:32 | DEBUG    | [20240812] 2 trades, day P&L=$+310, equity=$118,820
+2026-04-03 07:52:32 | DEBUG    | [20240813] 1 trades, day P&L=$+30, equity=$118,850
+2026-04-03 07:52:32 | DEBUG    | [20240820] 1 trades, day P&L=$+30, equity=$118,880
+2026-04-03 07:52:32 | DEBUG    | [20240823] 1 trades, day P&L=$+30, equity=$118,910
+2026-04-03 07:52:32 | DEBUG    | [20240828] 1 trades, day P&L=$+30, equity=$118,940
+2026-04-03 07:52:32 | DEBUG    | [20240829] 1 trades, day P&L=$+230, equity=$119,170
+2026-04-03 07:52:32 | DEBUG    | [20240830] 1 trades, day P&L=$+80, equity=$119,250
+2026-04-03 07:52:32 | DEBUG    | [20240903] 1 trades, day P&L=$+380, equity=$119,630
+2026-04-03 07:52:32 | DEBUG    | [20240904] 2 trades, day P&L=$+410, equity=$120,040
+2026-04-03 07:52:32 | DEBUG    | [20240905] 1 trades, day P&L=$+30, equity=$120,070
+2026-04-03 07:52:32 | DEBUG    | [20240906] 1 trades, day P&L=$+230, equity=$120,300
+2026-04-03 07:52:32 | DEBUG    | [20240911] 1 trades, day P&L=$+230, equity=$120,530
+2026-04-03 07:52:32 | DEBUG    | [20240913] 1 trades, day P&L=$+30, equity=$120,560
+2026-04-03 07:52:32 | DEBUG    | [20240918] 1 trades, day P&L=$+330, equity=$120,890
+2026-04-03 07:52:32 | DEBUG    | [20240919] 1 trades, day P&L=$+30, equity=$120,920
+2026-04-03 07:52:32 | DEBUG    | [20240920] 1 trades, day P&L=$+30, equity=$120,950
+2026-04-03 07:52:32 | DEBUG    | [20240930] 1 trades, day P&L=$+480, equity=$121,430
+2026-04-03 07:52:32 | DEBUG    | [20241001] 1 trades, day P&L=$+180, equity=$121,610
+2026-04-03 07:52:32 | DEBUG    | [20241010] 1 trades, day P&L=$+30, equity=$121,640
+2026-04-03 07:52:32 | DEBUG    | [20241025] 1 trades, day P&L=$+30, equity=$121,670
+2026-04-03 07:52:32 | DEBUG    | [20241031] 1 trades, day P&L=$+30, equity=$121,700
+2026-04-03 07:52:32 | DEBUG    | [20241101] 2 trades, day P&L=$+110, equity=$121,810
+2026-04-03 07:52:32 | DEBUG    | [20241104] 1 trades, day P&L=$+30, equity=$121,840
+2026-04-03 07:52:32 | DEBUG    | [20241106] 1 trades, day P&L=$+30, equity=$121,870
+2026-04-03 07:52:32 | DEBUG    | [20241115] 1 trades, day P&L=$+30, equity=$121,900
+2026-04-03 07:52:32 | DEBUG    | [20241218] 1 trades, day P&L=$-14670, equity=$107,230
+2026-04-03 07:52:32 | DEBUG    | [20241219] 1 trades, day P&L=$+530, equity=$107,760
+2026-04-03 07:52:32 | DEBUG    | [20241220] 1 trades, day P&L=$+430, equity=$108,190
+2026-04-03 07:52:32 | DEBUG    | [20241227] 1 trades, day P&L=$+80, equity=$108,270
+2026-04-03 07:52:32 | DEBUG    | [20241230] 2 trades, day P&L=$+210, equity=$108,480
+2026-04-03 07:52:32 | DEBUG    | [20241231] 1 trades, day P&L=$+430, equity=$108,910
+2026-04-03 07:52:32 | DEBUG    | [20250102] 1 trades, day P&L=$+230, equity=$109,140
+2026-04-03 07:52:32 | DEBUG    | [20250107] 1 trades, day P&L=$+180, equity=$109,320
+2026-04-03 07:52:32 | DEBUG    | [20250108] 1 trades, day P&L=$+80, equity=$109,400
+2026-04-03 07:52:32 | DEBUG    | [20250110] 1 trades, day P&L=$+30, equity=$109,430
+2026-04-03 07:52:33 | DEBUG    | [20250127] 1 trades, day P&L=$+30, equity=$109,460
+2026-04-03 07:52:33 | DEBUG    | [20250129] 1 trades, day P&L=$+130, equity=$109,590
+2026-04-03 07:52:33 | DEBUG    | [20250131] 1 trades, day P&L=$+480, equity=$110,070
+2026-04-03 07:52:33 | DEBUG    | [20250203] 1 trades, day P&L=$+180, equity=$110,250
+2026-04-03 07:52:33 | DEBUG    | [20250207] 1 trades, day P&L=$+30, equity=$110,280
+2026-04-03 07:52:33 | DEBUG    | [20250221] 1 trades, day P&L=$+30, equity=$110,310
+2026-04-03 07:52:33 | DEBUG    | [20250224] 1 trades, day P&L=$+180, equity=$110,490
+2026-04-03 07:52:33 | DEBUG    | [20250225] 1 trades, day P&L=$+180, equity=$110,670
+2026-04-03 07:52:33 | DEBUG    | [20250226] 2 trades, day P&L=$+60, equity=$110,730
+2026-04-03 07:52:33 | DEBUG    | [20250227] 1 trades, day P&L=$+180, equity=$110,910
+2026-04-03 07:52:33 | DEBUG    | [20250228] 1 trades, day P&L=$+430, equity=$111,340
+2026-04-03 07:52:33 | DEBUG    | [20250303] 1 trades, day P&L=$+530, equity=$111,870
+2026-04-03 07:52:33 | DEBUG    | [20250304] 1 trades, day P&L=$+1030, equity=$112,900
+2026-04-03 07:52:33 | DEBUG    | [20250305] 1 trades, day P&L=$+780, equity=$113,680
+2026-04-03 07:52:33 | DEBUG    | [20250306] 1 trades, day P&L=$+1030, equity=$114,710
+2026-04-03 07:52:33 | DEBUG    | [20250307] 1 trades, day P&L=$+480, equity=$115,190
+2026-04-03 07:52:33 | DEBUG    | [20250310] 1 trades, day P&L=$+730, equity=$115,920
+2026-04-03 07:52:33 | DEBUG    | [20250311] 2 trades, day P&L=$-1670, equity=$114,250
+2026-04-03 07:52:33 | DEBUG    | [20250312] 1 trades, day P&L=$+430, equity=$114,680
+2026-04-03 07:52:33 | DEBUG    | [20250313] 1 trades, day P&L=$+80, equity=$114,760
+2026-04-03 07:52:33 | DEBUG    | [20250314] 1 trades, day P&L=$+180, equity=$114,940
+2026-04-03 07:52:33 | DEBUG    | [20250317] 1 trades, day P&L=$+30, equity=$114,970
+2026-04-03 07:52:33 | DEBUG    | [20250318] 1 trades, day P&L=$+30, equity=$115,000
+2026-04-03 07:52:33 | DEBUG    | [20250319] 1 trades, day P&L=$+280, equity=$115,280
+2026-04-03 07:52:33 | DEBUG    | [20250321] 1 trades, day P&L=$+30, equity=$115,310
+2026-04-03 07:52:33 | DEBUG    | [20250326] 1 trades, day P&L=$+30, equity=$115,340
+2026-04-03 07:52:33 | DEBUG    | [20250327] 2 trades, day P&L=$+60, equity=$115,400
+2026-04-03 07:52:33 | DEBUG    | [20250328] 1 trades, day P&L=$+30, equity=$115,430
+2026-04-03 07:52:33 | DEBUG    | [20250331] 1 trades, day P&L=$+1530, equity=$116,960
+2026-04-03 07:52:33 | DEBUG    | [20250401] 1 trades, day P&L=$+30, equity=$116,990
+2026-04-03 07:52:33 | DEBUG    | [20250402] 1 trades, day P&L=$+330, equity=$117,320
+2026-04-03 07:52:33 | DEBUG    | [20250403] 1 trades, day P&L=$+580, equity=$117,900
+2026-04-03 07:52:33 | DEBUG    | [20250407] 1 trades, day P&L=$+1180, equity=$119,080
+2026-04-03 07:52:33 | DEBUG    | [20250408] 1 trades, day P&L=$+1830, equity=$120,910
+2026-04-03 07:52:33 | DEBUG    | [20250410] 1 trades, day P&L=$+1830, equity=$122,740
+2026-04-03 07:52:33 | DEBUG    | [20250411] 1 trades, day P&L=$+630, equity=$123,370
+2026-04-03 07:52:33 | DEBUG    | [20250414] 1 trades, day P&L=$+280, equity=$123,650
+2026-04-03 07:52:33 | DEBUG    | [20250415] 2 trades, day P&L=$+110, equity=$123,760
+2026-04-03 07:52:33 | DEBUG    | [20250416] 1 trades, day P&L=$+580, equity=$124,340
+2026-04-03 07:52:33 | DEBUG    | [20250417] 1 trades, day P&L=$+530, equity=$124,870
+2026-04-03 07:52:33 | DEBUG    | [20250421] 1 trades, day P&L=$+530, equity=$125,400
+2026-04-03 07:52:33 | DEBUG    | [20250422] 1 trades, day P&L=$+180, equity=$125,580
+2026-04-03 07:52:33 | DEBUG    | [20250423] 2 trades, day P&L=$+760, equity=$126,340
+2026-04-03 07:52:33 | DEBUG    | [20250424] 1 trades, day P&L=$+230, equity=$126,570
+2026-04-03 07:52:33 | DEBUG    | [20250428] 2 trades, day P&L=$+210, equity=$126,780
+2026-04-03 07:52:33 | DEBUG    | [20250430] 1 trades, day P&L=$+1030, equity=$127,810
+2026-04-03 07:52:33 | DEBUG    | [20250501] 2 trades, day P&L=$-740, equity=$127,070
+2026-04-03 07:52:33 | DEBUG    | [20250502] 1 trades, day P&L=$+30, equity=$127,100
+2026-04-03 07:52:33 | DEBUG    | [20250505] 1 trades, day P&L=$+80, equity=$127,180
+2026-04-03 07:52:33 | DEBUG    | [20250506] 1 trades, day P&L=$+130, equity=$127,310
+2026-04-03 07:52:33 | DEBUG    | [20250507] 2 trades, day P&L=$+960, equity=$128,270
+2026-04-03 07:52:33 | DEBUG    | [20250508] 2 trades, day P&L=$+610, equity=$128,880
+2026-04-03 07:52:33 | DEBUG    | [20250509] 1 trades, day P&L=$+30, equity=$128,910
+2026-04-03 07:52:33 | DEBUG    | [20250513] 1 trades, day P&L=$+30, equity=$128,940
+2026-04-03 07:52:33 | DEBUG    | [20250514] 1 trades, day P&L=$+130, equity=$129,070
+2026-04-03 07:52:33 | DEBUG    | [20250521] 1 trades, day P&L=$+280, equity=$129,350
+2026-04-03 07:52:33 | DEBUG    | [20250522] 1 trades, day P&L=$+30, equity=$129,380
+2026-04-03 07:52:33 | DEBUG    | [20250523] 1 trades, day P&L=$+230, equity=$129,610
+2026-04-03 07:52:33 | DEBUG    | [20250529] 1 trades, day P&L=$+130, equity=$129,740
+2026-04-03 07:52:33 | DEBUG    | [20250530] 2 trades, day P&L=$+1110, equity=$130,850
+2026-04-03 07:52:33 | DEBUG    | [20250605] 1 trades, day P&L=$+80, equity=$130,930
+2026-04-03 07:52:33 | DEBUG    | [20250611] 1 trades, day P&L=$+80, equity=$131,010
+2026-04-03 07:52:33 | DEBUG    | [20250613] 1 trades, day P&L=$+80, equity=$131,090
+2026-04-03 07:52:33 | DEBUG    | [20250618] 1 trades, day P&L=$+80, equity=$131,170
+2026-04-03 07:52:33 | DEBUG    | [20250623] 1 trades, day P&L=$+30, equity=$131,200
+2026-04-03 07:52:33 | DEBUG    | [20250630] 1 trades, day P&L=$+30, equity=$131,230
+2026-04-03 07:52:33 | DEBUG    | [20250731] 1 trades, day P&L=$+180, equity=$131,410
+2026-04-03 07:52:33 | DEBUG    | [20250801] 1 trades, day P&L=$+30, equity=$131,440
+2026-04-03 07:52:33 | DEBUG    | [20250811] 1 trades, day P&L=$+30, equity=$131,470
+2026-04-03 07:52:33 | DEBUG    | [20250917] 2 trades, day P&L=$+260, equity=$131,730
+2026-04-03 07:52:33 | DEBUG    | [20250930] 1 trades, day P&L=$+30, equity=$131,760
+2026-04-03 07:52:33 | DEBUG    | [20251010] 1 trades, day P&L=$+980, equity=$132,740
+2026-04-03 07:52:33 | DEBUG    | [20251014] 1 trades, day P&L=$+230, equity=$132,970
+2026-04-03 07:52:33 | DEBUG    | [20251015] 1 trades, day P&L=$+380, equity=$133,350
+2026-04-03 07:52:33 | DEBUG    | [20251016] 1 trades, day P&L=$+230, equity=$133,580
+2026-04-03 07:52:33 | DEBUG    | [20251029] 1 trades, day P&L=$+130, equity=$133,710
+2026-04-03 07:52:33 | DEBUG    | [20251031] 1 trades, day P&L=$+80, equity=$133,790
+2026-04-03 07:52:34 | DEBUG    | [20251106] 1 trades, day P&L=$+80, equity=$133,870
+2026-04-03 07:52:34 | DEBUG    | [20251107] 1 trades, day P&L=$+30, equity=$133,900
+2026-04-03 07:52:34 | DEBUG    | [20251113] 1 trades, day P&L=$+130, equity=$134,030
+2026-04-03 07:52:34 | DEBUG    | [20251117] 1 trades, day P&L=$+130, equity=$134,160
+2026-04-03 07:52:34 | DEBUG    | [20251118] 2 trades, day P&L=$+160, equity=$134,320
+2026-04-03 07:52:34 | DEBUG    | [20251119] 1 trades, day P&L=$+80, equity=$134,400
+2026-04-03 07:52:34 | DEBUG    | [20251120] 1 trades, day P&L=$+430, equity=$134,830
+2026-04-03 07:52:34 | DEBUG    | [20251121] 1 trades, day P&L=$+230, equity=$135,060
+2026-04-03 07:52:34 | DEBUG    | [20251218] 2 trades, day P&L=$+310, equity=$135,370
+2026-04-03 07:52:34 | DEBUG    | [20251231] 1 trades, day P&L=$+130, equity=$135,500
+2026-04-03 07:52:34 | DEBUG    | [20260114] 1 trades, day P&L=$+30, equity=$135,530
+2026-04-03 07:52:34 | DEBUG    | [20260120] 1 trades, day P&L=$+30, equity=$135,560
+2026-04-03 07:52:34 | DEBUG    | [20260130] 2 trades, day P&L=$+210, equity=$135,770
+2026-04-03 07:52:34 | DEBUG    | [20260204] 1 trades, day P&L=$+30, equity=$135,800
+2026-04-03 07:52:34 | DEBUG    | [20260205] 1 trades, day P&L=$+230, equity=$136,030
+2026-04-03 07:52:34 | DEBUG    | [20260206] 1 trades, day P&L=$+130, equity=$136,160
+2026-04-03 07:52:34 | DEBUG    | [20260212] 1 trades, day P&L=$+180, equity=$136,340
+2026-04-03 07:52:34 | DEBUG    | [20260213] 2 trades, day P&L=$+160, equity=$136,500
+2026-04-03 07:52:34 | DEBUG    | [20260227] 2 trades, day P&L=$+160, equity=$136,660
+2026-04-03 07:52:34 | DEBUG    | [20260302] 1 trades, day P&L=$+80, equity=$136,740
+2026-04-03 07:52:34 | DEBUG    | [20260303] 1 trades, day P&L=$+80, equity=$136,820
+2026-04-03 07:52:34 | DEBUG    | [20260305] 1 trades, day P&L=$+130, equity=$136,950
+2026-04-03 07:52:34 | DEBUG    | [20260306] 1 trades, day P&L=$+30, equity=$136,980
+2026-04-03 07:52:34 | DEBUG    | [20260309] 1 trades, day P&L=$+130, equity=$137,110
+2026-04-03 07:52:34 | DEBUG    | [20260310] 1 trades, day P&L=$+80, equity=$137,190
+2026-04-03 07:52:34 | DEBUG    | [20260311] 1 trades, day P&L=$+30, equity=$137,220
+2026-04-03 07:52:34 | DEBUG    | [20260320] 1 trades, day P&L=$+130, equity=$137,350
+2026-04-03 07:52:34 | DEBUG    | [20260323] 1 trades, day P&L=$+30, equity=$137,380
+2026-04-03 07:52:34 | DEBUG    | [20260324] 1 trades, day P&L=$+30, equity=$137,410
+2026-04-03 07:52:34 | DEBUG    | [20260325] 1 trades, day P&L=$+30, equity=$137,440
+2026-04-03 07:52:34 | INFO     | ============================================================
+2026-04-03 07:52:34 | INFO     | SKIP REASONS:
+2026-04-03 07:52:34 | INFO     |   early_close         : 6
+2026-04-03 07:52:34 | INFO     |   no_quotes           : 32
+2026-04-03 07:52:34 | INFO     |   TOTAL TRADES        : 342
+2026-04-03 07:52:34 | INFO     | ============================================================
+2026-04-03 07:52:34 | INFO     | 
+============================================================
+2026-04-03 07:52:34 | INFO     |   PROPOSED BASELINE RESULTS (2022-01-03 → 2026-03-25)
+2026-04-03 07:52:34 | INFO     | ============================================================
+2026-04-03 07:52:34 | INFO     |   Trades      : 342
+2026-04-03 07:52:34 | INFO     |   Win Rate    : 97.7%
+2026-04-03 07:52:34 | INFO     |   Total P&L   : $37,440.00
+2026-04-03 07:52:34 | INFO     |   Max DD      : $-14,670.00
+2026-04-03 07:52:34 | INFO     |   Sharpe      : 1.92
+2026-04-03 07:52:34 | INFO     |   Calmar      : 2.55
+2026-04-03 07:52:34 | INFO     |   Profit Factor: 2.23
+2026-04-03 07:52:34 | INFO     |   Avg Win     : $203.05
+2026-04-03 07:52:34 | INFO     |   Avg Loss    : $-3,797.50
+2026-04-03 07:52:34 | INFO     |   Max Single Loss: $-14,670.00
+2026-04-03 07:52:34 | INFO     | ============================================================
+
+2026-04-03 07:52:34 | INFO     | 
+--- VIX ZONE ANALYSIS ---
+2026-04-03 07:52:34 | INFO     |   VIX < 15  :   20 trades, WR 100.0%, P&L $     1,650, DD $       0, Sharpe 16.52
+2026-04-03 07:52:34 | INFO     |   VIX 15-20 :  113 trades, WR  99.1%, P&L $     1,390, DD $ -14,670, Sharpe  0.15
+2026-04-03 07:52:34 | INFO     |   VIX 20-25 :   94 trades, WR  96.8%, P&L $    11,720, DD $  -7,600, Sharpe  2.57
+2026-04-03 07:52:34 | INFO     |   VIX 25-30 :   65 trades, WR  93.8%, P&L $     6,330, DD $  -4,720, Sharpe  2.33
+2026-04-03 07:52:34 | INFO     |   VIX 30+   :   50 trades, WR 100.0%, P&L $    16,350, DD $       0, Sharpe 14.72
+2026-04-03 07:52:34 | INFO     | 
+--- DAY-OF-WEEK ANALYSIS ---
+2026-04-03 07:52:34 | INFO     |   Mon:   55 trades, WR  96.4%, P&L $     8,690, Sharpe  3.47
+2026-04-03 07:52:34 | INFO     |   Tue:   45 trades, WR  97.8%, P&L $     6,170, Sharpe  5.74
+2026-04-03 07:52:34 | INFO     |   Wed:   85 trades, WR  96.5%, P&L $    -6,200, Sharpe -0.72
+2026-04-03 07:52:34 | INFO     |   Thu:   58 trades, WR  96.6%, P&L $     9,410, Sharpe  8.18
+2026-04-03 07:52:34 | INFO     |   Fri:   99 trades, WR 100.0%, P&L $    19,370, Sharpe 10.66
+2026-04-03 07:52:34 | INFO     | 
+--- TOP 10 WORST DAYS ---
+2026-04-03 07:52:34 | INFO     |   20241218: P&L=$   -14,670 | 1 trades | VIX=15.87
+2026-04-03 07:52:34 | INFO     |   20230315: P&L=$    -7,010 | 2 trades | VIX=23.73
+2026-04-03 07:52:34 | INFO     |   20220926: P&L=$    -4,220 | 2 trades | VIX=29.92
+2026-04-03 07:52:34 | INFO     |   20250311: P&L=$    -1,670 | 2 trades | VIX=27.86
+2026-04-03 07:52:34 | INFO     |   20250501: P&L=$      -740 | 2 trades | VIX=24.7
+2026-04-03 07:52:34 | INFO     |   20240805: P&L=$      -700 | 1 trades | VIX=23.39
+2026-04-03 07:52:34 | INFO     |   20220630: P&L=$      -620 | 2 trades | VIX=28.16
+2026-04-03 07:52:34 | INFO     |   20220921: P&L=$         0 | 1 trades | VIX=27.16
+2026-04-03 07:52:34 | INFO     |   20220202: P&L=$        30 | 1 trades | VIX=21.96
+2026-04-03 07:52:34 | INFO     |   20220209: P&L=$        30 | 1 trades | VIX=21.44
+2026-04-03 07:52:34 | INFO     | [ITER 46] proposed_baseline_w15_d12_q10 → BASELINE | P&L=$37,440, Sharpe=1.92, DD=$-14,670

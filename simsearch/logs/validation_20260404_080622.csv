@@ -1,0 +1,2 @@
+date,actual_return,actual_direction,actual_range,pred_return,pred_direction_up_pct,pred_direction,pred_direction_confidence,pred_range_mean,pred_next_return,pred_next_direction_up_pct,n_matches,avg_similarity,max_tier,top_1_similarity,top_1_date,pred_dir_binary,sim_pnl,actual_next_direction
+2023-12-26,0.003341136322564763,1.0,0.005520229634828602,-0.0036686840092212407,0.0,DOWN,1.0,0.008698163576472623,-0.012158054711246187,0.0,1,0.9063074650659625,2,0.9063074650659625,2022-12-27,-1,-33.41136322564763,

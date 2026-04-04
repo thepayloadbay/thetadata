@@ -1,0 +1,59 @@
+======================================================================
+SimSearch Walk-Forward Validation Report
+======================================================================
+
+Days validated:  103
+
+DIRECTION PREDICTION
+--------------------------------------------------
+Overall accuracy:     45.6% (47 correct)
+  (random baseline:   50.0%)
+High-conf (>60%):     45.6% (103 days)
+Very-high-conf (>70%): 45.6% (103 days)
+  Low similarity:     50.0%
+  High similarity:     46.2%
+
+RETURN PREDICTION
+--------------------------------------------------
+Return correlation:   -0.0000
+Range correlation:    -0.0000
+Range RMSE:           1.6343%
+
+CALIBRATION
+--------------------------------------------------
+Brier score:          0.5437 (lower=better, random=0.25)
+Brier skill score:    -1.1748 (>0 = better than random)
+
+SIMULATED P&L (directional bet)
+--------------------------------------------------
+Total P&L:            -1857 bps
+Sharpe ratio:         -2.10
+
+NEXT-DAY PREDICTION
+--------------------------------------------------
+Direction accuracy:   45.1%
+
+MONTHLY BREAKDOWN
+--------------------------------------------------
+  2023-01: acc=50% (n=2, sim=0.387)
+  2023-02: acc=100% (n=1, sim=0.308)
+  2023-03: acc=33% (n=9, sim=0.376)
+  2023-04: acc=100% (n=1, sim=0.314)
+  2023-08: acc=43% (n=7, sim=0.393)
+  2023-09: acc=71% (n=7, sim=0.403)
+  2023-10: acc=40% (n=10, sim=0.369)
+  2023-11: acc=0% (n=2, sim=0.330)
+  2024-04: acc=75% (n=4, sim=0.384)
+  2024-07: acc=100% (n=1, sim=0.442)
+  2024-08: acc=33% (n=6, sim=0.326)
+  2024-09: acc=0% (n=2, sim=0.373)
+  2024-12: acc=100% (n=1, sim=0.402)
+  2025-01: acc=60% (n=5, sim=0.431)
+  2025-02: acc=75% (n=4, sim=0.341)
+  2025-03: acc=54% (n=13, sim=0.367)
+  2025-04: acc=44% (n=9, sim=0.409)
+  2025-11: acc=0% (n=2, sim=0.390)
+  2025-12: acc=100% (n=1, sim=0.415)
+  2026-01: acc=0% (n=1, sim=0.442)
+  2026-02: acc=0% (n=5, sim=0.351)
+  2026-03: acc=40% (n=10, sim=0.373)

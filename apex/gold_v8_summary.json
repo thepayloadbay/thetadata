@@ -1,0 +1,48 @@
+{
+  "version": "V8",
+  "date_range": "2022-01-03 to 2026-03-25",
+  "config": {
+    "width": 10,
+    "qty": 15,
+    "min_credit": 0.1,
+    "prior_day_return_max": 1.5,
+    "best_side_only": true,
+    "per_day": {
+      "mon_tue": {
+        "otm": 12,
+        "direction": "best",
+        "moc_bar_gate": 5.0
+      },
+      "wed": {
+        "otm": 12,
+        "direction": "CALL"
+      },
+      "thu": {
+        "otm": 15,
+        "direction": "best",
+        "oi_min": 1000
+      },
+      "fri": {
+        "otm": 10,
+        "direction": "best"
+      }
+    },
+    "second_entry": {
+      "time": "15:57:00",
+      "mon_tue_thu_fri": {
+        "otm": 8,
+        "direction": "best"
+      },
+      "wed": {
+        "otm": 6,
+        "direction": "CALL"
+      }
+    }
+  },
+  "total_trades": 246,
+  "total_pnl": 101865.0,
+  "win_rate": 100.0,
+  "max_drawdown": 0.0,
+  "all_settle_zero": false,
+  "trade_hash": -3291374589118415288
+}

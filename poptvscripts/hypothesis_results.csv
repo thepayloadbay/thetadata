@@ -18,3 +18,6 @@ H2-MMA+BUDGET,2026-04-04,LastFive,PARK_RATIO+BUDGET,1.0+0.5,combo,1659,896,35777
 ULTIMATE-FULL,2026-04-04,LastFive,ALL_STACKED,vix16+w10+budget+park,combo,1659,1068,357778,91348,73.9,85.9,10.77,9.34,-2739,-1287,0,64%,VALIDATED,WR 86% DD -53% Calmar 10.84. OOS Sharpe 10.66 DD -$754. Full stack of all PineScript research.
 ULTIMATE-WF-OOS,2026-04-04,LastFive,ALL_STACKED,OOS,2025-2026,0,402,0,43277,0,82.1,0,10.66,0,-754,0,0,VALIDATED,OOS: 402 trades $43k WR 82% DD -$754 Sharpe 10.66. Best OOS DD ever achieved.
 CURRENT+BOTH,2026-04-04,LastFive,PARK_WIDEN+FILTERS,budget+park_filt,on_current,1640,1279,330209,265099,75.5,76.5,10.64,11.04,-1819,-1718,205,78%,INCREMENTAL,DD -6% Sharpe +3.8% on top of already-optimized config. Park widen captures most value.
+H2-LOR-1,2026-04-04,SimSearch,LORENTZIAN,method,lorentzian,808,103,na,na,48.5,45.6,-1.25,-2.10,na,na,0,100%,WORSE,Lorentzian worse than cosine (45.6% vs 48.5%). SimSearch direction prediction is random regardless of metric.
+H2-APEX-SR,2026-04-04,Apex,SAFETY_RATIO,min,1.5,67,42,12465,6840,100,100,11.61,13.38,0,0,53,63%,INSURANCE,100% WR maintained. Sharpe improves but 37% fewer trades. Pure insurance — not backtest-optimizable.
+H2-APEX-VC,2026-04-04,Apex,VOL_CONSUMED,max,1.0,67,36,12465,5295,100,100,11.61,13.42,0,0,65,54%,INSURANCE,Same pattern. 46% fewer trades. Both are risk philosophy choices.

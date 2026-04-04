@@ -1,0 +1,95 @@
+================================================================================
+SimSearch Strategy Integration Test — Real P&L
+================================================================================
+SimSearch config: K=20, all tiers, cosine, calibrated weights
+
+
+======================================================================
+  MEDS
+======================================================================
+Trade log: 301 days (2022-01-03 to 2026-02-02)
+
+                         UNFILTERED     FILTERED       CHANGE
+  --------------------------------------------------------
+  Total P&L            $     42,726 $     41,004 $     -1,722
+  Max DD               $     -1,812 $     -1,812 $         +0
+  Sharpe                       5.81         5.77        -0.04
+  Calmar                      23.58        22.63        -0.95
+  Win Rate                   68.4%       67.1%
+  Days                          301          285
+  Worst Day            $     -1,254 $     -1,254
+
+  Skipped 7 days:
+    Avg P&L on skipped days: $58
+    Total saved:             $-406
+    Worst skipped day:       $-842
+    Best skipped day:        $686
+  Reduced 9 days:
+    Avg P&L on reduced days: $292
+
+======================================================================
+  APEX
+======================================================================
+Trade log: 33 days (2022-01-14 to 2026-03-03)
+
+                         UNFILTERED     FILTERED       CHANGE
+  --------------------------------------------------------
+  Total P&L            $     12,495 $      7,552 $     -4,942
+  Max DD               $          0 $          0 $         +0
+  Sharpe                      16.74        11.69        -5.05
+  Calmar                     999.00       999.00        +0.00
+  Win Rate                  100.0%       63.6%
+  Days                           33           17
+  Worst Day            $        120 $          0
+
+  Skipped 12 days:
+    Avg P&L on skipped days: $365
+    Total saved:             $-4,380
+    Worst skipped day:       $120
+    Best skipped day:        $1,365
+  Reduced 4 days:
+    Avg P&L on reduced days: $281
+
+======================================================================
+  LASTFIVE
+======================================================================
+Trade log: 744 days (2022-01-03 to 2026-03-25)
+
+                         UNFILTERED     FILTERED       CHANGE
+  --------------------------------------------------------
+  Total P&L            $    191,050 $    165,290 $    -25,760
+  Max DD               $     -5,006 $     -5,006 $         +0
+  Sharpe                       6.35         5.81        -0.53
+  Calmar                      38.16        33.02        -5.15
+  Win Rate                   75.0%       64.5%
+  Days                          744          560
+  Worst Day            $     -2,639 $     -2,639
+
+  Skipped 99 days:
+    Avg P&L on skipped days: $181
+    Total saved:             $-17,914
+    Worst skipped day:       $-920
+    Best skipped day:        $1,468
+  Reduced 85 days:
+    Avg P&L on reduced days: $185
+
+======================================================================
+  MEIC
+======================================================================
+Trade log: 0 days (NaT to NaT)
+  No overlapping dates with feature cache
+
+======================================================================
+  ZENITH
+======================================================================
+Trade log: 346 days (1970-01-01 to 1970-01-01)
+
+                         UNFILTERED     FILTERED       CHANGE
+  --------------------------------------------------------
+  Total P&L            $     32,385 $     32,385 $         +0
+  Max DD               $       -772 $       -772 $         +0
+  Sharpe                       9.64         9.64        +0.00
+  Calmar                      41.97        41.97        +0.00
+  Win Rate                   80.9%       80.9%
+  Days                          346          346
+  Worst Day            $       -445 $       -445

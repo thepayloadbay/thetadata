@@ -1,0 +1,116 @@
+2026-04-04 10:42:33 | INFO     | Log file: /Users/jeerapongwongchote/Documents/thetadata/apex/logs/apex_run_20260404_104233.log
+2026-04-04 10:42:33 | INFO     | Building daily indicators...
+2026-04-04 10:42:38 | INFO     |   SQZ GEX loaded: 3748 dates
+2026-04-04 10:42:38 | INFO     | Built daily indicators: 1066 dates (20220103 → 20260402)
+2026-04-04 10:42:38 | DEBUG    | [20220114] 1 trades, day P&L=$+195, equity=$100,195
+2026-04-04 10:42:38 | DEBUG    | [20220118] 1 trades, day P&L=$+120, equity=$100,315
+2026-04-04 10:42:38 | DEBUG    | [20220318] 1 trades, day P&L=$+45, equity=$100,360
+2026-04-04 10:42:38 | DEBUG    | [20221115] 1 trades, day P&L=$+120, equity=$100,480
+2026-04-04 10:42:38 | DEBUG    | [20230203] 1 trades, day P&L=$+45, equity=$100,525
+2026-04-04 10:42:38 | DEBUG    | [20230707] 1 trades, day P&L=$+120, equity=$100,645
+2026-04-04 10:42:39 | DEBUG    | [20231114] 1 trades, day P&L=$+45, equity=$100,690
+2026-04-04 10:42:39 | DEBUG    | [20231229] 1 trades, day P&L=$+45, equity=$100,735
+2026-04-04 10:42:39 | DEBUG    | [20240216] 1 trades, day P&L=$+45, equity=$100,780
+2026-04-04 10:42:39 | DEBUG    | [20240531] 1 trades, day P&L=$+120, equity=$100,900
+2026-04-04 10:42:39 | DEBUG    | [20240607] 1 trades, day P&L=$+45, equity=$100,945
+2026-04-04 10:42:39 | DEBUG    | [20240628] 1 trades, day P&L=$+345, equity=$101,290
+2026-04-04 10:42:39 | DEBUG    | [20240712] 1 trades, day P&L=$+195, equity=$101,485
+2026-04-04 10:42:39 | DEBUG    | [20240715] 1 trades, day P&L=$+45, equity=$101,530
+2026-04-04 10:42:39 | DEBUG    | [20240716] 1 trades, day P&L=$+45, equity=$101,575
+2026-04-04 10:42:39 | DEBUG    | [20240730] 1 trades, day P&L=$+120, equity=$101,695
+2026-04-04 10:42:39 | DEBUG    | [20240802] 1 trades, day P&L=$+645, equity=$102,340
+2026-04-04 10:42:39 | DEBUG    | [20240820] 1 trades, day P&L=$+45, equity=$102,385
+2026-04-04 10:42:39 | DEBUG    | [20240823] 1 trades, day P&L=$+45, equity=$102,430
+2026-04-04 10:42:39 | DEBUG    | [20240830] 1 trades, day P&L=$+420, equity=$102,850
+2026-04-04 10:42:39 | DEBUG    | [20240903] 1 trades, day P&L=$+645, equity=$103,495
+2026-04-04 10:42:39 | DEBUG    | [20240906] 1 trades, day P&L=$+345, equity=$103,840
+2026-04-04 10:42:39 | DEBUG    | [20240913] 1 trades, day P&L=$+45, equity=$103,885
+2026-04-04 10:42:39 | DEBUG    | [20240930] 1 trades, day P&L=$+270, equity=$104,155
+2026-04-04 10:42:39 | DEBUG    | [20241001] 1 trades, day P&L=$+270, equity=$104,425
+2026-04-04 10:42:39 | DEBUG    | [20241011] 1 trades, day P&L=$+45, equity=$104,470
+2026-04-04 10:42:40 | DEBUG    | [20241025] 1 trades, day P&L=$+45, equity=$104,515
+2026-04-04 10:42:40 | DEBUG    | [20241115] 1 trades, day P&L=$+45, equity=$104,560
+2026-04-04 10:42:40 | DEBUG    | [20241227] 1 trades, day P&L=$+120, equity=$104,680
+2026-04-04 10:42:40 | DEBUG    | [20241230] 1 trades, day P&L=$+120, equity=$104,800
+2026-04-04 10:42:40 | DEBUG    | [20241231] 1 trades, day P&L=$+720, equity=$105,520
+2026-04-04 10:42:40 | DEBUG    | [20250107] 1 trades, day P&L=$+270, equity=$105,790
+2026-04-04 10:42:40 | DEBUG    | [20250110] 1 trades, day P&L=$+45, equity=$105,835
+2026-04-04 10:42:40 | DEBUG    | [20250127] 1 trades, day P&L=$+195, equity=$106,030
+2026-04-04 10:42:40 | DEBUG    | [20250131] 1 trades, day P&L=$+795, equity=$106,825
+2026-04-04 10:42:40 | DEBUG    | [20250203] 1 trades, day P&L=$+120, equity=$106,945
+2026-04-04 10:42:40 | DEBUG    | [20250207] 1 trades, day P&L=$+45, equity=$106,990
+2026-04-04 10:42:40 | DEBUG    | [20250221] 1 trades, day P&L=$+45, equity=$107,035
+2026-04-04 10:42:40 | DEBUG    | [20250428] 1 trades, day P&L=$+45, equity=$107,080
+2026-04-04 10:42:40 | DEBUG    | [20250502] 1 trades, day P&L=$+270, equity=$107,350
+2026-04-04 10:42:40 | DEBUG    | [20250505] 1 trades, day P&L=$+120, equity=$107,470
+2026-04-04 10:42:40 | DEBUG    | [20250506] 1 trades, day P&L=$+195, equity=$107,665
+2026-04-04 10:42:40 | DEBUG    | [20250509] 1 trades, day P&L=$+45, equity=$107,710
+2026-04-04 10:42:40 | DEBUG    | [20250512] 1 trades, day P&L=$+195, equity=$107,905
+2026-04-04 10:42:40 | DEBUG    | [20250516] 1 trades, day P&L=$+45, equity=$107,950
+2026-04-04 10:42:40 | DEBUG    | [20250523] 1 trades, day P&L=$+120, equity=$108,070
+2026-04-04 10:42:40 | DEBUG    | [20250530] 1 trades, day P&L=$+795, equity=$108,865
+2026-04-04 10:42:40 | DEBUG    | [20250613] 1 trades, day P&L=$+195, equity=$109,060
+2026-04-04 10:42:40 | DEBUG    | [20250623] 1 trades, day P&L=$+45, equity=$109,105
+2026-04-04 10:42:40 | DEBUG    | [20250630] 1 trades, day P&L=$+45, equity=$109,150
+2026-04-04 10:42:40 | DEBUG    | [20250801] 1 trades, day P&L=$+45, equity=$109,195
+2026-04-04 10:42:40 | DEBUG    | [20250811] 1 trades, day P&L=$+45, equity=$109,240
+2026-04-04 10:42:40 | DEBUG    | [20250826] 1 trades, day P&L=$+120, equity=$109,360
+2026-04-04 10:42:40 | DEBUG    | [20250930] 1 trades, day P&L=$+120, equity=$109,480
+2026-04-04 10:42:40 | DEBUG    | [20251010] 1 trades, day P&L=$+1620, equity=$111,100
+2026-04-04 10:42:40 | DEBUG    | [20251031] 1 trades, day P&L=$+120, equity=$111,220
+2026-04-04 10:42:40 | DEBUG    | [20251107] 1 trades, day P&L=$+120, equity=$111,340
+2026-04-04 10:42:41 | DEBUG    | [20251118] 1 trades, day P&L=$+195, equity=$111,535
+2026-04-04 10:42:41 | DEBUG    | [20260120] 1 trades, day P&L=$+45, equity=$111,580
+2026-04-04 10:42:41 | DEBUG    | [20260130] 1 trades, day P&L=$+120, equity=$111,700
+2026-04-04 10:42:41 | DEBUG    | [20260227] 1 trades, day P&L=$+45, equity=$111,745
+2026-04-04 10:42:41 | DEBUG    | [20260303] 1 trades, day P&L=$+195, equity=$111,940
+2026-04-04 10:42:41 | INFO     | ============================================================
+2026-04-04 10:42:41 | INFO     | SKIP REASONS:
+2026-04-04 10:42:41 | INFO     |   bp_limit            : 35
+2026-04-04 10:42:41 | INFO     |   dow_filter          : 222
+2026-04-04 10:42:41 | INFO     |   early_close         : 6
+2026-04-04 10:42:41 | INFO     |   gex_filter          : 296
+2026-04-04 10:42:41 | INFO     |   no_quotes           : 4
+2026-04-04 10:42:41 | INFO     |   prior_return        : 128
+2026-04-04 10:42:41 | INFO     |   wvf_filter          : 81
+2026-04-04 10:42:41 | INFO     |   TOTAL TRADES        : 62
+2026-04-04 10:42:41 | INFO     | ============================================================
+2026-04-04 10:42:41 | INFO     | 
+============================================================
+2026-04-04 10:42:41 | INFO     |   BACKTEST RESULTS (2022-01-03 → 2026-03-25)
+2026-04-04 10:42:41 | INFO     | ============================================================
+2026-04-04 10:42:41 | INFO     |   Trades      : 62
+2026-04-04 10:42:41 | INFO     |   Win Rate    : 100.0%
+2026-04-04 10:42:41 | INFO     |   Total P&L   : $11,940.00
+2026-04-04 10:42:41 | INFO     |   Max DD      : $0.00
+2026-04-04 10:42:41 | INFO     |   Sharpe      : 11.63
+2026-04-04 10:42:41 | INFO     |   Calmar      : 0.00
+2026-04-04 10:42:41 | INFO     |   Profit Factor: inf
+2026-04-04 10:42:41 | INFO     |   Avg Win     : $192.58
+2026-04-04 10:42:41 | INFO     |   Avg Loss    : $0.00
+2026-04-04 10:42:41 | INFO     |   Max Single Loss: $45.00
+2026-04-04 10:42:41 | INFO     | ============================================================
+
+2026-04-04 10:42:41 | INFO     | 
+--- VIX ZONE ANALYSIS ---
+2026-04-04 10:42:41 | INFO     |   VIX < 15  :   14 trades, WR 100.0%, P&L $     1,455, DD $       0, Sharpe 18.51
+2026-04-04 10:42:41 | INFO     |   VIX 15-20 :   34 trades, WR 100.0%, P&L $     8,655, DD $       0, Sharpe 12.00
+2026-04-04 10:42:41 | INFO     |   VIX 20-25 :   13 trades, WR 100.0%, P&L $     1,785, DD $       0, Sharpe 28.70
+2026-04-04 10:42:41 | INFO     |   VIX 25-30 :    1 trades, WR 100.0%, P&L $        45, DD $       0, Sharpe  0.00
+2026-04-04 10:42:41 | INFO     | 
+--- DAY-OF-WEEK ANALYSIS ---
+2026-04-04 10:42:41 | INFO     |   Mon:   11 trades, WR 100.0%, P&L $     1,245, Sharpe 22.94
+2026-04-04 10:42:41 | INFO     |   Tue:   16 trades, WR 100.0%, P&L $     3,270, Sharpe 16.14
+2026-04-04 10:42:41 | INFO     |   Fri:   35 trades, WR 100.0%, P&L $     7,425, Sharpe 10.55
+2026-04-04 10:42:41 | INFO     | 
+--- TOP 10 WORST DAYS ---
+2026-04-04 10:42:41 | INFO     |   20220318: P&L=$        45 | 1 trades | VIX=25.67
+2026-04-04 10:42:41 | INFO     |   20230203: P&L=$        45 | 1 trades | VIX=18.73
+2026-04-04 10:42:41 | INFO     |   20231114: P&L=$        45 | 1 trades | VIX=14.76
+2026-04-04 10:42:41 | INFO     |   20231229: P&L=$        45 | 1 trades | VIX=12.47
+2026-04-04 10:42:41 | INFO     |   20240216: P&L=$        45 | 1 trades | VIX=14.01
+2026-04-04 10:42:41 | INFO     |   20240607: P&L=$        45 | 1 trades | VIX=12.58
+2026-04-04 10:42:41 | INFO     |   20240715: P&L=$        45 | 1 trades | VIX=12.46
+2026-04-04 10:42:41 | INFO     |   20240716: P&L=$        45 | 1 trades | VIX=13.12
+2026-04-04 10:42:41 | INFO     |   20240820: P&L=$        45 | 1 trades | VIX=14.65
+2026-04-04 10:42:41 | INFO     |   20240823: P&L=$        45 | 1 trades | VIX=17.55

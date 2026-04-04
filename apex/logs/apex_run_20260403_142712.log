@@ -1,0 +1,6 @@
+2026-04-03 14:27:12 | INFO     | Log file: /Users/jeerapongwongchote/Documents/thetadata/apex/logs/apex_run_20260403_142712.log
+2026-04-03 14:27:16 | INFO     | Built daily indicators: 1065 dates (20220103 → 20260401)
+2026-04-03 14:27:19 | INFO     | [ITER 225] straddle_1.5x → CREATIVE | P&L=$3,178, Sharpe=2.98, DD=$-1,246
+2026-04-03 14:27:22 | INFO     | [ITER 226] straddle_2.0x → CREATIVE | P&L=$854, Sharpe=20.81, DD=$0
+2026-04-03 14:27:25 | INFO     | [ITER 227] straddle_2.5x → CREATIVE | P&L=$63, Sharpe=0.00, DD=$0
+2026-04-03 14:27:29 | INFO     | [ITER 228] straddle_3.0x → CREATIVE | P&L=$21, Sharpe=0.00, DD=$0

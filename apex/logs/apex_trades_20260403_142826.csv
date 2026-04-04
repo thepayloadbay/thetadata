@@ -1,0 +1,4 @@
+entry_date,entry_time,option_type,short_strike,long_strike,width,credit_received,short_bid,short_ask,long_bid,long_ask,qty,vix_level,otm_distance,exit_value,pnl,outcome,close_time,spx_at_entry,spx_at_exit,equity_after
+20250225,15:55:00,PUT,5930,5910,20.0,0.1,0.15,0.2,0.0,0.05,7,18.98,20.3,0.0,56.0,WIN,16:00:00,5950.3,5955.34,100056.0
+20260303,15:55:00,PUT,6795,6775,20.0,0.05,0.1,0.15,0.0,0.05,7,21.44,21.1,0.0,21.0,WIN,16:00:00,6816.14,6816.63,100077.0
+20260310,15:55:00,PUT,6760,6740,20.0,0.05,0.1,0.15,0.0,0.05,7,25.5,19.5,0.0,21.0,WIN,16:00:00,6779.46,6781.52,100098.0

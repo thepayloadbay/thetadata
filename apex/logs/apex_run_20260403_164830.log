@@ -1,0 +1,7 @@
+2026-04-03 16:48:30 | INFO     | Log file: /Users/jeerapongwongchote/Documents/thetadata/apex/logs/apex_run_20260403_164830.log
+2026-04-03 16:48:35 | INFO     | Built daily indicators: 1065 dates (20220103 → 20260401)
+2026-04-03 16:48:38 | INFO     | [ITER 314] adaptive_otm_Fixed d=12 → CREATIVE | P&L=$17,556, Sharpe=12.00, DD=$0
+2026-04-03 16:48:41 | INFO     | [ITER 315] adaptive_otm_Calm<1%→d=10, else d=12 → CREATIVE | P&L=$17,094, Sharpe=7.36, DD=$-1,456
+2026-04-03 16:48:45 | INFO     | [ITER 316] adaptive_otm_Calm<1%→d=10, Med<2%→d=12 → CREATIVE | P&L=$13,993, Sharpe=6.66, DD=$-1,456
+2026-04-03 16:48:48 | INFO     | [ITER 317] adaptive_otm_Calm<0.8%→d=8, Med<1.5%→d → CREATIVE | P&L=$14,854, Sharpe=12.06, DD=$0
+2026-04-03 16:48:51 | INFO     | [ITER 318] adaptive_otm_Calm<1.5%→d=10, else d=15 → CREATIVE | P&L=$13,237, Sharpe=4.93, DD=$-2,527

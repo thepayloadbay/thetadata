@@ -1,0 +1,14 @@
+2026-04-03 20:32:59 | INFO     | Log file: /Users/jeerapongwongchote/Documents/thetadata/apex/logs/apex_run_20260403_203258.log
+2026-04-03 20:33:03 | INFO     | Built daily indicators: 1066 dates (20220103 → 20260402)
+2026-04-03 20:33:09 | INFO     | [ITER 407] vix_otm_prior_Low VIX tighter → CREATIVE | P&L=$20,475, Sharpe=6.98, DD=$-3,120
+2026-04-03 20:33:13 | INFO     | [ITER 408] vix_otm_prior_Low VIX much tighter → CREATIVE | P&L=$16,245, Sharpe=2.05, DD=$-10,080
+2026-04-03 20:33:16 | INFO     | [ITER 409] vix_otm_prior_High VIX wider → CREATIVE | P&L=$15,375, Sharpe=11.10, DD=$0
+2026-04-03 20:33:19 | INFO     | [ITER 410] vix_otm_prior_3-tier conservative → CREATIVE | P&L=$20,115, Sharpe=4.70, DD=$-5,760
+2026-04-03 20:33:22 | INFO     | [ITER 411] vix_otm_prior_3-tier aggressive → CREATIVE | P&L=$9,180, Sharpe=1.45, DD=$-10,500
+2026-04-03 20:33:25 | INFO     | [ITER 412] vix_otm_prior_2-tier simple → CREATIVE | P&L=$21,135, Sharpe=4.84, DD=$-5,640
+2026-04-03 20:33:28 | INFO     | [ITER 413] vix_otm_prior_2-tier at 25 → CREATIVE | P&L=$27,225, Sharpe=5.04, DD=$-5,640
+2026-04-03 20:33:31 | INFO     | [ITER 414] vix_otm_intra_Low VIX tighter → CREATIVE | P&L=$22,965, Sharpe=12.61, DD=$0
+2026-04-03 20:33:35 | INFO     | [ITER 415] vix_otm_intra_2-tier at 20 → CREATIVE | P&L=$18,165, Sharpe=4.29, DD=$-5,640
+2026-04-03 20:33:38 | INFO     | [ITER 416] vix_otm_intra_2-tier at 18 → CREATIVE | P&L=$31,125, Sharpe=7.57, DD=$-4,110
+2026-04-03 20:33:42 | INFO     | [ITER 417] vix_otm_intra_3-tier → CREATIVE | P&L=$17,865, Sharpe=5.02, DD=$-4,470
+2026-04-03 20:33:45 | INFO     | [ITER 418] vix_otm_intra_3-tier v2 → CREATIVE | P&L=$21,060, Sharpe=6.04, DD=$-4,110

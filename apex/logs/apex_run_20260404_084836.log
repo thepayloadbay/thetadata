@@ -1,0 +1,45 @@
+2026-04-04 08:48:36 | INFO     | Log file: /Users/jeerapongwongchote/Documents/thetadata/apex/logs/apex_run_20260404_084836.log
+2026-04-04 08:48:40 | INFO     |   SQZ GEX loaded: 3748 dates
+2026-04-04 08:48:40 | INFO     | Built daily indicators: 1066 dates (20220103 → 20260402)
+2026-04-04 08:48:40 | DEBUG    | [20220114] 1 trades, day P&L=$+120, equity=$100,120
+2026-04-04 08:48:40 | DEBUG    | [20220118] 1 trades, day P&L=$+120, equity=$100,240
+2026-04-04 08:48:41 | DEBUG    | [20240628] 2 trades, day P&L=$+465, equity=$100,705
+2026-04-04 08:48:41 | DEBUG    | [20240712] 1 trades, day P&L=$+120, equity=$100,825
+2026-04-04 08:48:41 | DEBUG    | [20240719] 1 trades, day P&L=$+195, equity=$101,020
+2026-04-04 08:48:41 | DEBUG    | [20240802] 2 trades, day P&L=$+1215, equity=$102,235
+2026-04-04 08:48:41 | DEBUG    | [20240830] 1 trades, day P&L=$+345, equity=$102,580
+2026-04-04 08:48:41 | DEBUG    | [20240903] 1 trades, day P&L=$+420, equity=$103,000
+2026-04-04 08:48:41 | DEBUG    | [20240906] 2 trades, day P&L=$+615, equity=$103,615
+2026-04-04 08:48:41 | DEBUG    | [20240930] 2 trades, day P&L=$+840, equity=$104,455
+2026-04-04 08:48:41 | DEBUG    | [20241001] 2 trades, day P&L=$+465, equity=$104,920
+2026-04-04 08:48:42 | DEBUG    | [20241230] 1 trades, day P&L=$+195, equity=$105,115
+2026-04-04 08:48:42 | DEBUG    | [20241231] 2 trades, day P&L=$+990, equity=$106,105
+2026-04-04 08:48:42 | DEBUG    | [20250107] 1 trades, day P&L=$+270, equity=$106,375
+2026-04-04 08:48:42 | DEBUG    | [20250127] 1 trades, day P&L=$+120, equity=$106,495
+2026-04-04 08:48:42 | DEBUG    | [20250131] 2 trades, day P&L=$+990, equity=$107,485
+2026-04-04 08:48:42 | DEBUG    | [20250203] 1 trades, day P&L=$+195, equity=$107,680
+2026-04-04 08:48:42 | DEBUG    | [20250428] 1 trades, day P&L=$+195, equity=$107,875
+2026-04-04 08:48:42 | DEBUG    | [20250502] 1 trades, day P&L=$+195, equity=$108,070
+2026-04-04 08:48:42 | DEBUG    | [20250506] 1 trades, day P&L=$+195, equity=$108,265
+2026-04-04 08:48:42 | DEBUG    | [20250512] 1 trades, day P&L=$+195, equity=$108,460
+2026-04-04 08:48:42 | DEBUG    | [20250523] 1 trades, day P&L=$+270, equity=$108,730
+2026-04-04 08:48:42 | DEBUG    | [20250530] 2 trades, day P&L=$+1365, equity=$110,095
+2026-04-04 08:48:42 | DEBUG    | [20250613] 1 trades, day P&L=$+120, equity=$110,215
+2026-04-04 08:48:42 | DEBUG    | [20250801] 1 trades, day P&L=$+270, equity=$110,485
+2026-04-04 08:48:42 | DEBUG    | [20251010] 1 trades, day P&L=$+1020, equity=$111,505
+2026-04-04 08:48:42 | DEBUG    | [20251107] 1 trades, day P&L=$+120, equity=$111,625
+2026-04-04 08:48:42 | DEBUG    | [20251117] 1 trades, day P&L=$+195, equity=$111,820
+2026-04-04 08:48:42 | DEBUG    | [20251118] 1 trades, day P&L=$+195, equity=$112,015
+2026-04-04 08:48:42 | DEBUG    | [20260130] 1 trades, day P&L=$+120, equity=$112,135
+2026-04-04 08:48:42 | DEBUG    | [20260206] 1 trades, day P&L=$+120, equity=$112,255
+2026-04-04 08:48:42 | DEBUG    | [20260227] 1 trades, day P&L=$+120, equity=$112,375
+2026-04-04 08:48:42 | DEBUG    | [20260303] 1 trades, day P&L=$+120, equity=$112,495
+2026-04-04 08:48:42 | INFO     | ============================================================
+2026-04-04 08:48:42 | INFO     | SKIP REASONS:
+2026-04-04 08:48:42 | INFO     |   dow_filter          : 233
+2026-04-04 08:48:42 | INFO     |   early_close         : 6
+2026-04-04 08:48:42 | INFO     |   gex_filter          : 336
+2026-04-04 08:48:42 | INFO     |   no_quotes           : 4
+2026-04-04 08:48:42 | INFO     |   prior_return        : 147
+2026-04-04 08:48:42 | INFO     |   TOTAL TRADES        : 41
+2026-04-04 08:48:42 | INFO     | ============================================================
