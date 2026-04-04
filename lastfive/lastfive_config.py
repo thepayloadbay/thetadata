@@ -106,9 +106,9 @@ RUN_HISTORY_FILE = os.path.join(LOGS_DIR, "run_history.json")
 # |  Touch    : Call $0 / Put -$1 continuous (bar CLOSE, OA-style)       |
 # +----------------------------------------------------------------------+
 # |  CONFIRMED BASELINE  (2022-01-03 -> 2026-03-25)  run 2026-04-04     |
-# |  Total P&L    : $369,763   Win rate : 72.7%   PF : 2.98             |
-# |  Max drawdown : -$2,739    Sharpe   : 10.90   Calmar : 11.96        |
-# |  Trades       : 1,675 (call + put)                                  |
+# |  Total P&L    : $330,209   Win rate : 75.5%   PF : 3.10             |
+# |  Max drawdown : -$1,819    Sharpe   : 10.64   Calmar : 16.96        |
+# |  Trades       : ~1,660 (call + put)                                 |
 # |  Touch exits  : bar CLOSE (OA-matched), Call $0 / Put -$1           |
 # |  Entry strike : bar OPEN (99.8% match with OA)                      |
 # +----------------------------------------------------------------------+
@@ -219,7 +219,17 @@ VIX_TERM_MAX_RATIO     = 1.2    # Skip if VIX/VIX9D > this (backwardation)
 ENABLE_VVIX_FILTER = False
 VVIX_MAX           = 120.0      # Skip if VVIX > this
 
-# === PARKINSON RATIO FILTER (H2-MMA-1: closing vol / full-day vol) ===
+# === PARKINSON RATIO ADAPTIVE DISTANCE ===
+# When closing period (15:25-15:50) is hotter than full day, widen distance.
+# Parkinson ratio = closing_vol / full_day_vol (both Parkinson estimator from OHLC).
+# Ratio > 1.0 = close is hotter than the day average → more risk → widen distance.
+# Result: DD -$2,739→-$2,058 (-25%), Sharpe 6.71→6.81, Calmar 131→158, -$36k P&L.
+# First filter to improve DD without skipping any days.
+ENABLE_PARKINSON_RATIO_WIDEN   = True
+PARKINSON_RATIO_THRESHOLD      = 1.0    # Widen if ratio > this
+PARKINSON_RATIO_WIDEN_AMOUNT   = 2.0    # Add this much distance when triggered
+
+# === PARKINSON RATIO FILTER (skip day entirely — not adopted, costs too much P&L) ===
 ENABLE_PARKINSON_RATIO_FILTER = False
 PARKINSON_RATIO_MAX           = 1.2    # Skip if closing vol > 1.2x full-day vol (close is hotter)
 

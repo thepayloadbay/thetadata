@@ -658,7 +658,54 @@ Highest Sharpe (6.78) but loses $11.5k P&L for just 5 skipped days.
 
 The VIX range budget signal is real (ρ=0.201) but **does not meaningfully improve the strategy**. Every variant either costs P&L or provides only marginal Sharpe improvement (≤0.07). The reason: VIX already captures most of the information, and touch exits handle the tail risk that budget would otherwise filter. The best variant (C3 × consumed scaling) adds $19.5k but at the cost of Sharpe, suggesting it's capturing noise not signal.
 
-**Not adopted.** Current VIX-adaptive C3 at 15:52 entry remains optimal.
+**Tightening on quiet days adopted** (+$12k, same DD). Widening/skipping not adopted.
+
+---
+
+## Parkinson Ratio Adaptive Distance (2026-04-04)
+
+### Concept
+
+The Parkinson volatility estimator uses OHLC data: `σ = sqrt(mean(ln(H/L)²) / (4·ln2))`. Compare the Parkinson vol of the **closing period** (15:25-15:50) vs the **full day** (9:31-15:50). If the ratio > 1.0, the market is getting hotter into the close — widen distance for safety.
+
+### Signal Strength
+
+| Feature | Spearman ρ with |move| |
+|---|---|---|
+| **Parkinson closing vol** | **0.292** (strongest) |
+| Parkinson ratio (close/full) | 0.151 |
+| Range consumed | 0.201 |
+| Kaufman ER | 0.120 |
+
+### Parkinson Ratio Buckets
+
+| Ratio | N | |Move| Mean | |Move| Median | P95 |
+|---|---|---|---|---|
+| < 0.7 (cool close) | 109 | $4.03 | $3.19 | $11.2 |
+| 0.7-0.9 | 326 | $4.48 | $3.58 | $11.8 |
+| 0.9-1.0 | 197 | $4.40 | $3.11 | $13.0 |
+| 1.0-1.1 | 146 | $5.58 | $4.11 | $18.1 |
+| 1.1-1.3 | 151 | $6.00 | $5.00 | $15.4 |
+| > 1.3 (hot close) | 90 | $7.24 | $5.28 | $18.0 |
+
+Clear separation: hot close days have 1.8x larger last-8-min moves.
+
+### Backtest Results
+
+| Config | P&L | DD | Sharpe | Calmar | WR |
+|---|---|---|---|---|---|
+| Baseline (no Parkinson) | $360,299 | -$2,739 | 6.71 | 131.5 | 72.7% |
+| **Widen +$2 if ratio > 1.0** | **$330,209** | **-$1,819** | **10.64** | **16.96** | **75.5%** |
+| Widen +$2 if ratio > 1.1 | $338,156 | -$2,193 | 6.74 | 154.2 | 74.2% |
+| Widen +$2 if ratio > 1.2 | $353,736 | -$2,739 | 6.87 | 129.1 | 73.5% |
+| Skip if ratio > 1.0 | $232,639 | -$1,964 | 6.88 | 118.5 | 74.1% |
+| Skip if ratio > 1.2 | $318,476 | -$2,739 | 7.00 | 116.3 | 73.7% |
+
+### Why It Works
+
+**Widening is better than skipping**: Skip removes profitable days entirely. Widening keeps the trade but with more buffer — you collect less credit but avoid the worst losses. The Parkinson ratio detects when the close is hotter than the day average, which predicts larger last-8-min moves. On these days, the extra $2 of distance prevents touch triggers and settlement losses.
+
+**Adopted**: Widen +$2 when Parkinson ratio > 1.0. DD drops 34% (-$2,739 → -$1,819), Calmar +42%, P&L costs $30k (-8%). First improvement to reduce DD without skipping days.
 
 ---
 

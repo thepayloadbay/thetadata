@@ -79,18 +79,19 @@ Backtest and optimize a **LastFive** strategy that sells SPX short call + put cr
 
 | Metric | Value |
 |---|---|
-| **Total P&L** | $369,763 |
-| **CAGR** | 65.5% |
-| **Max Drawdown** | -$2,739 (-0.7%) |
-| **Sharpe Ratio** | 10.90 |
-| **Calmar Ratio** | 11.96 |
-| **Win Rate** | 72.7% |
-| **Profit Factor** | 2.98 |
-| **Total Trades** | ~1,675 (call + put) |
+| **Total P&L** | $330,209 |
+| **CAGR** | 61.7% |
+| **Max Drawdown** | -$1,819 (-0.6%) |
+| **Sharpe Ratio** | 10.64 |
+| **Calmar Ratio** | 16.96 |
+| **Win Rate** | 75.5% |
+| **Profit Factor** | 3.10 |
+| **Total Trades** | ~1,660 (call + put) |
 | **Worst Day** | -$1,188 |
 | **Entry** | 15:52, bar OPEN (99.8% match with OA) |
 | **Touch Exits** | OA-style, bar CLOSE, Call $0 / Put -$1 |
 | **Range Budget** | Tighten $2 on quiet days (<50% VIX-range consumed) |
+| **Parkinson Widen** | +$2 distance when closing vol > full-day vol (ratio > 1.0) |
 
 ---
 

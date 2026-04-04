@@ -86,7 +86,8 @@
 - [x] #64 50 hypotheses generated, top 15 backtested
 - [x] #65 Entry 15:52 adopted — +$143k P&L, DD -45%, Sharpe 10.77, Calmar 11.76
 - [x] #66 VIX range budget research — signal real (ρ=0.201) but doesn't beat VIX-adaptive. Not adopted.
-- [ ] #67 Test 15:48 and 15:45 entry times on OA backtester
+- [x] #67 Parkinson ratio adaptive distance — DD -34%, Calmar +42%, adopted: widen +$2 if ratio>1.0
+- [ ] #68 Test 15:48 and 15:45 entry times on OA backtester
 - [ ] #68 Test VIX1D as distance driver (#43)
 - [ ] #69 ML ensemble of top 5 features (#50)
 

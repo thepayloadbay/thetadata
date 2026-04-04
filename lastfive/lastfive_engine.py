@@ -704,6 +704,25 @@ def run_backtest(indicators: dict) -> list:
                 if range_consumed < _cfg.RANGE_BUDGET_QUIET_THRESHOLD:
                     dist = max(0, dist - _cfg.RANGE_BUDGET_TIGHTEN_AMOUNT)
 
+        # Parkinson ratio adaptive widening: when closing period (15:25-15:50) is hotter
+        # than full day, widen distance for safety. Uses Parkinson vol estimator from OHLC.
+        if _cfg.ENABLE_PARKINSON_RATIO_WIDEN:
+            full_day = spx_df[spx_df["hhmm"].between("09:31", "15:50")]
+            closing = spx_df[spx_df["hhmm"].between("15:25", "15:50")]
+            if len(full_day) >= 10 and len(closing) >= 5:
+                def _parkinson_vol(bars):
+                    h = bars["high"].values; l = bars["low"].values
+                    mask = (h > 0) & (l > 0) & (h >= l)
+                    if mask.sum() < 3: return None
+                    h, l = h[mask], l[mask]
+                    return math.sqrt(float(np.mean(np.log(h/l)**2)) / (4 * math.log(2)))
+                pv_full = _parkinson_vol(full_day)
+                pv_close = _parkinson_vol(closing)
+                if pv_full and pv_full > 0 and pv_close:
+                    park_ratio = pv_close / pv_full
+                    if park_ratio > _cfg.PARKINSON_RATIO_THRESHOLD:
+                        dist += _cfg.PARKINSON_RATIO_WIDEN_AMOUNT
+
         available_strikes = set(quotes_df["strike"].unique())
         day_traded = False
 
