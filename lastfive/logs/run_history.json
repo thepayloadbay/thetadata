@@ -1207,5 +1207,140 @@
       "min_credit": 0.1,
       "put_filter": true
     }
+  },
+  {
+    "run_number": 77,
+    "timestamp": "2026-04-04T15:45:03.265404",
+    "trades": 1439,
+    "total_pnl": 319474.0,
+    "win_rate": 74.3,
+    "config": {
+      "vix_adaptive": true,
+      "vix_atm_cutoff": 18.0,
+      "tiered_sizing": true,
+      "spread_width": 5.0,
+      "min_credit": 0.1,
+      "put_filter": true
+    }
+  },
+  {
+    "run_number": 78,
+    "timestamp": "2026-04-04T15:45:33.478424",
+    "trades": 989,
+    "total_pnl": 208040.0,
+    "win_rate": 74.2,
+    "config": {
+      "vix_adaptive": true,
+      "vix_atm_cutoff": 18.0,
+      "tiered_sizing": true,
+      "spread_width": 5.0,
+      "min_credit": 0.1,
+      "put_filter": true
+    }
+  },
+  {
+    "run_number": 79,
+    "timestamp": "2026-04-04T15:45:59.421679",
+    "trades": 366,
+    "total_pnl": 79081.0,
+    "win_rate": 73.5,
+    "config": {
+      "vix_adaptive": true,
+      "vix_atm_cutoff": 18.0,
+      "tiered_sizing": true,
+      "spread_width": 5.0,
+      "min_credit": 0.1,
+      "put_filter": true
+    }
+  },
+  {
+    "run_number": 80,
+    "timestamp": "2026-04-04T15:46:27.481955",
+    "trades": 896,
+    "total_pnl": 193524.0,
+    "win_rate": 74.8,
+    "config": {
+      "vix_adaptive": true,
+      "vix_atm_cutoff": 18.0,
+      "tiered_sizing": true,
+      "spread_width": 5.0,
+      "min_credit": 0.1,
+      "put_filter": true
+    }
+  },
+  {
+    "run_number": 81,
+    "timestamp": "2026-04-04T15:47:22.876821",
+    "trades": 941,
+    "total_pnl": 185181.0,
+    "win_rate": 75.9,
+    "config": {
+      "vix_adaptive": true,
+      "vix_atm_cutoff": 18.0,
+      "tiered_sizing": true,
+      "spread_width": 5.0,
+      "min_credit": 0.1,
+      "put_filter": true
+    }
+  },
+  {
+    "run_number": 82,
+    "timestamp": "2026-04-04T15:47:41.766260",
+    "trades": 498,
+    "total_pnl": 134293.0,
+    "win_rate": 71.3,
+    "config": {
+      "vix_adaptive": true,
+      "vix_atm_cutoff": 18.0,
+      "tiered_sizing": true,
+      "spread_width": 5.0,
+      "min_credit": 0.1,
+      "put_filter": true
+    }
+  },
+  {
+    "run_number": 83,
+    "timestamp": "2026-04-04T15:48:24.536858",
+    "trades": 1306,
+    "total_pnl": 294189.0,
+    "win_rate": 74.7,
+    "config": {
+      "vix_adaptive": true,
+      "vix_atm_cutoff": 18.0,
+      "tiered_sizing": true,
+      "spread_width": 5.0,
+      "min_credit": 0.1,
+      "put_filter": true
+    }
+  },
+  {
+    "run_number": 84,
+    "timestamp": "2026-04-04T15:48:49.259442",
+    "trades": 872,
+    "total_pnl": 172720.0,
+    "win_rate": 76.1,
+    "config": {
+      "vix_adaptive": true,
+      "vix_atm_cutoff": 18.0,
+      "tiered_sizing": true,
+      "spread_width": 5.0,
+      "min_credit": 0.1,
+      "put_filter": true
+    }
+  },
+  {
+    "run_number": 85,
+    "timestamp": "2026-04-04T15:49:05.389433",
+    "trades": 434,
+    "total_pnl": 121469.0,
+    "win_rate": 71.9,
+    "config": {
+      "vix_adaptive": true,
+      "vix_atm_cutoff": 18.0,
+      "tiered_sizing": true,
+      "spread_width": 5.0,
+      "min_credit": 0.1,
+      "put_filter": true
+    }
   }
 ]
