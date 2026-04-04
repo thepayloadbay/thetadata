@@ -1,0 +1,112 @@
+// This Pine Script® code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © LuxAlgo
+
+//@version=6
+indicator("Inertial RSI [LuxAlgo]", "LuxAlgo - Inertial RSI", precision = 2)
+
+//---------------------------------------------------------------------------------------------------------------------}
+// Constants
+//---------------------------------------------------------------------------------------------------------------------{
+color BULL_COLOR = #089981
+color BEAR_COLOR = #f23645
+
+//---------------------------------------------------------------------------------------------------------------------}
+// Inputs
+//---------------------------------------------------------------------------------------------------------------------{
+int minLenInput     = input.int(10, "Minimum Length", minval = 2, group = "Settings")
+int maxLenInput     = input.int(40, "Maximum Length", minval = 2, group = "Settings")
+int smoothInput     = input.int(3, "RSI Smoothing", minval = 1, group = "Settings")
+int signalLenInput  = input.int(14, "Signal Line Length", minval = 1, group = "Settings")
+float obLevelInput  = input.float(60, "Overbought Level", minval = 50, maxval = 100, group = "Settings", tooltip = "Level where a cross under triggers a bearish signal.")
+float osLevelInput  = input.float(40, "Oversold Level", minval = 0, maxval = 50, group = "Settings", tooltip = "Level where a cross over triggers a bullish signal.")
+
+bool showFillInput    = input.bool(true, "Show Gradient Fill", group = "Visuals", tooltip = "Enable or disable the gradient fill.")
+bool showSignalsInput = input.bool(true, "Show Signal Triangles", group = "Visuals", tooltip = "Display triangles when RSI exits overbought/oversold zones.")
+color bullColorInput  = input.color(BULL_COLOR, "Bullish Color", group = "Visuals", tooltip = "Color for bullish RSI values and gradients.")
+color bearColorInput  = input.color(BEAR_COLOR, "Bearish Color", group = "Visuals", tooltip = "Color for bearish RSI values and gradients.")
+
+//---------------------------------------------------------------------------------------------------------------------}
+// Logic
+//---------------------------------------------------------------------------------------------------------------------{
+var float inertialRsi = 50.0
+
+// Gain/Loss calculations
+float change = ta.change(close)
+float gain   = math.max(change, 0)
+float loss   = math.max(-change, 0)
+
+var a_rmaGains  = array.new_float(maxLenInput + 1, 0.0)
+var a_rmaLosses = array.new_float(maxLenInput + 1, 0.0)
+
+// Finding the length N that minimizes variation from the previous value
+float bestRsi = 50.0
+float minDiff = 1e10
+
+// Optimization loop using RMA-based RSI
+for currentLen = minLenInput to maxLenInput
+    float prevGain = array.get(a_rmaGains, currentLen)
+    float prevLoss = array.get(a_rmaLosses, currentLen)
+    
+    float currGainRma = 0.0
+    float currLossRma = 0.0
+    
+    if bar_index < currentLen - 1
+        currGainRma := 0.0
+        currLossRma := 0.0
+    else if bar_index == currentLen - 1
+        float sumG = 0.0
+        float sumL = 0.0
+        for j = 0 to currentLen - 1
+            sumG += nz(gain[j])
+            sumL += nz(loss[j])
+        currGainRma := sumG / currentLen
+        currLossRma := sumL / currentLen
+    else
+        currGainRma := prevGain + (gain - prevGain) / currentLen
+        currLossRma := prevLoss + (loss - prevLoss) / currentLen
+
+    array.set(a_rmaGains, currentLen, currGainRma)
+    array.set(a_rmaLosses, currentLen, currLossRma)
+    
+    if bar_index >= currentLen - 1
+        float rsi = currLossRma == 0 ? 100.0 : 100.0 - (100.0 / (1.0 + currGainRma / currLossRma))
+        float diff = math.abs(rsi - inertialRsi)
+        
+        if diff < minDiff
+            minDiff := diff
+            bestRsi := rsi
+
+if bar_index >= minLenInput - 1
+    inertialRsi := bestRsi
+
+// Final Smoothing
+float rsiLine    = ta.sma(inertialRsi, smoothInput)
+float signalLine = ta.sma(rsiLine, signalLenInput)
+
+// Signal Logic
+bool bullSignal = ta.crossover(rsiLine, osLevelInput)
+bool bearSignal = ta.crossunder(rsiLine, obLevelInput)
+
+//---------------------------------------------------------------------------------------------------------------------}
+// Visuals
+//---------------------------------------------------------------------------------------------------------------------{
+// Plotting the RSI and Signal lines
+plotRsi    = plot(rsiLine, "Inertial RSI", color = rsiLine > 50 ? bullColorInput : bearColorInput)
+plotSignal = plot(signalLine, "Signal Line", color = color.new(chart.fg_color, 60), linestyle = plot.linestyle_dotted)
+
+// Center line for gradient fill
+midPlot = plot(50, "Middle Level", color = color.new(chart.fg_color, 80), display = display.none)
+
+// Overbought/Oversold levels
+hLevel = hline(obLevelInput, "Overbought", color = color.new(chart.fg_color, 50), linestyle = hline.style_dashed)
+lLevel = hline(osLevelInput, "Oversold", color = color.new(chart.fg_color, 50), linestyle = hline.style_dashed)
+
+// Inertial Gradient Fill
+fill(plotRsi, midPlot, 100, 50, showFillInput ? bullColorInput : na, showFillInput ? color.new(bullColorInput, 100) : na, "Bullish Gradient")
+fill(plotRsi, midPlot, 50, 0, showFillInput ? color.new(bearColorInput, 100) : na, showFillInput ? bearColorInput : na, "Bearish Gradient")
+
+// Signal Triangles
+plotshape(showSignalsInput and bullSignal ? low : na, "Bullish Signal", shape.triangleup, location.belowbar, bullColorInput, size = size.tiny, force_overlay = true)
+plotshape(showSignalsInput and bearSignal ? high : na, "Bearish Signal", shape.triangledown, location.abovebar, bearColorInput, size = size.tiny, force_overlay = true)
+
+//---------------------------------------------------------------------------------------------------------------------}

@@ -1,0 +1,153 @@
+//  TASC Issue: April 2026
+//     Article: Avoiding Whipsaw Trades
+//              A Synthetic Oscillator
+//  Article By: John F. Ehlers
+//    Language: TradingView's Pine Script® v6
+// Provided By: PineCoders, for tradingview.com
+
+
+//@version=6
+TITLE = "TASC 2026.04 A Synthetic Oscillator"
+indicator(TITLE, "SO", false)
+
+//#region Inputs
+
+float src = input.source(close, "Source Series:")
+int lb = input.int(15, "Lower Bound:", minval = 3)
+int ub = input.int(25, "Upper Bound:", minval = 4)
+
+if lb >= ub
+    runtime.error("The 'Upper Bound' value must be greater than the 'Lower Bound' value.")
+
+//#endregion
+
+//#region Functions
+
+// @function The SuperSmoother is a second-order infinite im-
+// pulse response (IIR) filter, meaning that it uses two
+// previous calculations of the filter output in the cur-
+// rent calculation of the filter response.
+// @param   src     Source series
+// @param   period  Critical period
+// @returns Smoothed series
+SuperSmoother (float src, int period) =>
+    float q = math.exp(-1.414*math.pi/period)
+    float c1 = 2.0*q*math.cos(1.414*math.pi/period)
+    float c2 = q*q
+    float a0 = (1.0 - c1 + c2)/2
+    float ss = src
+    if bar_index >= 4
+        ss := a0*(src + src[1]) + 
+              c1*ss[1] - c2*ss[2]
+    ss
+
+// @function      The UltimateSmoother is a filter created
+//                by subtracting the response of a high-pass 
+//                filter from that of an all-pass filter.
+// @param src     Source series.
+// @param period  Critical period.
+// @returns       Smoothed series
+UltimateSmoother (float src, int period) =>
+    float q = math.exp(-1.414*math.pi/period)
+    float c1 = 2.0*q*math.cos(1.414*math.pi/period)
+    float c2 = q*q
+    float a0 = (1.0 + c1 + c2)/4.0
+    float us = src
+    if bar_index >= 4
+        us := (1.0 - a0)*src + 
+              (2.0*a0 - c1)*src[1] + 
+              (c2 - a0)*src[2] + 
+              c1*nz(us[1]) - c2*nz(us[2])
+    us
+
+// @function Root Mean Square
+RMS (float Source, int Length) =>
+    float s2 = math.sum(Source*Source, Length)
+    if s2 != 0
+        math.sqrt(s2/Length)
+    else
+        0.0
+
+// @function High Pass Filter
+HP (float src, int Period) =>
+    float Q = math.exp(-1.414*math.pi/Period)
+    float c1 = 2.0*Q*math.cos(1.414*math.pi/Period)
+    float c2 = Q*Q
+    float a0 = (1 + c1 + c2)/4
+    float hp = 0.0
+    if bar_index >= 4
+        hp := nz(a0*(src - 2*src[1] + 
+              src[2]) + c1*hp[1] - c2*hp[2])
+    hp
+
+//@function Hann Filter
+Hann (float src, int length) =>
+    float filt = 0.0
+    float coef = 0.0
+    for c = 1 to length
+        float p = math.cos(2*math.pi*c/(length + 1))
+        filt += (1.0 - p) * nz(src[c - 1])
+        coef += 1.0 - p
+    coef != 0.0 ? filt/coef : 0.0
+
+// @function Synthetic Oscillator.
+// @param   src     Source Series.
+// @param   LB      Lower Bound.
+// @param   UB      Upper Bound.
+// @param   length  Length period.
+// @returns Synthetic Oscillator.
+SO (float src=close, int LB=15, int UB=25) =>
+    float price = Hann(src,12)
+    // Real component is bandpass filtered and normalized
+    float hp = HP(price, UB)
+    float lp = SuperSmoother(hp, LB)
+    float rms = RMS(lp, 100)
+    float re = rms != 0.0 ? lp/rms : 0.0
+    // Imaginary component is rate of change normalized.
+    float roc = re - re[1]
+    float qrms = RMS(roc, 100)
+    float im = qrms != 0.0 ? roc/qrms : 0.0
+    // Solve rate of change of arctangent.
+    float denom = roc*im - (im - im[1])*re
+    float dc = denom != 0.0 ? 
+      6.28*(re*re + im*im)/denom : 0.0
+    // Limit range of measured values.
+    dc := math.max(LB, math.min(UB, dc))
+    int mid = int(math.sqrt(LB*UB))
+    // Create a Bandpass filter at the Average Dominant
+    // Cycle Period.
+    float hp2 = HP(src, mid)
+    float bp = UltimateSmoother(hp2, mid)
+    // Cumulate Phase and force reset at 0 and 180 degrees
+    var float ph = 0.0
+    ph += 2*math.pi/dc
+    bool xo = ta.crossover(bp, 0.0)
+    bool xu = ta.crossunder(bp, 0.0)
+    switch
+        xo => ph := math.pi/dc
+        xu => ph := math.pi + math.pi/dc
+    
+    // Synthetic Oscillator is the Sine of the cumulative
+    // phase angle.
+    float so = math.sin(ph)
+    // Remove reset glitch if continuity falls in the 
+    // same quadrant.
+    switch
+        ph > 0.0 and ph < math.pi/2 and so < so[1] =>
+            so := so[1]
+        ph > math.pi and ph < 3*math.pi/2 and so > so[1] => 
+            so := so[1]
+        =>
+            so
+
+//#endregion
+
+//#region Plots
+
+so = SO(src, lb, ub)
+
+plot(so, "Synthetic Oscillator")
+hline(0, "Zero Line")
+
+//#endregion
+

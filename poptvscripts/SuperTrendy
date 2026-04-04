@@ -1,0 +1,239 @@
+// This Pine Script® code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © TheRealDrip2Rip
+
+//@version=5
+indicator("SuperTrendy", overlay=true, max_labels_count=500)
+
+// ═══════════════════════════════════════════════════════════════
+//   INPUTS
+// ═══════════════════════════════════════════════════════════════
+
+g1 = "Engine"
+i_len     = input.int(14,     "ATR Length",         minval=1,            group=g1, tooltip="How many bars are used to measure volatility. 14 is the sweet spot — smooth enough to ignore noise, fast enough to stay relevant. Higher = slower and smoother. Lower = faster and noisier.")
+i_factor  = input.float(3.5,  "Base Factor",        step=0.1, minval=1,  group=g1, tooltip="How far the SuperTrend line sits from price. Higher = fewer flips, wider stops, targets bigger moves. Lower = more signals, tighter stops. Automatically scaled by market volatility — the live value shows in the dashboard header.")
+i_er_len  = input.int(10,     "ER Length",          minval=3, maxval=20, group=g1, tooltip="Lookback for the Efficiency Ratio — measures how cleanly price is trending versus chopping. 10 works well for most assets. Lower = reacts faster. Higher = smoother but slower.")
+i_confirm = input.int(2,      "Confirm Bars (base)", minval=1, maxval=5, group=g1, tooltip="Consecutive bars price must hold on the new side before a flip is confirmed. Primary whipsaw filter. Adjusts automatically — choppy markets require more bars, clean trends fewer. Start at 2. If seeing false flips, raise to 3.")
+i_exhaust = input.float(2.8,  "Exhaustion Threshold", step=0.1, minval=1.0, group=g1, tooltip="When price moves this many ATR multiples from the SuperTrend line, the dashboard flags it as stretched. Not a flip signal — means the move is overextended. Consider tightening your stop or taking partial profit. 2.8 is a good default.")
+
+g2 = "Visuals"
+i_glow    = input.bool(false, "Glow",          group=g2, tooltip="A soft halo around the SuperTrend line that brightens as the trend matures. Dim on a fresh flip, vivid on a strong established trend.")
+i_shade   = input.bool(true, "Shading",       group=g2, tooltip="The gradient ribbon between price and the SuperTrend line. Four bands deepen toward the line — nearly invisible on a new flip, rich and glowing on a mature trend.")
+i_candles = input.bool(true, "Colour Candles", group=g2, tooltip="Colours each candle to match the current trend direction. Candles start faint on a fresh flip and saturate as conviction builds.")
+i_labels  = input.bool(true, "Flip Labels",   group=g2, tooltip="Shows a LONG or SHORT label with the Flip Quality Grade and close price at every confirmed flip. Grade A labels are larger so your eyes go straight to the signals that matter.")
+i_table   = input.bool(true, "Dashboard",     group=g2, tooltip="The live stats panel. Shows trend direction, age, conviction, efficiency, volatility regime, ATR percentile rank, adaptive factor, flip quality score, exhaustion status, distance, and flip counts.")
+
+g3 = "Palette"
+i_bull = input.color(#00c076, "Bull", group=g3, tooltip="Color for all bullish elements — line, glow, ribbon, candles, and labels when the trend is long.")
+i_bear = input.color(#ff3d3d, "Bear", group=g3, tooltip="Color for all bearish elements — line, glow, ribbon, candles, and labels when the trend is short.")
+
+g4 = "Dashboard"
+i_pos = input.string("Top Right", "Position", options=["Top Right","Top Left","Bottom Right","Bottom Left"], group=g4, tooltip="Where the dashboard panel sits on your chart. Move it to whichever corner does not overlap your price action.")
+
+// ═══════════════════════════════════════════════════════════════
+//   PROPRIETARY MATH
+// ═══════════════════════════════════════════════════════════════
+
+atr = ta.atr(i_len)
+
+// ── Kaufman Efficiency Ratio ─────────────────────────────────
+net_move = math.abs(close - close[i_er_len])
+var float total_path = 0.0
+total_path := 0.0
+for i = 0 to i_er_len - 1
+    total_path += math.abs(close[i] - close[i + 1])
+er        = total_path > 0 ? net_move / total_path : 0.0
+er_smooth = ta.ema(er, 3)
+
+// ── Volatility Regime ────────────────────────────────────────
+atr_baseline    = ta.sma(atr, 50)
+vol_ratio       = atr_baseline > 0 ? atr / atr_baseline : 1.0
+vol_regime      = math.max(math.min(vol_ratio, 1.40), 0.75)
+
+// ── Adaptive Factor ──────────────────────────────────────────
+adaptive_factor = i_factor * vol_regime
+
+// ── ER-Driven Confirmation ───────────────────────────────────
+adaptive_confirm = er_smooth < 0.25 ? math.max(i_confirm + 2, 4) : er_smooth < 0.45 ? i_confirm + 1 : er_smooth < 0.65 ? i_confirm : math.max(i_confirm - 1, 1)
+
+// ── Flip Quality Score ───────────────────────────────────────
+price_mom_pct = math.abs(ta.roc(close, 5))
+atr_pct       = close > 0 ? atr / close * 100 : 0.0
+mom_norm      = atr_pct > 0 ? math.min(price_mom_pct / (atr_pct * 2), 1.0) : 0.0
+vol_score     = math.max(1.0 - math.abs(1.0 - vol_ratio), 0.0)
+quality_raw   = er_smooth * 0.50 + vol_score * 0.30 + mom_norm * 0.20
+quality_pct   = math.round(quality_raw * 100)
+quality_grade = quality_pct >= 70 ? "A" : quality_pct >= 50 ? "B" : "C"
+
+// ── ATR Percentile Rank ──────────────────────────────────────
+atr_pctrank = ta.percentrank(atr, 100)
+
+// ═══════════════════════════════════════════════════════════════
+//   MANUAL SUPERTREND
+// ═══════════════════════════════════════════════════════════════
+
+upper_basic = hl2 + adaptive_factor * atr
+lower_basic = hl2 - adaptive_factor * atr
+
+var float upper_band = na
+var float lower_band = na
+
+upper_band := na(upper_band[1]) ? upper_basic : upper_basic < upper_band[1] or close[1] > upper_band[1] ? upper_basic : upper_band[1]
+lower_band := na(lower_band[1]) ? lower_basic : lower_basic > lower_band[1] or close[1] < lower_band[1] ? lower_basic : lower_band[1]
+
+var int trend_dir = 1
+trend_dir := na(trend_dir[1]) ? 1 : trend_dir[1] == 1 ? (close < lower_band ? -1 : 1) : (close > upper_band ? 1 : -1)
+
+st   = trend_dir == 1 ? lower_band : upper_band
+bull = trend_dir == 1
+
+// ── Trend Exhaustion (dashboard only) ───────────────────────
+dist_atr     = atr > 0 ? math.abs(close - st) / atr : 0.0
+is_exhausted = dist_atr >= i_exhaust
+
+// ═══════════════════════════════════════════════════════════════
+//   CONFIRMATION FILTER
+// ═══════════════════════════════════════════════════════════════
+
+var bool locked_bull = bull
+var int  streak      = 0
+
+streak    := bull == locked_bull ? 0 : streak + 1
+flip_up    = streak >= adaptive_confirm and bull
+flip_down  = streak >= adaptive_confirm and not bull
+any_flip   = flip_up or flip_down
+
+if any_flip
+    locked_bull := bull
+
+tc = locked_bull ? i_bull : i_bear
+
+var int flip_quality = 0
+if any_flip
+    flip_quality := quality_pct
+
+// ═══════════════════════════════════════════════════════════════
+//   CONVICTION
+// ═══════════════════════════════════════════════════════════════
+
+var int bull_ct = 0
+var int bear_ct = 0
+if flip_up
+    bull_ct += 1
+if flip_down
+    bear_ct += 1
+
+var int age = 0
+age    := any_flip ? 0 : age + 1
+s_time  = math.min(age / 60.0, 1.0)
+s       = s_time * 0.65 + er_smooth * 0.35
+boost   = int(s * 38)
+
+// ═══════════════════════════════════════════════════════════════
+//   CONVICTION-BREATHING GLOW
+// ═══════════════════════════════════════════════════════════════
+
+glow_outer_a = math.max(91 - int(s * 25), 66)
+glow_inner_a = math.max(76 - int(s * 30), 46)
+
+plot(i_glow ? st : na, "Halo Outer", color.new(tc, glow_outer_a), linewidth=14)
+plot(i_glow ? st : na, "Halo Inner", color.new(tc, glow_inner_a), linewidth=6)
+plot(st, "Core",       tc,                                         linewidth=2)
+plot(st, "Edge Light", color.new(color.white, 82),                 linewidth=1)
+
+// ═══════════════════════════════════════════════════════════════
+//   FOUR-BAND GRADIENT RIBBON
+// ═══════════════════════════════════════════════════════════════
+
+q1 = close + (st - close) * 0.25
+q2 = close + (st - close) * 0.55
+q3 = close + (st - close) * 0.82
+
+p_close = plot(close,               display=display.none, editable=false)
+p_q1    = plot(i_shade ? q1 : na,   display=display.none, editable=false)
+p_q2    = plot(i_shade ? q2 : na,   display=display.none, editable=false)
+p_q3    = plot(i_shade ? q3 : na,   display=display.none, editable=false)
+p_st    = plot(st,                  display=display.none, editable=false)
+
+fill(p_close, p_q1, color.new(tc, math.max(96 - boost, 84)), title="Ribbon A")
+fill(p_q1,    p_q2, color.new(tc, math.max(82 - boost, 64)), title="Ribbon B")
+fill(p_q2,    p_q3, color.new(tc, math.max(62 - boost, 40)), title="Ribbon C")
+fill(p_q3,    p_st, color.new(tc, math.max(38 - boost, 18)), title="Ribbon D")
+
+// ═══════════════════════════════════════════════════════════════
+//   CANDLES
+// ═══════════════════════════════════════════════════════════════
+
+candle_alpha = math.max(42 - int(s * 34), 8)
+barcolor(i_candles ? color.new(tc, candle_alpha) : na)
+
+// ═══════════════════════════════════════════════════════════════
+//   FLIP LABELS
+// ═══════════════════════════════════════════════════════════════
+
+lbl_size = quality_grade == "A" ? size.normal : size.small
+
+if i_labels and flip_up
+    label.new(bar_index, st, text="LONG  [" + quality_grade + "]\n" + str.tostring(close, format.mintick), yloc=yloc.belowbar, style=label.style_label_up, color=color.new(i_bull, 8), textcolor=color.white, size=lbl_size)
+
+if i_labels and flip_down
+    label.new(bar_index, st, text="SHORT  [" + quality_grade + "]\n" + str.tostring(close, format.mintick), yloc=yloc.abovebar, style=label.style_label_down, color=color.new(i_bear, 8), textcolor=color.white, size=lbl_size)
+
+// ═══════════════════════════════════════════════════════════════
+//   DASHBOARD
+// ═══════════════════════════════════════════════════════════════
+
+if i_table and barstate.islast
+    pos = i_pos == "Top Right" ? position.top_right : i_pos == "Top Left" ? position.top_left : i_pos == "Bottom Right" ? position.bottom_right : position.bottom_left
+
+    int    filled = int(math.round(s * 10))
+    string sbar   = ""
+    for i = 0 to 9
+        sbar += i < filled ? "█" : "░"
+
+    dist_pct   = math.abs(close - st) / close * 100
+    er_label   = er_smooth > 0.65 ? "TRENDING" : er_smooth > 0.40 ? "MIXED" : "CHOPPY"
+    er_color   = er_smooth > 0.65 ? tc : er_smooth > 0.40 ? color.orange : color.gray
+    vol_label  = vol_ratio > 1.20 ? "ELEVATED" : vol_ratio < 0.80 ? "COMPRESSED" : "NORMAL"
+    vol_color  = vol_ratio > 1.20 ? color.orange : vol_ratio < 0.80 ? color.aqua : color.silver
+    atr_pr_col = atr_pctrank > 75 ? color.orange : atr_pctrank < 25 ? color.aqua : color.silver
+    atr_pr_lbl = atr_pctrank > 75 ? "HIGH VOL" : atr_pctrank < 25 ? "LOW VOL" : "NORMAL"
+    q_color    = quality_pct >= 70 ? tc : quality_pct >= 50 ? color.orange : color.gray
+    ex_color   = is_exhausted ? color.orange : color.silver
+    ex_label   = is_exhausted ? "STRETCHED  " + str.tostring(dist_atr, "#.##") + "x ATR" : str.tostring(dist_atr, "#.##") + "x ATR"
+
+    t = table.new(pos, 2, 13, bgcolor=color.new(#080808, 5), border_color=color.new(tc, 52), border_width=1, frame_color=color.new(tc, 22), frame_width=2)
+
+    table.cell(t, 0, 0,  "SUPERTRENDY",                                                                                           text_color=color.white,                                    text_size=size.small, bgcolor=color.new(tc, 42), text_halign=text.align_center)
+    table.cell(t, 1, 0,  "F:" + str.tostring(adaptive_factor, "#.##") + "  C:" + str.tostring(adaptive_confirm),                 text_color=color.silver,                                   text_size=size.small, bgcolor=color.new(tc, 42), text_halign=text.align_center)
+    table.cell(t, 0, 1,  "Direction",                                                                                             text_color=color.gray,                                     text_size=size.small)
+    table.cell(t, 1, 1,  locked_bull ? "LONG" : "SHORT",                                                                         text_color=tc,          bgcolor=color.new(tc, 85),         text_size=size.small, text_halign=text.align_center)
+    table.cell(t, 0, 2,  "Age",                                                                                                   text_color=color.gray,                                     text_size=size.small)
+    table.cell(t, 1, 2,  str.tostring(age) + " bars",                                                                            text_color=color.silver,                                   text_size=size.small, text_halign=text.align_center)
+    table.cell(t, 0, 3,  "Conviction",                                                                                            text_color=color.gray,                                     text_size=size.small)
+    table.cell(t, 1, 3,  sbar + "  " + str.tostring(math.round(s * 100)) + "%",                                                  text_color=s > 0.5 ? tc : color.gray,                      text_size=size.tiny,  text_halign=text.align_center)
+    table.cell(t, 0, 4,  "Efficiency",                                                                                            text_color=color.gray,                                     text_size=size.small)
+    table.cell(t, 1, 4,  er_label + "  " + str.tostring(er_smooth, "#.##"),                                                      text_color=er_color,                                       text_size=size.small, text_halign=text.align_center)
+    table.cell(t, 0, 5,  "Vol Regime",                                                                                            text_color=color.gray,                                     text_size=size.small)
+    table.cell(t, 1, 5,  vol_label + "  " + str.tostring(vol_ratio, "#.##"),                                                     text_color=vol_color,                                      text_size=size.small, text_halign=text.align_center)
+    table.cell(t, 0, 6,  "ATR %ile",                                                                                              text_color=color.gray,                                     text_size=size.small)
+    table.cell(t, 1, 6,  atr_pr_lbl + "  " + str.tostring(math.round(atr_pctrank)) + "th",                                      text_color=atr_pr_col,                                     text_size=size.small, text_halign=text.align_center)
+    table.cell(t, 0, 7,  "Adapt Factor",                                                                                          text_color=color.gray,                                     text_size=size.small)
+    table.cell(t, 1, 7,  str.tostring(adaptive_factor, "#.##") + "  (base " + str.tostring(i_factor, "#.#") + ")",               text_color=color.silver,                                   text_size=size.small, text_halign=text.align_center)
+    table.cell(t, 0, 8,  "Flip Score",                                                                                            text_color=color.gray,                                     text_size=size.small)
+    table.cell(t, 1, 8,  str.tostring(quality_pct) + " / 100  [" + quality_grade + "]",                                          text_color=q_color,                                        text_size=size.small, text_halign=text.align_center)
+    table.cell(t, 0, 9,  "Exhaustion",                                                                                            text_color=color.gray,                                     text_size=size.small)
+    table.cell(t, 1, 9,  ex_label,                                                                                                text_color=ex_color,                                       text_size=size.small, text_halign=text.align_center)
+    table.cell(t, 0, 10, "Distance",                                                                                              text_color=color.gray,                                     text_size=size.small)
+    table.cell(t, 1, 10, str.tostring(dist_pct, "#.##") + "%",                                                                   text_color=dist_pct > 3.0 ? color.orange : color.silver,   text_size=size.small, text_halign=text.align_center)
+    table.cell(t, 0, 11, "Long Flips",                                                                                            text_color=color.gray,                                     text_size=size.small)
+    table.cell(t, 1, 11, str.tostring(bull_ct),                                                                                   text_color=i_bull,                                         text_size=size.small, text_halign=text.align_center)
+    table.cell(t, 0, 12, "Short Flips",                                                                                           text_color=color.gray,                                     text_size=size.small)
+    table.cell(t, 1, 12, str.tostring(bear_ct),                                                                                   text_color=i_bear,                                         text_size=size.small, text_halign=text.align_center)
+
+// ═══════════════════════════════════════════════════════════════
+//   ALERTS
+// ═══════════════════════════════════════════════════════════════
+
+alertcondition(flip_up,   "Long Signal",  "SuperTrendy: LONG — {{ticker}} {{interval}} @ {{close}}")
+alertcondition(flip_down, "Short Signal", "SuperTrendy: SHORT — {{ticker}} {{interval}} @ {{close}}")
+alertcondition(any_flip,  "Any Flip",    "SuperTrendy: FLIP — {{ticker}} {{interval}} @ {{close}}")

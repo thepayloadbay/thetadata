@@ -1,0 +1,84 @@
+// © FriendOfTheTrend
+//@version=5
+
+indicator('VIX Reversal Scalper by Trend Friend - Stocks Only', shorttitle="VIX Reversal Scalper - Stocks Only", overlay=true)
+
+//Moving Average Type Input
+ema = "EMA"
+sma = "SMA"
+hma = "HMA"
+vwma = "VWMA"
+wma = "WMA"
+rma = "RMA"
+symbol = input.symbol("VIX", title="Choose Symbol")
+maChoice = input.string("EMA", title="Type of MA To Use", options=[ema, sma, hma, vwma, wma, rma])
+
+//Moving Average Input
+vixMaLength = input.int(defval=10, title="Moving Average Length", tooltip="For more signals with earlier entries use lower values. For later signals with less entries use higher values. For scalping use a number of 75 or lower. For swing trades use a number of 100 or higher. Use 1000-3000 for long swings.")
+
+//Turn Signals On/Off
+bullOn = input.bool(true, title="Turn Bull Labels On/Off")
+bearOn = input.bool(true, title="Turn Bear Labels On/Off")
+
+//Momentum
+mom = ta.mom(close, 4)
+
+//VIX Data
+vixData = request.security(symbol, "", close)
+
+//VIX Moving Average
+vixMa = ta.rma(vixData, vixMaLength)
+
+if maChoice == ema
+    vixMa := ta.ema(vixData, vixMaLength)
+    
+if maChoice == sma
+    vixMa := ta.sma(vixData, vixMaLength)
+    
+if maChoice == hma
+    vixMa := ta.hma(vixData, vixMaLength)
+    
+if maChoice == wma
+    vixMa := ta.wma(vixData, vixMaLength)
+    
+if maChoice == vwma
+    vixMa := ta.vwma(vixData, vixMaLength)
+    
+if maChoice == rma
+    vixMa := ta.rma(vixData, vixMaLength)
+
+
+//Signal Conditions
+bool vixBullish = bullOn and ta.crossunder(vixData, vixMa) and mom > mom[1] or bullOn and ta.crossunder(vixData, vixMa) and mom > mom[2] or bullOn and ta.crossunder(vixData, vixMa) and mom[1] > mom[2]
+bool vixBearish = bearOn and ta.crossover(vixData, vixMa) and mom < mom[1] or bearOn and ta.crossover(vixData, vixMa) and mom < mom[2] or bearOn and ta.crossover(vixData, vixMa) and mom[1] < mom[2]
+
+//Invert Signals On Inverse ETFs
+inverseVixData = if (syminfo.ticker == "SQQQ") or (syminfo.ticker == "SH") or (syminfo.ticker == "PSQ") or (syminfo.ticker == "SDS") or (syminfo.ticker == "SPXU")
+                     or (syminfo.ticker == "TZA") or (syminfo.ticker == "SPXS") or (syminfo.ticker == "SDOW") or (syminfo.ticker == "QID") or (syminfo.ticker == "DOG")
+                      or (syminfo.ticker == "RWM") or (syminfo.ticker == "SPDN") or (syminfo.ticker == "SRTY") or (syminfo.ticker == "SOXS") or (syminfo.ticker == "CHAD")
+                       or (syminfo.ticker == "FAZ") or (syminfo.ticker == "DXD") or (syminfo.ticker == "FNGD") or (syminfo.ticker == "TECS") or (syminfo.ticker == "TWM")
+    vixBearish := bullOn and ta.crossunder(vixData, vixMa) and mom > mom[1] or bullOn and ta.crossunder(vixData, vixMa) and mom > mom[2] or bullOn and ta.crossunder(vixData, vixMa) and mom[1] > mom[2]
+    vixBullish := bearOn and ta.crossover(vixData, vixMa) and mom < mom[1] or bearOn and ta.crossover(vixData, vixMa) and mom < mom[2] or bearOn and ta.crossover(vixData, vixMa) and mom[1] < mom[2]
+    
+inverseVixData2 = if (syminfo.ticker == "HDGE") or (syminfo.ticker == "DRIP") or (syminfo.ticker == "JDST") or (syminfo.ticker == "DUST") or (syminfo.ticker == "LABD")
+                     or (syminfo.ticker == "YANG") or (syminfo.ticker == "NRGD") or (syminfo.ticker == "HIBS") or (syminfo.ticker == "DWSH") or (syminfo.ticker == "EDZ")
+                      or (syminfo.ticker == "ERY") or (syminfo.ticker == "EUM") or (syminfo.ticker == "FXP") or (syminfo.ticker == "GDXD") or (syminfo.ticker == "CLDS")
+                       or (syminfo.ticker == "BZQ") or (syminfo.ticker == "DUG") or (syminfo.ticker == "WEBS") or (syminfo.ticker == "SKF") or (syminfo.ticker == "YXI")
+    vixBearish := bullOn and ta.crossunder(vixData, vixMa) and mom > mom[1] or bullOn and ta.crossunder(vixData, vixMa) and mom > mom[2] or bullOn and ta.crossunder(vixData, vixMa) and mom[1] > mom[2]
+    vixBullish := bearOn and ta.crossover(vixData, vixMa) and mom < mom[1] or bearOn and ta.crossover(vixData, vixMa) and mom < mom[2] or bearOn and ta.crossover(vixData, vixMa) and mom[1] < mom[2]
+    
+inverseVixData3 = if (syminfo.ticker == "MYY") or (syminfo.ticker == "EFZ") or (syminfo.ticker == "BIS") or (syminfo.ticker == "EPV") or (syminfo.ticker == "SEF")
+                     or (syminfo.ticker == "EEV") or (syminfo.ticker == "REW") or (syminfo.ticker == "EMTY") or (syminfo.ticker == "SMDD") or (syminfo.ticker == "BNKD")
+                      or (syminfo.ticker == "SBB") or (syminfo.ticker == "EWV") or (syminfo.ticker == "SSG") or (syminfo.ticker == "SDD") or (syminfo.ticker == "DDG")
+                       or (syminfo.ticker == "SBM") or (syminfo.ticker == "MZZ") or (syminfo.ticker == "RXD") or (syminfo.ticker == "SIJ") or (syminfo.ticker == "SMN")
+    vixBearish := bullOn and ta.crossunder(vixData, vixMa) and mom > mom[1] or bullOn and ta.crossunder(vixData, vixMa) and mom > mom[2] or bullOn and ta.crossunder(vixData, vixMa) and mom[1] > mom[2]
+    vixBullish := bearOn and ta.crossover(vixData, vixMa) and mom < mom[1] or bearOn and ta.crossover(vixData, vixMa) and mom < mom[2] or bearOn and ta.crossover(vixData, vixMa) and mom[1] < mom[2]
+
+inverseVixData4 = if (syminfo.ticker == "SDP") or (syminfo.ticker == "EFU") or (syminfo.ticker == "SZK") or (syminfo.ticker == "SCC") or (syminfo.ticker == "SINV")
+                     or (syminfo.ticker == "VIX") or (syminfo.ticker == "VXX")
+    vixBearish := bullOn and ta.crossunder(vixData, vixMa) and mom > mom[1] or bullOn and ta.crossunder(vixData, vixMa) and mom > mom[2] or bullOn and ta.crossunder(vixData, vixMa) and mom[1] > mom[2]
+    vixBullish := bearOn and ta.crossover(vixData, vixMa) and mom < mom[1] or bearOn and ta.crossover(vixData, vixMa) and mom < mom[2] or bearOn and ta.crossover(vixData, vixMa) and mom[1] < mom[2]
+    
+//Labels
+plotshape(vixBullish, title="Bull Signal", style= shape.labelup, location=location.belowbar, color=color.green, size=size.tiny, text="BULL", textcolor=color.white)
+plotshape(vixBearish, title="Bear Signal", style= shape.labeldown, location=location.abovebar, color=color.red, size=size.tiny, text="BEAR", textcolor=color.white)

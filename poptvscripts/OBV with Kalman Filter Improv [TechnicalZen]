@@ -1,0 +1,394 @@
+//@version=6
+indicator("RBR: OBV Kalman Improv [TechnicalZen]", shorttitle="RBR_KF3", overlay=false, max_polylines_count=10, max_boxes_count=50)
+
+//══════════════════════════════════════════════════════════════════════════════
+//  Dual display: Trend (detrended candles) or Oscillator (0-100 stair-step).
+//  DX/ADX regime engine adapted for OBV.
+//  Dual Kalman-filtered ribbon. Guitar visual.
+//  Pure price action — no footprint required.
+//══════════════════════════════════════════════════════════════════════════════
+
+//──────────────────────────────────────────────────────────────────────────────
+// INPUTS
+//──────────────────────────────────────────────────────────────────────────────
+
+
+grpCore = "Core Parameters"
+displayMode  = input.string("Trend", "Display Mode", options=["Trend", "Oscillator"], group=grpCore, tooltip="Trend: detrended OBV candles around zero (shows reversals clearly). Oscillator: normalized 0-100 stair-step candles (shows overbought/oversold zones).")
+dxLen        = input.int(25, "DX/ADX Period", minval=5, group=grpCore)
+detrendLen   = input.int(50, "Detrend Period", minval=10, group=grpCore, tooltip="Trend mode: SMA subtracted for centering. Oscillator mode: lookback for min-max normalization.")
+haSmoothing  = input.int(1, "HA Smoothing (Oscillator)", minval=1, maxval=3, group=grpCore, tooltip="Only applies in Oscillator mode. Extra EMA smoothing passes.")
+useEMASmooth = input.bool(true, "EMA Smoothing on ADX", group=grpCore)
+
+showGuitar   = input.bool(true, "Show Guitar Body [applies to Oscillator mode]")
+
+bool isTrend = displayMode == "Trend"
+
+grpKF = "Kalman Ribbon"
+kfShortLen   = input.int(20, "Short KF Length", minval=2, group=grpKF)
+kfLongLen    = input.int(80, "Long KF Length", minval=3, group=grpKF)
+kfR          = input.float(0.01, "Measurement Noise (R)", step=0.005, minval=0.001, group=grpKF)
+kfQ          = input.float(0.10, "Process Noise (Q)", step=0.01, minval=0.001, group=grpKF)
+showRibbon   = input.bool(true, "Show Ribbon Fill", group=grpKF)
+ribbonAlpha  = input.int(80, "Ribbon Transparency", minval=50, maxval=95, group=grpKF)
+thinW        = input.int(1, "Short KF Width", minval=1, maxval=3, group=grpKF)
+thickW       = input.int(2, "Long KF Width", minval=1, maxval=4, group=grpKF)
+
+grpVis = "Visualization"
+showDashboard = input.bool(true, "Show Dashboard", group=grpVis)
+showCandles   = input.bool(true, "Show OBV Candles", group=grpVis)
+
+grpGuitar = "Guitar (Oscillator Mode Only)"
+guitarOffset = input.int(-15, "Guitar Offset (bars)", minval=-50, maxval=30, group=grpGuitar)
+guitarWidth  = input.int(60, "Guitar Width (bars)", minval=10, maxval=120, group=grpGuitar)
+
+grpCol = "Colors"
+bullCol = input.color(color.rgb(0, 151, 167), "Bull Color", group=grpCol)
+bearCol = input.color(color.rgb(229, 115, 115), "Bear Color", group=grpCol)
+
+f_lighten(color c, float t) =>
+    float cr = color.r(c)
+    float cg = color.g(c)
+    float cb = color.b(c)
+    color.rgb(cr + (255 - cr) * t, cg + (255 - cg) * t, cb + (255 - cb) * t)
+
+color bullOuter = f_lighten(bullCol, 0.45)
+color bearOuter = f_lighten(bearCol, 0.45)
+
+//──────────────────────────────────────────────────────────────────────────────
+// OBV CALCULATION
+//──────────────────────────────────────────────────────────────────────────────
+var float obv = 0.0
+float barDelta = close > close[1] ? volume : close < close[1] ? -volume : 0.0
+obv += barDelta
+
+//──────────────────────────────────────────────────────────────────────────────
+// KALMAN FILTER
+//──────────────────────────────────────────────────────────────────────────────
+kalman_filter(float src, int length, float R, float Q) =>
+    var float est = na
+    var float err = 1.0
+    float meas = R * length
+    if na(est)
+        est := nz(src[1], src)
+    float pred = est
+    float gain = err / (err + meas)
+    est := pred + gain * (src - pred)
+    err := (1.0 - gain) * err + Q / length
+    est
+
+float kfShort = kalman_filter(obv, kfShortLen, kfR, kfQ)
+float kfLong  = kalman_filter(obv, kfLongLen, kfR, kfQ)
+bool  isBull  = kfShort >= kfLong
+
+//──────────────────────────────────────────────────────────────────────────────
+// DISPLAY TRANSFORM — Trend (detrended) or Oscillator (0-100 normalized)
+//──────────────────────────────────────────────────────────────────────────────
+float obvClose = na
+float obvOpen  = na
+float obvHigh  = na
+float obvLow   = na
+float kfShortDet = na
+float kfLongDet  = na
+
+if isTrend
+    // TREND MODE: subtract slow SMA, oscillate around zero
+    float obvMean    = ta.sma(obv, detrendLen)
+    float obvDetC    = obv - obvMean
+    float obvDetP    = (obv - barDelta) - nz(obvMean[1], obvMean)
+    obvClose := obvDetC
+    obvOpen  := obvDetP
+    obvHigh  := math.max(obvOpen, obvClose)
+    obvLow   := math.min(obvOpen, obvClose)
+    kfShortDet := kfShort - obvMean
+    kfLongDet  := kfLong - obvMean
+else
+    // OSCILLATOR MODE: normalize to 0-100, stair-step candles
+    float obvPrev  = obv - barDelta
+    float flowHigh = math.max(obv, obvPrev)
+    float flowLow  = math.min(obv, obvPrev)
+    float hiRange  = ta.highest(flowHigh, detrendLen)
+    float loRange  = ta.lowest(flowLow, detrendLen)
+    float span     = math.max(hiRange - loRange, 1e-10)
+    float rawO     = (obvPrev - loRange) / span * 100.0
+    float rawC     = (obv - loRange) / span * 100.0
+    // Smooth close
+    float smoothC  = rawC
+    if haSmoothing >= 2
+        smoothC := ta.ema(rawC, 3)
+    if haSmoothing >= 3
+        smoothC := ta.ema(smoothC, 3)
+    // Stair-step chain
+    var float prevOscClose = na
+    obvOpen  := na(prevOscClose) ? rawO : prevOscClose
+    obvClose := smoothC
+    prevOscClose := obvClose
+    obvHigh  := math.max(obvOpen, obvClose)
+    obvLow   := math.min(obvOpen, obvClose)
+    // Normalize KF lines to same 0-100 space
+    kfShortDet := (kfShort - loRange) / span * 100.0
+    kfLongDet  := (kfLong - loRange) / span * 100.0
+
+//──────────────────────────────────────────────────────────────────────────────
+// OBV DIRECTIONAL MOVEMENT (price-native DM/TR adapted for OBV)
+//──────────────────────────────────────────────────────────────────────────────
+// OBV gives us per-bar signed volume (barDelta).
+// Split into positive and negative components for DM competition.
+//
+// "Buy volume" = volume on up-close bars (barDelta > 0)
+// "Sell volume" = volume on down-close bars (barDelta < 0, absolute)
+// These map to barBuyVol/barSellVol in the footprint version.
+
+float obvBuyVol  = barDelta > 0 ? barDelta : 0.0
+float obvSellVol = barDelta < 0 ? -barDelta : 0.0
+
+// Expansion: is buying/selling GROWING vs previous bar?
+float buyExpansion  = obvBuyVol - nz(obvBuyVol[1])
+float sellExpansion = obvSellVol - nz(obvSellVol[1])
+
+// Competitive DM — only winner scores
+float plusDM  = buyExpansion > sellExpansion and buyExpansion > 0 ? buyExpansion : 0.0
+float minusDM = sellExpansion > buyExpansion and sellExpansion > 0 ? sellExpansion : 0.0
+
+// True Range analog for OBV
+// high = obvBuyVol (bullish extreme)
+// low = -obvSellVol (bearish extreme, signed)
+// close = barDelta (net settlement)
+float totalVol = obvBuyVol + obvSellVol  // = abs(barDelta) when non-zero, 0 on doji
+float obvTR = math.max(
+     math.max(totalVol, 1.0),
+     math.abs(obvBuyVol - nz(barDelta[1])),
+     math.abs(obvSellVol + nz(barDelta[1]))
+     )
+
+// Volume ATR
+float volATR = ta.rma(obvTR, dxLen)
+
+// DI+, DI-, DX, ADX
+float DIplus  = 100.0 * ta.rma(plusDM, dxLen) / ta.rma(obvTR, dxLen)
+float DIminus = 100.0 * ta.rma(minusDM, dxLen) / ta.rma(obvTR, dxLen)
+float DX = DIplus - DIminus
+float ADXRaw = ta.rma(DX, dxLen)
+float ADX = useEMASmooth ? ta.ema(ADXRaw, dxLen / 2) : ADXRaw
+
+//──────────────────────────────────────────────────────────────────────────────
+// REGIME
+//──────────────────────────────────────────────────────────────────────────────
+string regimeStr = ADX >= 0 ? (ADX > ADX[1] ? "Bull Strong" : "Bull Weak") : (ADX < ADX[1] ? "Bear Strong" : "Bear Weak")
+get_regime_color(float val, float prev) =>
+    if val >= 0
+        val > prev ? color.rgb(0, 128, 128) : color.rgb(144, 238, 144)
+    else
+        val < prev ? color.rgb(255, 100, 100) : color.rgb(255, 150, 150)
+color regimeColor = get_regime_color(ADX, ADX[1])
+
+//──────────────────────────────────────────────────────────────────────────────
+// PLOTS — OBV CANDLES
+//──────────────────────────────────────────────────────────────────────────────
+// Gradient colors for oscillator mode
+colBullStrong = color.rgb(0, 230, 64)
+colNeutral    = color.rgb(255, 230, 0)
+colBearStrong = color.rgb(230, 30, 30)
+
+float midBody = (obvOpen + obvClose) / 2.0
+color gradientCol = midBody >= 50 ?
+     color.from_gradient(midBody, 50, 100, colNeutral, colBullStrong) :
+     color.from_gradient(midBody, 0, 50, colBearStrong, colNeutral)
+
+color candleColor = isTrend ? (obvClose >= obvOpen ? bullCol : bearCol) : gradientCol
+
+plotcandle(
+     showCandles ? obvOpen : na,
+     showCandles ? obvHigh : na,
+     showCandles ? obvLow  : na,
+     showCandles ? obvClose : na,
+     title="OBV Candles",
+     color=candleColor,
+     wickcolor=color.new(candleColor, 40),
+     bordercolor=color.new(candleColor, 20)
+     )
+
+//──────────────────────────────────────────────────────────────────────────────
+// PLOTS — KALMAN RIBBON
+//──────────────────────────────────────────────────────────────────────────────
+color shortCol = kfShortDet > nz(kfShortDet[1]) ? bullCol : bearCol
+color longCol  = isBull ? bullCol : bearCol
+
+pShort = plot(kfShortDet, "Short KF", color=shortCol, linewidth=thinW)
+pLong  = plot(kfLongDet, "Long KF", color=longCol, linewidth=thickW)
+
+float kfMidDet = 0.5 * (kfShortDet + kfLongDet)
+pMid = plot(showRibbon ? kfMidDet : na, "KF Mid", color=color(na), display=display.none)
+
+color innerFill = color.new(isBull ? bullCol : bearCol, ribbonAlpha)
+color outerFill = color.new(isBull ? bullOuter : bearOuter, ribbonAlpha)
+
+fill(pShort, pMid,  color=showRibbon ? innerFill : na, title="Ribbon Inner")
+fill(pMid,  pLong,  color=showRibbon ? outerFill : na, title="Ribbon Outer")
+
+//──────────────────────────────────────────────────────────────────────────────
+// REFERENCE LINES
+//──────────────────────────────────────────────────────────────────────────────
+// Trend mode: zero line. Oscillator mode: 30/50/70 threshold lines with gradient color.
+color lineGrad = isTrend ? color.rgb(156, 163, 175, 50) : color.new(gradientCol, 40)
+plot(isTrend ? 0 : 70, "Upper / Zero", color=lineGrad, style=plot.style_line, linewidth=1)
+plot(isTrend ? na : 50, "Midline", color=isTrend ? na : lineGrad, style=plot.style_line, linewidth=1)
+plot(isTrend ? na : 30, "Lower", color=isTrend ? na : lineGrad, style=plot.style_line, linewidth=1)
+
+//──────────────────────────────────────────────────────────────────────────────
+// GUITAR BODY
+//──────────────────────────────────────────────────────────────────────────────
+var polyline guitarBody = na
+var array<box> neckBoxes = array.new<box>()
+var polyline soundHole  = na
+
+if showGuitar and not isTrend and barstate.islast
+    if not na(guitarBody)
+        polyline.delete(guitarBody)
+    while array.size(neckBoxes) > 0
+        box.delete(array.shift(neckBoxes))
+    if not na(soundHole)
+        polyline.delete(soundHole)
+
+    int le = bar_index + guitarOffset
+    int bLen = guitarWidth
+    float bl = float(bLen)
+    float hw = bl / 2.0
+
+    float ubCx = float(le) + bl * 0.30
+    float lbCx = float(le) + bl * 0.70
+    // Center and scale depend on display mode
+    float cy = isTrend ? 0.0 : 50.0
+
+    float ubRx = bl * 0.30
+    float lbRx = bl * 0.32
+    float ubRy = na
+    float lbRy = na
+    if isTrend
+        float obvRange = ta.highest(obvHigh, 50) - ta.lowest(obvLow, 50)
+        float scaleR   = math.max(obvRange, 1.0)
+        ubRy := scaleR * 1.2
+        lbRy := scaleR * 1.5
+    else
+        ubRy := 57.0
+        lbRy := 72.0
+
+    float yTop = cy + lbRy
+    float yBot = cy - lbRy
+
+    int n = 60
+    // Use gradient color based on regime
+    color gradCol = isBull ? bullCol : bearCol
+    color bodyCol  = color.new(gradCol, 30)
+    color bodyFill = color.new(gradCol, 92)
+
+    pts = array.new<chart.point>()
+
+    for i = 0 to n
+        float y = yTop - float(i) / float(n) * (yTop - yBot)
+        float xRight = -1e10
+        float dy1 = (y - cy) / ubRy
+        if math.abs(dy1) <= 1.0
+            xRight := math.max(xRight, ubCx + ubRx * math.sqrt(1.0 - dy1 * dy1))
+        float dy2 = (y - cy) / lbRy
+        if math.abs(dy2) <= 1.0
+            xRight := math.max(xRight, lbCx + lbRx * math.sqrt(1.0 - dy2 * dy2))
+        if xRight > -1e9
+            array.push(pts, chart.point.from_index(int(math.round(xRight)), y))
+
+    for i = 0 to n
+        float y = yBot + float(i) / float(n) * (yTop - yBot)
+        float xLeft = 1e10
+        float dy1 = (y - cy) / ubRy
+        if math.abs(dy1) <= 1.0
+            xLeft := math.min(xLeft, ubCx - ubRx * math.sqrt(1.0 - dy1 * dy1))
+        float dy2 = (y - cy) / lbRy
+        if math.abs(dy2) <= 1.0
+            xLeft := math.min(xLeft, lbCx - lbRx * math.sqrt(1.0 - dy2 * dy2))
+        if xLeft < 1e9
+            array.push(pts, chart.point.from_index(int(math.round(xLeft)), y))
+
+    guitarBody := polyline.new(pts, closed=true, line_color=color(na), fill_color=bodyFill, line_width=0)
+
+    // Neck — gradient fading
+    int neckLen   = 100
+    int neckLeft  = bar_index - neckLen
+    float neckTop = isTrend ? ubRy * 0.5 : 75.0
+    float neckBot = isTrend ? -ubRy * 0.5 : 25.0
+    int nStrips   = 10
+    int stripW    = neckLen / nStrips
+
+    for s = 0 to nStrips - 1
+        int sLeft  = neckLeft + s * stripW
+        int sRight = sLeft + stripW
+        float frac = float(s) / float(nStrips - 1)
+        int alpha  = int(98.0 - frac * 8.0)
+        color stripCol = color.new(gradCol, alpha)
+        array.push(neckBoxes, box.new(sLeft, neckTop, sRight, neckBot, border_color=color(na), bgcolor=stripCol, border_width=0))
+
+    // Sound hole
+    holePts = array.new<chart.point>()
+    int holeCx = int(math.round(ubCx + (lbCx - ubCx) * 0.35))
+    float holeCy = cy
+    float holeRy = isTrend ? ubRy * 0.2 : 12.0
+    int holeRx = math.max(int(bl * 0.10), 3)
+    for i = 0 to 36
+        float a = 2.0 * math.pi * float(i) / 36.0
+        int hx = holeCx + int(math.round(float(holeRx) * math.cos(a)))
+        float hy = holeCy + holeRy * math.sin(a)
+        array.push(holePts, chart.point.from_index(hx, hy))
+    soundHole := polyline.new(holePts, closed=true, line_color=color(na), fill_color=color.rgb(10, 14, 23), line_width=0)
+
+//──────────────────────────────────────────────────────────────────────────────
+// DASHBOARD
+//──────────────────────────────────────────────────────────────────────────────
+color text_bright = color.rgb(255, 255, 255)
+color text_muted  = color.rgb(156, 163, 175)
+color text_normal = color.rgb(228, 232, 235)
+color panel_bg    = color.rgb(26, 30, 39)
+color bg_dark     = color.rgb(10, 14, 23)
+color border_col  = color.rgb(42, 46, 55)
+
+if showDashboard and barstate.isconfirmed
+    var table dash = table.new(position.top_right, 2, 7, bgcolor=color.new(panel_bg, 30), border_color=border_col, border_width=1)
+    table.merge_cells(dash, 0, 0, 1, 0)
+    table.cell(dash, 0, 0, "RBR: OBV Kalman", text_color=text_bright, text_size=size.small, bgcolor=bg_dark)
+
+    // Regime
+    table.cell(dash, 0, 1, "Regime", text_color=text_muted, text_size=size.small)
+    table.cell(dash, 1, 1, regimeStr, text_color=regimeColor, text_size=size.small)
+
+    // Kalman Direction
+    string kfDir = isBull ? "BULL" : "BEAR"
+    table.cell(dash, 0, 2, "Kalman", text_color=text_muted, text_size=size.small)
+    table.cell(dash, 1, 2, kfDir, text_color=isBull ? bullCol : bearCol, text_size=size.small)
+
+    // OBV vs Short KF
+    string obvPos = obv > kfShort ? "Above Fast" : "Below Fast"
+    table.cell(dash, 0, 3, "OBV Position", text_color=text_muted, text_size=size.small)
+    table.cell(dash, 1, 3, obvPos, text_color=obv > kfShort ? bullCol : bearCol, text_size=size.small)
+
+    // DX
+    table.cell(dash, 0, 4, "DX", text_color=text_muted, text_size=size.small)
+    table.cell(dash, 1, 4, str.tostring(DX, "#.##"), text_color=DX > 0 ? bullCol : bearCol, text_size=size.small)
+
+    // Bar Delta
+    table.cell(dash, 0, 5, "Bar Volume", text_color=text_muted, text_size=size.small)
+    table.cell(dash, 1, 5, (barDelta >= 0 ? "+" : "") + str.tostring(barDelta, format.volume), text_color=barDelta > 0 ? bullCol : bearCol, text_size=size.small)
+
+    // OBV
+    table.cell(dash, 0, 6, "OBV", text_color=text_muted, text_size=size.small)
+    table.cell(dash, 1, 6, str.tostring(obv, format.volume), text_color=obv > nz(obv[1]) ? bullCol : bearCol, text_size=size.small)
+
+//──────────────────────────────────────────────────────────────────────────────
+// DATA WINDOW EXPORTS
+//──────────────────────────────────────────────────────────────────────────────
+plot(DX, "DX", color=na, display=display.data_window)
+plot(ADX, "ADX", color=na, display=display.data_window)
+plot(obv, "OBV", color=na, display=display.data_window)
+plot(kfShort, "KF Short", color=na, display=display.data_window)
+plot(kfLong, "KF Long", color=na, display=display.data_window)
+plot(barDelta, "Bar Delta", color=na, display=display.data_window)
+plot(DIplus, "DI+", color=na, display=display.data_window)
+plot(DIminus, "DI-", color=na, display=display.data_window)
+plot(volATR, "Vol ATR", color=na, display=display.data_window)

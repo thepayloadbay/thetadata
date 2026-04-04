@@ -1,0 +1,102 @@
+//@version=5
+strategy(title="HTF Candle Direction Strategy V1",overlay=true,pyramiding=0,initial_capital=10000)
+
+//====================================================================
+// 🔹 DESCRIPTION
+// This strategy trades based on Higher Timeframe (HTF) candle direction.
+// - Takes trades aligned with HTF bullish/bearish bias
+// - Optional EMA & Volume filters for improved accuracy
+// - One trade per day (controlled execution)
+// - Lookahead option available (for testing vs real conditions)
+//====================================================================
+
+
+//------------- INPUTS --------------------------------------//
+period = input.timeframe("720", title="Higher Timeframe")
+
+enableSignalsInput = input.bool(true,  title="Enable Signal Generation")
+enableBuy          = input.bool(true,  title="Enable BUY Signals")
+enableSell         = input.bool(true,  title="Enable SELL Signals")
+
+// Lookahead Control (⚠️ Repainting when ON)
+useLookahead = input.bool(true, title="Enable Lookahead (Repainting)")
+lookaheadSetting = useLookahead ? barmerge.lookahead_on : barmerge.lookahead_off
+
+//------------- FILTERS -------------------------------------//
+useEMAFilter = input.bool(true, title="Enable EMA Filter")
+emaLength    = input.int(50, title="EMA Length")
+
+useVolFilter = input.bool(false, title="Enable Volume Filter")
+volMultiplier = input.float(1.0, title="Volume Multiplier")
+
+//------------- DAILY CONTROL -------------------------------//
+isNewDay = ta.change(time("D"))
+
+var bool signalActive = false
+if (isNewDay)
+    signalActive := false
+
+//------------- HTF DATA ------------------------------------//
+closeData = request.security(syminfo.tickerid, period, close, lookahead=lookaheadSetting)
+openData  = request.security(syminfo.tickerid, period, open,  lookahead=lookaheadSetting)
+
+longCondition  = closeData > openData
+shortCondition = closeData < openData
+
+//------------- FILTER LOGIC --------------------------------//
+emaValue = ta.ema(close, emaLength)
+volAvg   = ta.sma(volume, 20)
+
+emaLong  = close > emaValue
+emaShort = close < emaValue
+
+volOk = volume > volAvg * volMultiplier
+
+filterLong  = (not useEMAFilter or emaLong) and (not useVolFilter or volOk)
+filterShort = (not useEMAFilter or emaShort) and (not useVolFilter or volOk)
+
+//------------- ENTRY CONDITIONS ----------------------------//
+enterLong  = enableSignalsInput and enableBuy  and longCondition  and filterLong  and not signalActive and barstate.isconfirmed
+enterShort = enableSignalsInput and enableSell and shortCondition and filterShort and not signalActive and barstate.isconfirmed
+
+if (enterLong)
+    strategy.entry("BUY", strategy.long)
+    signalActive := true
+
+if (enterShort)
+    strategy.entry("SELL", strategy.short)
+    signalActive := true
+
+//------------- ALERTS --------------------------------------//
+alertcondition(enterLong, title="BUY Signal", message="BUY Signal - HTF Strategy")
+alertcondition(enterShort, title="SELL Signal", message="SELL Signal - HTF Strategy")
+
+//------------- DASHBOARD -----------------------------------//
+var table dashboard = table.new(position.top_right, 2, 5, border_width=1)
+
+htfBias   = longCondition ? "BULLISH" : shortCondition ? "BEARISH" : "NEUTRAL"
+biasColor = longCondition ? color.green : shortCondition ? color.red : color.gray
+
+lookText  = useLookahead ? "ON" : "OFF"
+lookColor = useLookahead ? color.orange : color.green
+
+emaText   = useEMAFilter ? "ON" : "OFF"
+volText   = useVolFilter ? "ON" : "OFF"
+
+// Update only on last bar (performance safe)
+if (barstate.islastconfirmedhistory or barstate.islast)
+
+    table.cell(dashboard, 0, 0, "HTF STRATEGY", text_color=color.white, bgcolor=color.black)
+    table.cell(dashboard, 1, 0, "STATUS", text_color=color.white, bgcolor=color.black)
+
+    table.cell(dashboard, 0, 1, "HTF Bias", text_color=color.white)
+    table.cell(dashboard, 1, 1, htfBias, text_color=color.white, bgcolor=biasColor)
+
+    table.cell(dashboard, 0, 2, "Lookahead", text_color=color.white)
+    table.cell(dashboard, 1, 2, lookText, text_color=color.white, bgcolor=lookColor)
+
+    table.cell(dashboard, 0, 3, "EMA Filter", text_color=color.white)
+    table.cell(dashboard, 1, 3, emaText, text_color=color.white, bgcolor=color.blue)
+
+    table.cell(dashboard, 0, 4, "Volume Filter", text_color=color.white)
+    table.cell(dashboard, 1, 4, volText, text_color=color.white, bgcolor=color.purple)

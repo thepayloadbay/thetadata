@@ -1,0 +1,109 @@
+// © FriendOfTheTrend
+
+//@version=5
+indicator('VIX Volatility Trend Analysis Cloud With Bullish & Bearish Signals - Stocks Only', shorttitle="VIX Trend Analysis", overlay=false)
+
+//Moving Average Type Input
+ema = "EMA"
+sma = "SMA"
+hma = "HMA"
+vwma = "VWMA"
+wma = "WMA"
+rma = "RMA"
+symbol = input.symbol("VIX", title="Choose Source Symbol")
+maChoice = input.string("RMA", title="Type of MA To Use", options=[ema, sma, hma, vwma, wma, rma])
+
+//VIX Data
+vixData = request.security(symbol, "", close, gaps=barmerge.gaps_on)
+vixMaLength = input.int(10, title="Moving Average", minval=1, tooltip="Try using higher values for longer swings and overall trend. Some of our favorites are 10, 20, 60, 100, 500 and 1000.")
+smoothVix = input.int(3, "Smoothing", minval=1)
+vixSmoothed = ta.rma(vixData, smoothVix)
+vixMa = ta.rma(vixData, vixMaLength)
+
+
+if maChoice == ema
+    vixMa := ta.ema(vixData, vixMaLength)
+    vixSmoothed := ta.ema(vixData, smoothVix)
+    
+if maChoice == sma
+    vixMa := ta.sma(vixData, vixMaLength)
+    vixSmoothed := ta.sma(vixData, smoothVix)
+    
+if maChoice == hma
+    vixMa := ta.hma(vixData, vixMaLength)
+    vixSmoothed := ta.hma(vixData, smoothVix)
+    
+if maChoice == wma
+    vixMa := ta.wma(vixData, vixMaLength)
+    vixSmoothed := ta.wma(vixData, smoothVix)
+    
+if maChoice == vwma
+    vixMa := ta.vwma(vixData, vixMaLength)
+    vixSmoothed := ta.vwma(vixData, smoothVix)
+    
+if maChoice == rma
+    vixMa := ta.rma(vixData, vixMaLength)
+    vixSmoothed := ta.rma(vixData, smoothVix)
+
+//Plot Vix Data For Fills
+vixLine = plot(vixSmoothed, title="VIX Smoothed", color=#FFFFFF00, linewidth=1, style=plot.style_line)
+movingAvg = plot(vixMa, title="VIX HMA", color=#FFFFFF00, linewidth=1, style=plot.style_line)
+
+//Color Variables
+green = color.green
+red = color.red
+
+//Signals
+bool vixBullish = ta.crossunder(vixSmoothed, vixMa)
+bool vixBearish = ta.crossover(vixSmoothed, vixMa)
+
+//Alerts
+if vixBullish
+    alert("VIX Turning Bullish", alert.freq_once_per_bar)
+if vixBearish
+    alert("VIX Turning Bearish", alert.freq_once_per_bar)
+
+//Reverse Signals On Inverse ETFs
+inverseVixData = if (syminfo.ticker == "SQQQ") or (syminfo.ticker == "SH") or (syminfo.ticker == "PSQ") or (syminfo.ticker == "SDS") or (syminfo.ticker == "SPXU")
+                     or (syminfo.ticker == "TZA") or (syminfo.ticker == "SPXS") or (syminfo.ticker == "SDOW") or (syminfo.ticker == "QID") or (syminfo.ticker == "DOG")
+                      or (syminfo.ticker == "RWM") or (syminfo.ticker == "SPDN") or (syminfo.ticker == "SRTY") or (syminfo.ticker == "SOXS") or (syminfo.ticker == "CHAD")
+                       or (syminfo.ticker == "FAZ") or (syminfo.ticker == "DXD") or (syminfo.ticker == "FNGD") or (syminfo.ticker == "TECS") or (syminfo.ticker == "TWM")
+    vixBearish := ta.crossunder(vixData, vixMa)
+    vixBullish := ta.crossover(vixData, vixMa)
+    green := color.red
+    red := color.lime
+    
+inverseVixData2 = if (syminfo.ticker == "HDGE") or (syminfo.ticker == "DRIP") or (syminfo.ticker == "JDST") or (syminfo.ticker == "DUST") or (syminfo.ticker == "LABD")
+                     or (syminfo.ticker == "YANG") or (syminfo.ticker == "NRGD") or (syminfo.ticker == "HIBS") or (syminfo.ticker == "DWSH") or (syminfo.ticker == "EDZ")
+                      or (syminfo.ticker == "ERY") or (syminfo.ticker == "EUM") or (syminfo.ticker == "FXP") or (syminfo.ticker == "GDXD") or (syminfo.ticker == "CLDS")
+                       or (syminfo.ticker == "BZQ") or (syminfo.ticker == "DUG") or (syminfo.ticker == "WEBS") or (syminfo.ticker == "SKF") or (syminfo.ticker == "YXI")
+    vixBearish := ta.crossunder(vixData, vixMa)
+    vixBullish := ta.crossover(vixData, vixMa)
+    green := color.red
+    red := color.lime
+    
+inverseVixData3 = if (syminfo.ticker == "MYY") or (syminfo.ticker == "EFZ") or (syminfo.ticker == "BIS") or (syminfo.ticker == "EPV") or (syminfo.ticker == "SEF")
+                     or (syminfo.ticker == "EEV") or (syminfo.ticker == "REW") or (syminfo.ticker == "EMTY") or (syminfo.ticker == "SMDD") or (syminfo.ticker == "BNKD")
+                      or (syminfo.ticker == "SBB") or (syminfo.ticker == "EWV") or (syminfo.ticker == "SSG") or (syminfo.ticker == "SDD") or (syminfo.ticker == "DDG")
+                       or (syminfo.ticker == "SBM") or (syminfo.ticker == "MZZ") or (syminfo.ticker == "RXD") or (syminfo.ticker == "SIJ") or (syminfo.ticker == "SMN")
+    vixBearish := ta.crossunder(vixData, vixMa)
+    vixBullish := ta.crossover(vixData, vixMa)
+    green := color.red
+    red := color.lime
+
+inverseVixData4 = if (syminfo.ticker == "SDP") or (syminfo.ticker == "EFU") or (syminfo.ticker == "SZK") or (syminfo.ticker == "SCC") or (syminfo.ticker == "SINV")
+                     or (syminfo.ticker == "VIX") or (syminfo.ticker == "VXX")
+    vixBearish := ta.crossunder(vixData, vixMa)
+    vixBullish := ta.crossover(vixData, vixMa)
+    green := color.red
+    red := color.lime
+    
+//Gap Fills
+fill(vixLine, movingAvg, color = vixMa > vixSmoothed ? green : red, title="Short Term Trend Color Fill", fillgaps=true)
+    
+//Crossover Lines
+bgcolor(vixBullish ? green : na, title="BULL Cross")
+bgcolor(vixBearish ? red : na, title="BEAR Cross")
+
+//Base Level Line
+baseLevel = plot(20, title="Volatility Base Line", color=color.aqua, linewidth=2)

@@ -1,0 +1,35 @@
+// This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License https://creativecommons.org/licenses/by-sa/4.0/
+// © dman103
+// What is the VIX?
+// The CBOE S&P 500 Volatility Index (VIX) is known as the 'Fear Index' which can  measure how worried traders are that the S&P 500 might suddenly drop within the next 30 days.
+// When the VIX starts moving higher, it is telling you that traders are getting nervous. When the VIX starts moving lower, it is telling you that traders are gaining confidence.
+
+// VIX calculation:
+// The Chicago Board of Options Exchange Market Volatility Index (VIX) is a measure of implied volatility (Of the S&P 500 securities options), based on the prices of a basket of S&P 500 Index options with 30 days to expiration.
+
+// Follow for updates and new scripts: https://www.tradingview.com/u/dman103
+
+//@version=4
+study("VIX MTF Momentum")
+ 
+len = input(title="Length", defval=7)
+mtf_vix = input(title="Resolution", type=input.resolution, defval="")
+show_highlow_lines = input (title="High/Low lines",defval=true)
+high_Lookback = input(title="High LookBack",defval=25)
+low_Lookback = input(title="Low LookBack",defval=25)
+symbol = input(title="Symbol",defval="CBOE:VIX")
+t = tickerid("CBOE", "VIX", session.extended)
+vix =  security(t ,mtf_vix, close)
+vix_momentum=mom(vix, len)
+zeroLine = plot(0,color= color.new(color.fuchsia,50),title = "middle line")
+plot(series=vix_momentum, title="Vix Momentum",
+     color=vix_momentum > 0 ? color.maroon : color.teal,
+     linewidth=4, style=plot.style_columns)
+
+rangeHigh = (highest(vix_momentum, high_Lookback))
+rangeLow = (lowest(vix_momentum, low_Lookback))  
+plot(show_highlow_lines and rangeHigh ? rangeHigh  : na, title="Highest High", style=plot.style_line, linewidth=1, color=color.new(color.orange,50))
+plot(show_highlow_lines and rangeLow ? rangeLow : na, title="Lowest Low", style=plot.style_line, linewidth=1, color=color.new(color.orange,50))
+
+plotshape(rangeHigh==vix_momentum ? rangeHigh : na,style=shape.arrowdown,location= location.absolute,size=size.auto,color=color.red )
+plotshape(rangeLow==vix_momentum ? rangeLow : na,style=shape.arrowup,location= location.absolute,size=size.auto,color=color.green )

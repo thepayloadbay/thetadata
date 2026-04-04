@@ -1,0 +1,312 @@
+// This Pine Script® code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © officialjackofalltrades
+//@version=6
+indicator("Smart Money Structure Decoder [JOAT]", "SMS [JOAT]", overlay=true, max_lines_count=500, max_labels_count=100, max_boxes_count=50)
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// INSTITUTIONAL-GRADE SMART MONEY STRUCTURE DECODER
+// Clean, Precise, No Overlapping - Professional Quality
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// PROFESSIONAL COLOR PALETTE
+color BULL_PRIMARY = #00D9FF
+color BEAR_PRIMARY = #FF0080
+color STRUCTURE_BREAK = #FFD700
+color LIQUIDITY_SWEEP = #FF6B35
+color IMBALANCE_ZONE = #9D4EDD
+
+// CORE INPUTS
+pivotLength = input.int(10, "Pivot Length", minval=5, maxval=30, group="Core")
+atrLength = input.int(14, "ATR Length", minval=10, maxval=30, group="Core")
+volumeMultiplier = input.float(1.8, "Volume Spike Threshold", minval=1.2, maxval=3.0, step=0.1, group="Core")
+
+// FEATURE TOGGLES
+showStructure = input.bool(true, "Market Structure (BOS/CHoCH)", group="Features")
+showLiquidity = input.bool(true, "Liquidity Sweeps", group="Features")
+showImbalance = input.bool(true, "Price Imbalances", group="Features")
+showPOI = input.bool(true, "Points of Interest", group="Features")
+showMTF = input.bool(true, "Multi-Timeframe Bias", group="Features")
+
+htfTimeframe = input.timeframe("60", "Higher Timeframe", group="MTF")
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CALCULATIONS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// ATR & VOLUME
+atr = ta.atr(atrLength)
+avgVol = ta.sma(volume, 20)
+volSpike = volume > avgVol * volumeMultiplier
+
+// PIVOT DETECTION
+pivotHigh = ta.pivothigh(high, pivotLength, pivotLength)
+pivotLow = ta.pivotlow(low, pivotLength, pivotLength)
+
+// STRUCTURE TRACKING
+var int trend = 0
+var float lastHigh = na
+var float lastLow = na
+var int lastHighBar = na
+var int lastLowBar = na
+var int bosCount = 0
+var int chochCount = 0
+var int sweepCount = 0
+var int imbalanceCount = 0
+var int poiCount = 0
+
+// BOS/CHoCH DETECTION
+var bool bosSignal = false
+var bool chochSignal = false
+
+bosSignal := false
+chochSignal := false
+
+if not na(pivotHigh)
+    if not na(lastHigh)
+        if trend == 1 and pivotHigh > lastHigh
+            bosSignal := true
+            bosCount += 1
+        else if trend == -1 and pivotHigh > lastHigh
+            chochSignal := true
+            chochCount += 1
+            trend := 1
+    lastHigh := pivotHigh
+    lastHighBar := bar_index - pivotLength
+
+if not na(pivotLow)
+    if not na(lastLow)
+        if trend == -1 and pivotLow < lastLow
+            bosSignal := true
+            bosCount += 1
+        else if trend == 1 and pivotLow < lastLow
+            chochSignal := true
+            chochCount += 1
+            trend := -1
+    lastLow := pivotLow
+    lastLowBar := bar_index - pivotLength
+
+// LIQUIDITY SWEEP DETECTION
+var array<float> liqLevels = array.new<float>()
+var array<int> liqBars = array.new<int>()
+var bool sweepDetected = false
+
+sweepDetected := false
+
+if not na(pivotHigh)
+    liqLevels.push(pivotHigh)
+    liqBars.push(lastHighBar)
+    if liqLevels.size() > 10
+        liqLevels.shift()
+        liqBars.shift()
+
+if not na(pivotLow)
+    liqLevels.push(pivotLow)
+    liqBars.push(lastLowBar)
+    if liqLevels.size() > 10
+        liqLevels.shift()
+        liqBars.shift()
+
+// Check for sweeps
+if showLiquidity and liqLevels.size() > 0
+    for i = 0 to liqLevels.size() - 1
+        level = liqLevels.get(i)
+        levelBar = liqBars.get(i)
+        if bar_index - levelBar > pivotLength and bar_index - levelBar < 100
+            if high > level and close < level and volSpike
+                sweepDetected := true
+                sweepCount += 1
+                line.new(levelBar, level, bar_index, level, color=LIQUIDITY_SWEEP, width=2, style=line.style_dashed)
+                label.new(bar_index, high, "SWEEP", color=LIQUIDITY_SWEEP, style=label.style_label_down, 
+                         size=size.small, textcolor=color.white)
+                liqLevels.remove(i)
+                liqBars.remove(i)
+                break
+            else if low < level and close > level and volSpike
+                sweepDetected := true
+                sweepCount += 1
+                line.new(levelBar, level, bar_index, level, color=LIQUIDITY_SWEEP, width=2, style=line.style_dashed)
+                label.new(bar_index, low, "SWEEP", color=LIQUIDITY_SWEEP, style=label.style_label_up, 
+                         size=size.small, textcolor=color.white)
+                liqLevels.remove(i)
+                liqBars.remove(i)
+                break
+
+// IMBALANCE DETECTION (True institutional concept)
+imbalanceUp = low > high[2] and (low - high[2]) > atr * 0.3
+imbalanceDown = high < low[2] and (low[2] - high) > atr * 0.3
+
+if showImbalance and imbalanceUp
+    imbalanceCount += 1
+    box.new(bar_index - 2, high[2], bar_index + 10, low, 
+            border_color=color.new(IMBALANCE_ZONE, 30), 
+            bgcolor=color.new(IMBALANCE_ZONE, 90), 
+            border_width=1)
+
+if showImbalance and imbalanceDown
+    imbalanceCount += 1
+    box.new(bar_index - 2, high, bar_index + 10, low[2], 
+            border_color=color.new(IMBALANCE_ZONE, 30), 
+            bgcolor=color.new(IMBALANCE_ZONE, 90), 
+            border_width=1)
+
+// POINT OF INTEREST (High volume reversal zones)
+poi = volSpike and math.abs(close - open) > atr * 0.5
+
+if showPOI and poi
+    poiCount += 1
+    poiColor = close > open ? BULL_PRIMARY : BEAR_PRIMARY
+    label.new(bar_index, close > open ? low : high, "POI", 
+             color=color.new(poiColor, 20), 
+             style=close > open ? label.style_label_up : label.style_label_down,
+             size=size.tiny, textcolor=color.white)
+
+// MTF BIAS
+htfClose = request.security(syminfo.tickerid, htfTimeframe, close, lookahead=barmerge.lookahead_off)
+htfTrend = htfClose > htfClose[1] ? 1 : -1
+mtfAligned = math.sign(trend) == math.sign(htfTrend)
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// PLOTTING
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// STRUCTURE SIGNALS
+plotshape(showStructure and bosSignal and trend == 1, "BOS Bull", shape.triangleup, 
+          location.belowbar, BULL_PRIMARY, size=size.small, text="BOS")
+plotshape(showStructure and bosSignal and trend == -1, "BOS Bear", shape.triangledown, 
+          location.abovebar, BEAR_PRIMARY, size=size.small, text="BOS")
+
+plotshape(showStructure and chochSignal and trend == 1, "CHoCH Bull", shape.circle, 
+          location.belowbar, STRUCTURE_BREAK, size=size.tiny, text="CHoCH")
+plotshape(showStructure and chochSignal and trend == -1, "CHoCH Bear", shape.circle, 
+          location.abovebar, STRUCTURE_BREAK, size=size.tiny, text="CHoCH")
+
+// SWING STRUCTURE LINES
+if showStructure and not na(pivotHigh) and not na(lastLow)
+    line.new(lastLowBar, lastLow, lastHighBar, lastHigh, 
+            color=trend == 1 ? BULL_PRIMARY : color.gray, width=1)
+
+if showStructure and not na(pivotLow) and not na(lastHigh)
+    line.new(lastHighBar, lastHigh, lastLowBar, lastLow, 
+            color=trend == -1 ? BEAR_PRIMARY : color.gray, width=1)
+
+// BACKGROUND
+trendBg = trend == 1 ? color.new(BULL_PRIMARY, 98) : trend == -1 ? color.new(BEAR_PRIMARY, 98) : na
+bgcolor(trendBg)
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ENHANCED DASHBOARD WITH COMPREHENSIVE DATA
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// Calculate additional metrics
+volRatio = volume / avgVol
+priceChange = ta.change(close)
+priceChangePercent = (priceChange / close[1]) * 100
+momentum = ta.rsi(close, 14)
+volatility = atr / close * 100
+
+// Active liquidity levels
+activeLiq = liqLevels.size()
+
+// Price position analysis
+rangeHigh = ta.highest(high, 50)
+rangeLow = ta.lowest(low, 50)
+rangeMid = (rangeHigh + rangeLow) / 2
+pricePosition = close > rangeMid ? "PREMIUM" : close < rangeMid ? "DISCOUNT" : "EQUILIBRIUM"
+
+var table dash = table.new(position.top_right, 3, 13, 
+    border_width=2, border_color=color.new(BULL_PRIMARY, 0), 
+    frame_width=2, frame_color=color.new(BEAR_PRIMARY, 0))
+
+if barstate.islast
+    // ═══ HEADER ═══
+    table.cell(dash, 0, 0, "[JOAT]", bgcolor=#0A0E27, text_color=BULL_PRIMARY, text_size=size.normal, text_halign=text.align_center)
+    table.cell(dash, 1, 0, "SMS", bgcolor=#0A0E27, text_color=STRUCTURE_BREAK, text_size=size.normal, text_halign=text.align_center)
+    table.cell(dash, 2, 0, "DECODER", bgcolor=#0A0E27, text_color=BEAR_PRIMARY, text_size=size.normal, text_halign=text.align_center)
+    
+    // ═══ MARKET TREND ═══
+    trendText = trend == 1 ? "BULLISH" : trend == -1 ? "BEARISH" : "NEUTRAL"
+    trendCol = trend == 1 ? BULL_PRIMARY : trend == -1 ? BEAR_PRIMARY : color.gray
+    trendStrength = trend == 1 ? "UP" : trend == -1 ? "DOWN" : "FLAT"
+    table.cell(dash, 0, 1, "TREND", bgcolor=#1A1A1A, text_color=#FFFFFF, text_size=size.tiny)
+    table.cell(dash, 1, 1, trendText, bgcolor=#1A1A1A, text_color=trendCol, text_size=size.tiny)
+    table.cell(dash, 2, 1, trendStrength, bgcolor=#1A1A1A, text_color=trendCol, text_size=size.tiny)
+    
+    // ═══ STRUCTURE EVENTS ═══
+    structText = bosSignal ? "BOS" : chochSignal ? "CHoCH" : "NONE"
+    structCol = bosSignal ? BULL_PRIMARY : chochSignal ? STRUCTURE_BREAK : color.gray
+    table.cell(dash, 0, 2, "STRUCTURE", bgcolor=#0A0A0A, text_color=#FFFFFF, text_size=size.tiny)
+    table.cell(dash, 1, 2, structText, bgcolor=#0A0A0A, text_color=structCol, text_size=size.tiny)
+    table.cell(dash, 2, 2, str.tostring(bosCount + chochCount), bgcolor=#0A0A0A, text_color=structCol, text_size=size.tiny)
+    
+    // ═══ BOS COUNT ═══
+    table.cell(dash, 0, 3, "BOS", bgcolor=#1A1A1A, text_color=#FFFFFF, text_size=size.tiny)
+    table.cell(dash, 1, 3, str.tostring(bosCount), bgcolor=#1A1A1A, text_color=BULL_PRIMARY, text_size=size.tiny)
+    bosStatus = bosCount > 5 ? "HIGH" : bosCount > 2 ? "ACTIVE" : "LOW"
+    table.cell(dash, 2, 3, bosStatus, bgcolor=#1A1A1A, text_color=BULL_PRIMARY, text_size=size.tiny)
+    
+    // ═══ CHoCH COUNT ═══
+    table.cell(dash, 0, 4, "CHoCH", bgcolor=#0A0A0A, text_color=#FFFFFF, text_size=size.tiny)
+    table.cell(dash, 1, 4, str.tostring(chochCount), bgcolor=#0A0A0A, text_color=STRUCTURE_BREAK, text_size=size.tiny)
+    chochStatus = chochCount > 3 ? "CHOPPY" : chochCount > 1 ? "ACTIVE" : "CLEAN"
+    table.cell(dash, 2, 4, chochStatus, bgcolor=#0A0A0A, text_color=STRUCTURE_BREAK, text_size=size.tiny)
+    
+    // ═══ LIQUIDITY ═══
+    table.cell(dash, 0, 5, "LIQUIDITY", bgcolor=#1A1A1A, text_color=#FFFFFF, text_size=size.tiny)
+    table.cell(dash, 1, 5, str.tostring(activeLiq), bgcolor=#1A1A1A, text_color=LIQUIDITY_SWEEP, text_size=size.tiny)
+    liqStatus = sweepDetected ? "SWEPT" : activeLiq > 5 ? "DENSE" : "NORMAL"
+    table.cell(dash, 2, 5, liqStatus, bgcolor=#1A1A1A, text_color=LIQUIDITY_SWEEP, text_size=size.tiny)
+    
+    // ═══ SWEEPS ═══
+    table.cell(dash, 0, 6, "SWEEPS", bgcolor=#0A0A0A, text_color=#FFFFFF, text_size=size.tiny)
+    table.cell(dash, 1, 6, str.tostring(sweepCount), bgcolor=#0A0A0A, text_color=LIQUIDITY_SWEEP, text_size=size.tiny)
+    sweepStatus = sweepCount > 5 ? "ACTIVE" : sweepCount > 0 ? "SOME" : "NONE"
+    table.cell(dash, 2, 6, sweepStatus, bgcolor=#0A0A0A, text_color=LIQUIDITY_SWEEP, text_size=size.tiny)
+    
+    // ═══ IMBALANCES ═══
+    table.cell(dash, 0, 7, "IMBALANCE", bgcolor=#1A1A1A, text_color=#FFFFFF, text_size=size.tiny)
+    table.cell(dash, 1, 7, str.tostring(imbalanceCount), bgcolor=#1A1A1A, text_color=IMBALANCE_ZONE, text_size=size.tiny)
+    imbStatus = imbalanceCount > 10 ? "HIGH" : imbalanceCount > 3 ? "ACTIVE" : "LOW"
+    table.cell(dash, 2, 7, imbStatus, bgcolor=#1A1A1A, text_color=IMBALANCE_ZONE, text_size=size.tiny)
+    
+    // ═══ POINTS OF INTEREST ═══
+    table.cell(dash, 0, 8, "POI", bgcolor=#0A0A0A, text_color=#FFFFFF, text_size=size.tiny)
+    table.cell(dash, 1, 8, str.tostring(poiCount), bgcolor=#0A0A0A, text_color=BULL_PRIMARY, text_size=size.tiny)
+    poiStatus = poi ? "ACTIVE" : poiCount > 5 ? "MANY" : "FEW"
+    table.cell(dash, 2, 8, poiStatus, bgcolor=#0A0A0A, text_color=BULL_PRIMARY, text_size=size.tiny)
+    
+    // ═══ VOLUME ANALYSIS ═══
+    volText = volSpike ? "SPIKE" : volRatio > 1.2 ? "HIGH" : "NORMAL"
+    volCol = volSpike ? LIQUIDITY_SWEEP : volRatio > 1.2 ? BULL_PRIMARY : color.gray
+    table.cell(dash, 0, 9, "VOLUME", bgcolor=#1A1A1A, text_color=#FFFFFF, text_size=size.tiny)
+    table.cell(dash, 1, 9, volText, bgcolor=#1A1A1A, text_color=volCol, text_size=size.tiny)
+    table.cell(dash, 2, 9, str.tostring(math.round(volRatio, 1)) + "x", bgcolor=#1A1A1A, text_color=volCol, text_size=size.tiny)
+    
+    // ═══ PRICE POSITION ═══
+    posCol = pricePosition == "PREMIUM" ? BEAR_PRIMARY : pricePosition == "DISCOUNT" ? BULL_PRIMARY : color.gray
+    posBias = pricePosition == "PREMIUM" ? "SELL" : pricePosition == "DISCOUNT" ? "BUY" : "WAIT"
+    table.cell(dash, 0, 10, "POSITION", bgcolor=#0A0A0A, text_color=#FFFFFF, text_size=size.tiny)
+    table.cell(dash, 1, 10, pricePosition, bgcolor=#0A0A0A, text_color=posCol, text_size=size.tiny)
+    table.cell(dash, 2, 10, posBias, bgcolor=#0A0A0A, text_color=posCol, text_size=size.tiny)
+    
+    // ═══ MOMENTUM ═══
+    momText = momentum > 70 ? "OVERBOUGHT" : momentum < 30 ? "OVERSOLD" : "NEUTRAL"
+    momCol = momentum > 70 ? BEAR_PRIMARY : momentum < 30 ? BULL_PRIMARY : color.gray
+    table.cell(dash, 0, 11, "MOMENTUM", bgcolor=#1A1A1A, text_color=#FFFFFF, text_size=size.tiny)
+    table.cell(dash, 1, 11, momText, bgcolor=#1A1A1A, text_color=momCol, text_size=size.tiny)
+    table.cell(dash, 2, 11, str.tostring(math.round(momentum)), bgcolor=#1A1A1A, text_color=momCol, text_size=size.tiny)
+    
+    // ═══ MTF ALIGNMENT ═══
+    if showMTF
+        mtfText = mtfAligned ? "ALIGNED" : "DIVERGENT"
+        mtfCol = mtfAligned ? BULL_PRIMARY : BEAR_PRIMARY
+        mtfStatus = mtfAligned ? "STRONG" : "WEAK"
+        table.cell(dash, 0, 12, "MTF", bgcolor=#0A0A0A, text_color=#FFFFFF, text_size=size.tiny)
+        table.cell(dash, 1, 12, mtfText, bgcolor=#0A0A0A, text_color=mtfCol, text_size=size.tiny)
+        table.cell(dash, 2, 12, mtfStatus, bgcolor=#0A0A0A, text_color=mtfCol, text_size=size.tiny)
+
+// ALERTS
+alertcondition(bosSignal, "BOS", "SMS: Break of Structure")
+alertcondition(chochSignal, "CHoCH", "SMS: Change of Character")
+alertcondition(sweepDetected, "Liquidity Sweep", "SMS: Liquidity Sweep")
+alertcondition(imbalanceUp or imbalanceDown, "Imbalance", "SMS: Price Imbalance")
+alertcondition(poi, "POI", "SMS: Point of Interest")

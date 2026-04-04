@@ -1,0 +1,370 @@
+// This Pine Script® code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © TheRealDrip2Rip
+
+//@version=5
+indicator(
+     title      = "Ultimate Trader's Toolbox - Top 20",
+     shorttitle = "Toolbox 20",
+     overlay    = true,
+     max_lines_count  = 500,
+     max_labels_count = 500,
+     max_boxes_count  = 500
+     )
+
+// ==============================================================================
+// GLOBAL COLOR PALETTE
+// ==============================================================================
+C_BLUE   = #2196F3
+C_CYAN   = #00BCD4
+C_GREEN  = #4CAF50
+C_RED    = #F44336
+C_ORANGE = #FF9800
+C_PURPLE = #9C27B0
+C_YELLOW = #FFC107
+C_GRAY   = #607D8B
+C_TEAL   = #009688
+C_PINK   = #E91E63
+C_INDIGO = #3F51B5
+C_LIME   = #8BC34A
+C_AMBER  = #FFB300
+
+// ==============================================================================
+// SECTION 1 - TREND INDICATORS
+// ==============================================================================
+
+// 01 - EMA RIBBON
+show_ema = input.bool(false, "01 EMA Ribbon (20 / 50 / 200)",
+     group   = "Trend Indicators",
+     tooltip = "Three key exponential moving averages. EMA20=short-term, EMA50=medium-term, EMA200=long-term. Price above all three = strong uptrend bias. Golden cross (EMA50 crossing above EMA200) is a major bullish signal.")
+ema_src = input.source(close, "Source", group = "Trend Indicators")
+
+ema20  = ta.ema(ema_src, 20)
+ema50  = ta.ema(ema_src, 50)
+ema200 = ta.ema(ema_src, 200)
+
+plot(show_ema ? ema20  : na, "EMA 20",  color = C_CYAN,   linewidth = 1)
+plot(show_ema ? ema50  : na, "EMA 50",  color = C_BLUE,   linewidth = 1)
+plot(show_ema ? ema200 : na, "EMA 200", color = C_ORANGE, linewidth = 2)
+
+// 02 - HMA
+show_hma = input.bool(false, "02 Hull Moving Average (HMA)",
+     group   = "Trend Indicators",
+     tooltip = "Dramatically reduces lag vs standard MAs while staying smooth. Color shifts green to red on bearish turns. Best used as a dynamic trailing support/resistance and trend direction filter.")
+hma_len = input.int(20, "Length", minval = 2, group = "Trend Indicators")
+hma_src = input.source(close, "Source", group = "Trend Indicators")
+
+hma_half   = ta.wma(hma_src, math.round(hma_len / 2))
+hma_full   = ta.wma(hma_src, hma_len)
+hma_val    = ta.wma(2 * hma_half - hma_full, math.round(math.sqrt(hma_len)))
+hma_color  = hma_val > hma_val[1] ? C_GREEN : C_RED
+
+plot(show_hma ? hma_val : na, "HMA", color = hma_color, linewidth = 2)
+
+// 03 - SUPERTREND
+show_st = input.bool(false, "03 Supertrend",
+     group   = "Trend Indicators",
+     tooltip = "ATR-based trailing stop. Green line = long mode; Red line = short mode. Flip = trend reversal signal.")
+st_factor  = input.float(3.0, "Factor", step = 0.1, minval = 0.1, group = "Trend Indicators")
+st_atr_len = input.int(10, "ATR Length", minval = 1, group = "Trend Indicators")
+
+[st_val, st_dir] = ta.supertrend(st_factor, st_atr_len)
+
+plot(show_st ? (st_dir < 0  ? st_val : na) : na, "ST Long",  color = C_GREEN, linewidth = 2, style = plot.style_linebr)
+plot(show_st ? (st_dir >= 0 ? st_val : na) : na, "ST Short", color = C_RED,   linewidth = 2, style = plot.style_linebr)
+
+// 04 - VWAP + STANDARD DEVIATION BANDS
+show_vwap = input.bool(false, "04 VWAP + Std Dev Bands",
+     group   = "Trend Indicators",
+     tooltip = "Volume-weighted average price with standard deviation bands. Best on intraday charts.")
+vwap_src = input.source(hlc3, "Source", group = "Trend Indicators")
+
+var float _vpv  = 0.0
+var float _v    = 0.0
+var float _vpv2 = 0.0
+
+if ta.change(time("D")) != 0
+    _vpv  := 0.0
+    _v    := 0.0
+    _vpv2 := 0.0
+
+_vpv  += vwap_src * volume
+_v    += volume
+_vpv2 += vwap_src * vwap_src * volume
+
+vwap_val      = _vpv / _v
+vwap_variance = math.max((_vpv2 / _v) - (vwap_val * vwap_val), 0.0)
+vwap_std      = math.sqrt(vwap_variance)
+
+plot(show_vwap ? vwap_val                : na, "VWAP",     color = C_BLUE,                linewidth = 2)
+plot(show_vwap ? vwap_val + vwap_std     : na, "VWAP +1SD", color = color.new(C_BLUE, 55), linewidth = 1)
+plot(show_vwap ? vwap_val - vwap_std     : na, "VWAP -1SD", color = color.new(C_BLUE, 55), linewidth = 1)
+plot(show_vwap ? vwap_val + 2 * vwap_std : na, "VWAP +2SD", color = color.new(C_BLUE, 75), linewidth = 1, style = plot.style_circles)
+plot(show_vwap ? vwap_val - 2 * vwap_std : na, "VWAP -2SD", color = color.new(C_BLUE, 75), linewidth = 1, style = plot.style_circles)
+
+// 05 - CHANDELIER EXIT
+show_ce = input.bool(false, "05 Chandelier Exit",
+     group   = "Trend Indicators",
+     tooltip = "Volatility-adaptive trailing stop.")
+ce_len  = input.int(22, "Length", minval = 1, group = "Trend Indicators")
+ce_mult = input.float(3.0, "Multiplier", step = 0.1, group = "Trend Indicators")
+
+ce_atr        = ta.atr(ce_len)
+ce_long_stop  = ta.highest(high, ce_len) - ce_atr * ce_mult
+ce_short_stop = ta.lowest(low,  ce_len)  + ce_atr * ce_mult
+
+var int ce_dir = 1
+ce_dir := nz(ce_dir[1], 1)
+ce_dir := ce_dir == -1 and close > ce_short_stop[1] ? 1 :
+          ce_dir ==  1 and close < ce_long_stop[1]  ? -1 : ce_dir
+
+plot(show_ce ? (ce_dir ==  1 ? ce_long_stop  : na) : na, "CE Long",  color = C_GREEN, linewidth = 2, style = plot.style_linebr)
+plot(show_ce ? (ce_dir == -1 ? ce_short_stop : na) : na, "CE Short", color = C_RED,   linewidth = 2, style = plot.style_linebr)
+
+// ==============================================================================
+// SECTION 2 - MOMENTUM INDICATORS
+// ==============================================================================
+
+// 06 - RSI
+show_rsi = input.bool(false, "06 RSI - Overbought/Oversold Markers",
+     group   = "Momentum Indicators",
+     tooltip = "Marks first entry into overbought and oversold RSI zones directly on the price chart.")
+rsi_len = input.int(14, "Length", minval = 1, group = "Momentum Indicators")
+rsi_ob  = input.int(70, "Overbought Level", group = "Momentum Indicators")
+rsi_os  = input.int(30, "Oversold Level", group = "Momentum Indicators")
+rsi_src = input.source(close, "Source", group = "Momentum Indicators")
+
+rsi_val    = ta.rsi(rsi_src, rsi_len)
+rsi_ob_sig = rsi_val >= rsi_ob and rsi_val[1] < rsi_ob
+rsi_os_sig = rsi_val <= rsi_os and rsi_val[1] > rsi_os
+
+plotshape(show_rsi and rsi_ob_sig, "RSI Overbought", style = shape.triangledown, location = location.abovebar, color = C_RED,   size = size.tiny, text = "OB")
+plotshape(show_rsi and rsi_os_sig, "RSI Oversold",   style = shape.triangleup,   location = location.belowbar, color = C_GREEN, size = size.tiny, text = "OS")
+
+// 07 - MACD
+show_macd = input.bool(false, "07 MACD - Cross Signals",
+     group   = "Momentum Indicators",
+     tooltip = "Plots bullish and bearish MACD crossover signals on the price chart.")
+macd_fast   = input.int(12, "Fast EMA", minval = 1, group = "Momentum Indicators")
+macd_slow   = input.int(26, "Slow EMA", minval = 1, group = "Momentum Indicators")
+macd_signal = input.int(9, "Signal EMA", minval = 1, group = "Momentum Indicators")
+macd_src    = input.source(close, "Source", group = "Momentum Indicators")
+
+[macd_line, macd_sig_line, _] = ta.macd(macd_src, macd_fast, macd_slow, macd_signal)
+macd_bull = ta.crossover(macd_line, macd_sig_line)
+macd_bear = ta.crossunder(macd_line, macd_sig_line)
+
+plotshape(show_macd and macd_bull, "MACD Bull Cross", style = shape.circle, location = location.belowbar, color = C_CYAN, size = size.tiny, text = "MACD")
+plotshape(show_macd and macd_bear, "MACD Bear Cross", style = shape.circle, location = location.abovebar, color = C_PINK, size = size.tiny, text = "MACD")
+
+// 08 - STOCH RSI
+show_srsi = input.bool(false, "08 Stoch RSI - Cross Signals",
+     group   = "Momentum Indicators",
+     tooltip = "Bullish signal fires when K crosses D while both are below 20. Bearish fires when K crosses D while both are above 80.")
+srsi_rsi_len   = input.int(14, "RSI Length", minval = 1, group = "Momentum Indicators")
+srsi_stoch_len = input.int(14, "Stoch Length", minval = 1, group = "Momentum Indicators")
+srsi_k_smooth  = input.int(3, "K Smooth", minval = 1, group = "Momentum Indicators")
+srsi_d_smooth  = input.int(3, "D Smooth", minval = 1, group = "Momentum Indicators")
+
+srsi_rsi_val   = ta.rsi(close, srsi_rsi_len)
+srsi_rsi_lo    = ta.lowest(srsi_rsi_val, srsi_stoch_len)
+srsi_rsi_hi    = ta.highest(srsi_rsi_val, srsi_stoch_len)
+srsi_rsi_range = srsi_rsi_hi - srsi_rsi_lo
+srsi_raw       = srsi_rsi_range != 0 ? (srsi_rsi_val - srsi_rsi_lo) / srsi_rsi_range * 100 : 50
+srsi_k         = ta.sma(srsi_raw, srsi_k_smooth)
+srsi_d         = ta.sma(srsi_k, srsi_d_smooth)
+
+srsi_bull = ta.crossover(srsi_k, srsi_d) and srsi_k < 20
+srsi_bear = ta.crossunder(srsi_k, srsi_d) and srsi_k > 80
+
+plotshape(show_srsi and srsi_bull, "StochRSI Bull", style = shape.diamond, location = location.belowbar, color = C_TEAL,   size = size.tiny, text = "SRSI")
+plotshape(show_srsi and srsi_bear, "StochRSI Bear", style = shape.diamond, location = location.abovebar, color = C_ORANGE, size = size.tiny, text = "SRSI")
+
+// 09 - WILLIAMS %R
+show_wr = input.bool(false, "09 Williams %R - Extreme Signals",
+     group   = "Momentum Indicators",
+     tooltip = "Fast oscillator that often leads reversals.")
+wr_len = input.int(14, "Length", minval = 1, group = "Momentum Indicators")
+
+wr_val    = ta.wpr(wr_len)
+wr_ob_sig = wr_val >= -20 and wr_val[1] < -20
+wr_os_sig = wr_val <= -80 and wr_val[1] > -80
+
+plotshape(show_wr and wr_ob_sig, "WR Overbought", style = shape.xcross, location = location.abovebar, color = C_RED,   size = size.tiny, text = "WR")
+plotshape(show_wr and wr_os_sig, "WR Oversold",   style = shape.xcross, location = location.belowbar, color = C_GREEN, size = size.tiny, text = "WR")
+
+// 10 - ADX
+show_adx = input.bool(false, "10 ADX - Trend Strength Signals",
+     group   = "Momentum Indicators",
+     tooltip = "Shows bullish or bearish trend-strength confirmation when ADX is above threshold and DI direction is aligned.")
+adx_len    = input.int(14, "DI Length", minval = 1, group = "Momentum Indicators")
+adx_smooth = input.int(14, "ADX Smoothing", minval = 1, group = "Momentum Indicators")
+adx_thresh = input.int(25, "Strength Threshold", minval = 10, maxval = 50, group = "Momentum Indicators")
+
+[adx_di_plus, adx_di_minus, adx_val] = ta.dmi(adx_len, adx_smooth)
+
+adx_bull_fire = ta.crossover(adx_val, adx_thresh) and adx_di_plus > adx_di_minus
+adx_bear_fire = ta.crossover(adx_val, adx_thresh) and adx_di_minus > adx_di_plus
+
+plotshape(show_adx and adx_bull_fire, "ADX Bull Trend", style = shape.triangleup,   location = location.belowbar, color = C_GREEN, size = size.tiny, text = "ADX")
+plotshape(show_adx and adx_bear_fire, "ADX Bear Trend", style = shape.triangledown, location = location.abovebar, color = C_RED,   size = size.tiny, text = "ADX")
+
+// ==============================================================================
+// SECTION 3 - VOLATILITY INDICATORS
+// ==============================================================================
+
+// 11 - BOLLINGER BANDS
+show_bb = input.bool(false, "11 Bollinger Bands",
+     group   = "Volatility Indicators",
+     tooltip = "Two standard deviation bands around a 20-period SMA.")
+bb_len  = input.int(20, "Length", minval = 1, group = "Volatility Indicators")
+bb_mult = input.float(2.0, "Std Dev", step = 0.1, group = "Volatility Indicators")
+bb_src  = input.source(close, "Source", group = "Volatility Indicators")
+
+[bb_mid, bb_upper, bb_lower] = ta.bb(bb_src, bb_len, bb_mult)
+
+plot(show_bb ? bb_upper : na, "BB Upper", color = color.new(C_BLUE, 30), linewidth = 1)
+plot(show_bb ? bb_lower : na, "BB Lower", color = color.new(C_BLUE, 30), linewidth = 1)
+plot(show_bb ? bb_mid   : na, "BB Mid",   color = color.new(C_GRAY, 30), linewidth = 1)
+
+// 12 - KELTNER CHANNELS
+show_kc = input.bool(false, "12 Keltner Channels",
+     group   = "Volatility Indicators",
+     tooltip = "ATR-based envelope around an EMA.")
+kc_len     = input.int(20, "Length", minval = 1, group = "Volatility Indicators")
+kc_mult    = input.float(1.5, "ATR Mult", step = 0.1, group = "Volatility Indicators")
+kc_atr_len = input.int(10, "ATR Length", minval = 1, group = "Volatility Indicators")
+
+kc_ema   = ta.ema(close, kc_len)
+kc_atr   = ta.atr(kc_atr_len)
+kc_upper = kc_ema + kc_atr * kc_mult
+kc_lower = kc_ema - kc_atr * kc_mult
+
+plot(show_kc ? kc_upper : na, "KC Upper", color = color.new(C_TEAL, 30), linewidth = 1)
+plot(show_kc ? kc_lower : na, "KC Lower", color = color.new(C_TEAL, 30), linewidth = 1)
+plot(show_kc ? kc_ema   : na, "KC Mid",   color = color.new(C_GRAY, 40), linewidth = 1)
+
+// 13 - DONCHIAN CHANNELS
+show_dc = input.bool(false, "13 Donchian Channels",
+     group   = "Volatility Indicators",
+     tooltip = "Highest high / lowest low over N bars.")
+dc_len = input.int(20, "Length", minval = 1, group = "Volatility Indicators")
+
+dc_upper = ta.highest(high, dc_len)
+dc_lower = ta.lowest(low, dc_len)
+dc_mid   = (dc_upper + dc_lower) / 2
+
+plot(show_dc ? dc_upper : na, "DC Upper", color = color.new(C_INDIGO, 30), linewidth = 1)
+plot(show_dc ? dc_lower : na, "DC Lower", color = color.new(C_INDIGO, 30), linewidth = 1)
+plot(show_dc ? dc_mid   : na, "DC Mid",   color = color.new(C_INDIGO, 55), linewidth = 1)
+
+// ==============================================================================
+// SECTION 4 - VOLUME INDICATORS
+// ==============================================================================
+
+// 14 - OBV
+show_obv = input.bool(false, "14 OBV - Trend Signals",
+     group   = "Volume Indicators",
+     tooltip = "OBV crossovers versus its EMA signal shifts in buying and selling pressure.")
+obv_ema_len = input.int(20, "Signal EMA Length", minval = 1, group = "Volume Indicators")
+
+obv_val  = ta.obv
+obv_ema  = ta.ema(obv_val, obv_ema_len)
+obv_bull = ta.crossover(obv_val, obv_ema)
+obv_bear = ta.crossunder(obv_val, obv_ema)
+
+plotshape(show_obv and obv_bull, "OBV Bull", style = shape.triangleup,   location = location.belowbar, color = C_GREEN, size = size.tiny, text = "OBV")
+plotshape(show_obv and obv_bear, "OBV Bear", style = shape.triangledown, location = location.abovebar, color = C_RED,   size = size.tiny, text = "OBV")
+
+// 15 - CMF
+show_cmf = input.bool(false, "15 Chaikin Money Flow - Zero-Line Signals",
+     group   = "Volume Indicators",
+     tooltip = "Measures money flow pressure using price close position within bar range, weighted by volume.")
+cmf_len = input.int(20, "Length", minval = 1, group = "Volume Indicators")
+
+cmf_hl_range = high - low
+cmf_mfm      = cmf_hl_range != 0 ? ((close - low) - (high - close)) / cmf_hl_range : 0.0
+cmf_mfv      = cmf_mfm * volume
+cmf_val      = math.sum(cmf_mfv, cmf_len) / math.sum(volume, cmf_len)
+cmf_bull     = ta.crossover(cmf_val, 0)
+cmf_bear     = ta.crossunder(cmf_val, 0)
+
+plotshape(show_cmf and cmf_bull, "CMF Bull", style = shape.square, location = location.belowbar, color = C_TEAL, size = size.tiny, text = "CMF")
+plotshape(show_cmf and cmf_bear, "CMF Bear", style = shape.square, location = location.abovebar, color = C_PINK, size = size.tiny, text = "CMF")
+
+// 16 - MFI
+show_mfi = input.bool(false, "16 MFI - Overbought/Oversold Signals",
+     group   = "Volume Indicators",
+     tooltip = "Volume-weighted RSI. More reliable than RSI for detecting institutional exhaustion.")
+mfi_len = input.int(14, "Length", minval = 1, group = "Volume Indicators")
+mfi_ob  = input.int(80, "Overbought Level", group = "Volume Indicators")
+mfi_os  = input.int(20, "Oversold Level", group = "Volume Indicators")
+
+mfi_val    = ta.mfi(hlc3, mfi_len)
+mfi_ob_sig = mfi_val >= mfi_ob and mfi_val[1] < mfi_ob
+mfi_os_sig = mfi_val <= mfi_os and mfi_val[1] > mfi_os
+
+plotshape(show_mfi and mfi_ob_sig, "MFI OB", style = shape.labeldown, location = location.abovebar, color = C_RED,   size = size.tiny, text = "MFI")
+plotshape(show_mfi and mfi_os_sig, "MFI OS", style = shape.labelup,   location = location.belowbar, color = C_GREEN, size = size.tiny, text = "MFI")
+
+// 17 - VWMA
+show_vwma = input.bool(false, "17 Volume-Weighted Moving Average",
+     group   = "Volume Indicators",
+     tooltip = "Moving average weighted by bar volume.")
+vwma_len = input.int(20, "Length", minval = 1, group = "Volume Indicators")
+
+vwma_val   = ta.vwma(close, vwma_len)
+vwma_color = close > vwma_val ? C_GREEN : C_RED
+
+plot(show_vwma ? vwma_val : na, "VWMA", color = vwma_color, linewidth = 2)
+
+// ==============================================================================
+// SECTION 5 - STRUCTURE INDICATORS
+// ==============================================================================
+
+// 18 - PIVOT POINTS
+show_pp = input.bool(false, "18 Pivot Points - Classic Floor Trader",
+     group   = "Structure Indicators",
+     tooltip = "Prior session High, Low, Close derived support and resistance.")
+pp_tf_sel = input.string("Daily", "Timeframe", options = ["Daily", "Weekly", "Monthly"], group = "Structure Indicators")
+
+pp_tf      = pp_tf_sel == "Daily" ? "D" : pp_tf_sel == "Weekly" ? "W" : "M"
+pp_high    = request.security(syminfo.tickerid, pp_tf, high[1],  lookahead = barmerge.lookahead_on)
+pp_low     = request.security(syminfo.tickerid, pp_tf, low[1],   lookahead = barmerge.lookahead_on)
+pp_close_p = request.security(syminfo.tickerid, pp_tf, close[1], lookahead = barmerge.lookahead_on)
+
+pp_pivot = (pp_high + pp_low + pp_close_p) / 3
+pp_r1    = 2 * pp_pivot - pp_low
+pp_r2    = pp_pivot + (pp_high - pp_low)
+pp_s1    = 2 * pp_pivot - pp_high
+pp_s2    = pp_pivot - (pp_high - pp_low)
+
+plot(show_pp ? pp_pivot : na, "PP", color = color.new(C_GRAY, 0), linewidth = 1, style = plot.style_circles)
+plot(show_pp ? pp_r1    : na, "R1", color = color.new(C_RED, 0), linewidth = 1, style = plot.style_circles)
+plot(show_pp ? pp_r2    : na, "R2", color = color.new(C_RED, 30), linewidth = 1, style = plot.style_circles)
+plot(show_pp ? pp_s1    : na, "S1", color = color.new(C_GREEN, 0), linewidth = 1, style = plot.style_circles)
+plot(show_pp ? pp_s2    : na, "S2", color = color.new(C_GREEN, 30), linewidth = 1, style = plot.style_circles)
+
+// ==============================================================================
+// SECTION 6 - ADVANCED / CONFLUENCE INDICATORS
+// ==============================================================================
+
+// 19 - MULTI-INDICATOR CONFLUENCE SIGNAL
+show_conf = input.bool(false, "19 Multi-Indicator Confluence Signal",
+     group   = "Advanced Indicators",
+     tooltip = "Fires only when trend, momentum, money flow, volume, and ADX all align simultaneously.")
+
+conf_ema50    = ta.ema(close, 50)
+conf_rsi      = ta.rsi(close, 14)
+[conf_macd, conf_sig, _conf_hist] = ta.macd(close, 12, 26, 9)
+conf_vol_sma  = ta.sma(volume, 20)
+conf_hl_range = high - low
+conf_mfm      = conf_hl_range != 0 ? ((close - low) - (high - close)) / conf_hl_range : 0.0
+conf_cmf      = math.sum(conf_mfm * volume, 20) / math.sum(volume, 20)
+[_diplus, _diminus, conf_adx] = ta.dmi(14, 14)
+
+conf_bull_sig = close > conf_ema50 and conf_rsi > 45 and conf_rsi < 65 and ta.crossover(conf_macd, conf_sig) and conf_cmf > 0 and volume > conf_vol_sma and conf_adx > 20
+
+conf_bear_sig = close < conf_ema50 and conf_rsi > 35 and conf_rsi < 55 and ta.crossunder(conf_macd, conf_sig) and conf_cmf < 0 and volume > conf_vol_sma and conf_adx > 20
+
+plotshape(show_conf and conf_bull_sig, "Confluence Bull", style = shape.diamond, location = location.belowbar, color = C_CYAN,   size = size.normal, text = "C")
+plotshape(show_conf and conf_bear_sig, "Confluence Bear", style = shape.diamond, location = location.abovebar, color = C_ORANGE, size = size.normal, text = "C")

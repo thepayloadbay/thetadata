@@ -1,0 +1,308 @@
+// This work is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International  
+// https://creativecommons.org/licenses/by-nc-sa/4.0/
+// © BigBeluga
+
+//@version=6
+
+indicator(
+     "Volume Acceptance Zones [BigBeluga]",
+     overlay = true,
+     max_boxes_count = 20,
+     max_lines_count = 500,
+     max_bars_back = 5000
+)
+
+// ＩＮＰＵＴＳ ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――{
+
+lookback      = input.int(200, "Lookback Bars", minval = 50)
+useVisible    = input.bool(false, "Use Visible Range")
+
+// Probability Zones
+show68        = input.bool(true, "Show 68% Zone", inline = "68")
+color68       = input.color(#ace5dc, "", inline = "68")
+fill68        = input.bool(true, "Fill", inline = "68")
+
+show95        = input.bool(true, "Show 95% Zone", inline = "95")
+color95       = input.color(color.aqua, "", inline = "95")
+fill95        = input.bool(true, "Fill", inline = "95")
+
+zone68Mult    = 1
+zone95Mult    = 2
+
+showPOC       = input.bool(true, "Show POC", inline = "POC")
+colorPOC      = input.color(color.red, "", inline = "POC")
+
+upperOutlier  = input.color(color.aqua, "Upper Outlier", group = "Outliers")
+lowerOutlier  = input.color(color.red, "Lower Outlier", group = "Outliers")
+
+// Frequency Profile
+showProfile   = input.bool(true, "Show Frequency Profile", group = "Frequency Profile")
+profileBins   = input.int(50, "Frequency Bins", minval = 5, maxval = 100, group = "Frequency Profile")
+profileWidth  = input.int(30, "Frequency Width (bars)", minval = 5, maxval = 100, group = "Frequency Profile")
+bullColProf   = input.color(color.aqua, "Bullish Frequency Color", group = "Frequency Profile")
+bearColProf   = input.color(color.red, "Bearish Frequency Color", group = "Frequency Profile")
+// }
+
+
+// ＣＡＬＣＵＬＡＴＩＯＮＳ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――{
+
+// Timeframe duration in milliseconds
+tf_ms = timeframe.in_seconds() * 1000
+
+// Bars from visible range
+visibleBars = math.round((time - chart.left_visible_bar_time) / tf_ms)
+
+// Final bars count
+bars = useVisible ? visibleBars : lookback
+bars := math.max(bars, 50)
+
+// Volume-Weighted Mean (POC proxy)
+float volSum      = 0.0
+float priceVolSum = 0.0
+
+for i = 0 to bars
+    priceVolSum += hl2[i] * volume[i]
+    volSum      += volume[i]
+
+meanPrice = priceVolSum / volSum
+
+// Volume-Weighted Deviation
+float variance = 0.0
+for i = 0 to bars
+    variance += volume[i] * math.pow(hl2[i] - meanPrice, 2)
+
+variance /= volSum
+dev = math.sqrt(variance)
+
+// Probability Levels
+upper68 = meanPrice + dev * zone68Mult
+lower68 = meanPrice - dev * zone68Mult
+upper95 = meanPrice + dev * zone95Mult
+lower95 = meanPrice - dev * zone95Mult
+// }
+
+
+// ＰＬＯＴ ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――{
+
+// Volume profile line arrays — declared at global scope so they persist
+var array<line> profileLines     = array.new<line>()
+var array<line> profileBullLines = array.new<line>()
+var array<line> profileBearLines = array.new<line>()
+
+if barstate.islast
+    var box   box68      = na
+    var box   box95up    = na
+    var box   box95lw    = na
+    var line  pocLine    = na
+    var label pocLbl     = na
+    var label dev1Up     = na
+    var label dev1Dn     = na
+    var label dev2Up     = na
+    var label dev2Dn     = na
+    var line  upper95Line = na
+    var line  lower95Line = na
+    var line  upper68Line = na
+    var line  lower68Line = na
+
+    box.delete(box68)
+    box.delete(box95up)
+    box.delete(box95lw)
+    line.delete(pocLine)
+    label.delete(pocLbl)
+    label.delete(dev1Up)
+    label.delete(dev1Dn)
+    label.delete(dev2Up)
+    label.delete(dev2Dn)
+    line.delete(upper95Line)
+    line.delete(lower95Line)
+    line.delete(upper68Line)
+    line.delete(lower68Line)
+
+    // Delete old profile lines
+    for ln in profileLines
+        line.delete(ln)
+    profileLines.clear()
+
+    float upper = 0.
+    float lower = 0.
+    float Mid   = 0.
+    float pocVol = 0.
+
+    for i = 0 to bars
+        price = hl2[i]
+        if price >= upper68
+            upper += 1
+        if price <= lower68
+            lower += 1
+        if price < upper68 and price > lower68
+            Mid += 1
+        if high[i] > meanPrice and low[i] < meanPrice
+            pocVol += volume[i]
+
+    total = Mid + upper + lower
+
+    upperPer = upper / total
+    lowerPer = lower / total
+    midPer   = Mid   / total
+
+    upDistribution  = str.tostring(upperPer * 100, format.percent) + "          "
+    lwDistribution  = str.tostring(lowerPer * 100, format.percent) + "          "
+    midDistribution = str.tostring(midPer   * 100, format.percent) + "          "
+
+    if show68
+        upper68Line := line.new(bar_index - bars, upper68, bar_index+profileWidth, upper68, color = color68, style = line.style_dashed)
+        lower68Line := line.new(bar_index - bars, lower68, bar_index+profileWidth, lower68, color = color68, style = line.style_dashed)
+
+        box68 := box.new(
+             bar_index - bars, upper68, bar_index+profileWidth, lower68,
+             bgcolor      = color.new(color68, fill68 ? 90 : 100),
+             border_width = 0,
+             text         = midDistribution,
+             text_color   = chart.fg_color,
+             text_halign  = text.align_right,
+             text_valign  = text.align_top,
+             text_size    = size.large
+        )
+        dev1Up := label.new(bar_index+profileWidth, upper68, text = "+1σ",
+             color = color.new(color.black, 100), style = label.style_label_left,
+             textcolor = color68, size = size.large, tooltip = "+ 1 Standard Deviation")
+        dev1Dn := label.new(bar_index+profileWidth, lower68, text = "-1σ",
+             color = color.new(color.black, 100), style = label.style_label_left,
+             textcolor = color68, size = size.large, tooltip = "- 1 Standard Deviation")
+
+    if show95
+        upper95Line := line.new(bar_index - bars, upper95, bar_index+profileWidth, upper95, color = color95)
+        lower95Line := line.new(bar_index - bars, lower95, bar_index+profileWidth, lower95, color = color95)
+
+        box95up := box.new(
+             bar_index - bars, upper95, bar_index+profileWidth, upper68,
+             bgcolor      = color.new(color95, fill95 ? 90 : 100),
+             border_width = 0,
+             text         = upDistribution,
+             text_color   = chart.fg_color,
+             text_halign  = text.align_right,
+             text_valign  = text.align_center,
+             text_size    = size.normal
+        )
+        box95lw := box.new(
+             bar_index - bars, lower68, bar_index+profileWidth, lower95,
+             bgcolor      = color.new(color95, fill95 ? 90 : 100),
+             border_width = 0,
+             text         = lwDistribution,
+             text_color   = chart.fg_color,
+             text_halign  = text.align_right,
+             text_valign  = text.align_center,
+             text_size    = size.normal
+        )
+        dev2Up := label.new(bar_index+profileWidth, upper95, text = "+2σ",
+             color = color.new(color.black, 100), style = label.style_label_left,
+             textcolor = color95, size = size.large, tooltip = "+ 2 Standard Deviation")
+        dev2Dn := label.new(bar_index+profileWidth, lower95, text = "-2σ",
+             color = color.new(color.black, 100), style = label.style_label_left,
+             textcolor = color95, size = size.large, tooltip = "- 2 Standard Deviation")
+
+    if showPOC
+        pocLine := line.new(bar_index - bars, meanPrice, bar_index+profileWidth, meanPrice,
+             color = colorPOC, width = 2)
+        pocLbl := label.new(bar_index+profileWidth, meanPrice,
+             text      = "◀ " + str.tostring(pocVol, format.volume),
+             color     = color.new(color.black, 100),
+             style     = label.style_label_left,
+             textcolor = colorPOC)
+
+    // ── Volume Profile ──────────────────────────────────────────────────────────
+    if showProfile
+        // Determine profile range: use 95 zone if visible, else full dev range
+        profileHigh = show95 ? upper95 : upper68
+        profileLow  = show95 ? lower95 : lower68
+
+        binSize = (profileHigh - profileLow) / profileBins
+
+        // Accumulate bull and bear volume per bin
+        bullVols = array.new<int>(profileBins, 0)
+        bearVols = array.new<int>(profileBins, 0)
+
+        for i = 0 to bars
+            c   = close[i]
+            o   = open[i]
+            v   = volume[i]
+            mid = hl2[i]
+
+            binIdx = int(math.floor((mid - profileLow) / binSize))
+            binIdx := math.max(0, math.min(profileBins - 1, binIdx))
+
+            if c >= o
+                bullVols.set(binIdx, bullVols.get(binIdx) + 1)
+            else
+                bearVols.set(binIdx, bearVols.get(binIdx) + 1)
+
+        // Find max total volume across bins for normalization
+        maxBinVol = 0.0
+        for b = 0 to profileBins - 1
+            totalBinVol = bullVols.get(b) + bearVols.get(b)
+            if totalBinVol > maxBinVol
+                maxBinVol := totalBinVol
+
+        for b = 0 to profileBins - 1
+            binLow  = profileLow + binSize * b
+            binMid  = binLow + binSize * 0.5
+
+            bVol    = bullVols.get(b)
+            beVol   = bearVols.get(b)
+            totVol  = bVol + beVol
+
+            if totVol > 0 and maxBinVol > 0
+                // Width in bars proportional to volume
+                barWidth = int(math.round(totVol / maxBinVol * profileWidth))
+                barWidth := math.max(barWidth, 1)
+
+      
+                // Bull portion
+                bullWidth = int(math.round(bVol / maxBinVol * profileWidth))
+                bullWidth := math.max(bullWidth, 0)
+
+                bearWidth = int(math.round(beVol / maxBinVol * profileWidth))
+                bearWidth := math.max(bearWidth, 0)
+
+                // Draw bear line (full width, behind)
+                if bearWidth > 0
+                    bearLn = line.new(
+                         bar_index - bearWidth+profileWidth, binMid,
+                         bar_index+profileWidth,             binMid,
+                         color = bearColProf,
+                         width = 2,
+                         force_overlay = true
+                    )
+                    profileLines.push(bearLn)
+
+                // Draw bull line on top
+                if bullWidth > 0
+                    bullLn = line.new(
+                         bar_index - bullWidth+profileWidth, binMid,
+                         bar_index+profileWidth,             binMid,
+                         color = bullColProf,
+                         width = 2,
+                         force_overlay = true
+                    )
+                    profileLines.push(bullLn)
+
+// }
+
+
+plotshape(
+     close > upper68 and not useVisible,
+     style    = shape.arrowdown,
+     size     = size.tiny,
+     color    = upperOutlier,
+     location = location.abovebar,
+     title    = "Upper Extremes"
+)
+
+plotshape(
+     close < lower68 and not useVisible,
+     style    = shape.arrowup,
+     size     = size.tiny,
+     color    = lowerOutlier,
+     location = location.belowbar,
+     title    = "Lower Extremes"
+)

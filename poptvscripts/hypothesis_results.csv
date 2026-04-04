@@ -1,0 +1,1 @@
+hypothesis_id,date_tested,strategy,filter_name,parameter,value,baseline_trades,test_trades,baseline_pnl,test_pnl,baseline_wr,test_wr,baseline_sharpe,test_sharpe,baseline_dd,test_dd,skipped_days,pct_trades_kept,verdict,notes

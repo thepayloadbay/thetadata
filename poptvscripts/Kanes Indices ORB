@@ -1,0 +1,171 @@
+//@version=5
+indicator("Kane's Indices ORB", overlay=true, max_boxes_count=500, max_lines_count=500)
+
+// =========================
+// INPUTS
+// =========================
+groupGeneral = "General"
+tzInput = input.string("America/New_York", "Timezone", group=groupGeneral)
+showBoxes = input.bool(true, "Show ORB Session Boxes", group=groupGeneral)
+showMidpoints = input.bool(true, "Show ORB Midpoints", group=groupGeneral)
+
+groupORB1 = "ORB 1 (Premarket)"
+orb1Enabled = input.bool(true, "Enable ORB 1", group=groupORB1)
+orb1Hour = input.int(8, "Start Hour", minval=0, maxval=23, group=groupORB1)
+orb1Minute = input.int(0, "Start Minute", minval=0, maxval=59, group=groupORB1)
+orb1Duration = input.int(15, "Duration (minutes)", minval=1, group=groupORB1)
+orb1Color = input.color(color.new(color.gray, 70), "Box Color", group=groupORB1)
+
+groupORB2 = "ORB 2 (Open)"
+orb2Enabled = input.bool(true, "Enable ORB 2", group=groupORB2)
+orb2Hour = input.int(9, "Start Hour", minval=0, maxval=23, group=groupORB2)
+orb2Minute = input.int(30, "Start Minute", minval=0, maxval=59, group=groupORB2)
+orb2Duration = input.int(30, "Duration (minutes)", minval=1, group=groupORB2)
+orb2Color = input.color(color.new(color.purple, 65), "Box Color", group=groupORB2)
+
+midLineColor1 = color.new(color.white, 15)
+midLineColor2 = color.new(color.white, 15)
+
+// =========================
+// DAY/TIME HELPERS
+// =========================
+y = year(time, tzInput)
+m = month(time, tzInput)
+d = dayofmonth(time, tzInput)
+
+dayStartTs = timestamp(tzInput, y, m, d, 0, 0)
+dayEndTs   = timestamp(tzInput, y, m, d, 23, 59)
+
+orb1StartTs = timestamp(tzInput, y, m, d, orb1Hour, orb1Minute)
+orb1EndTs   = orb1StartTs + orb1Duration * 60 * 1000
+
+orb2StartTs = timestamp(tzInput, y, m, d, orb2Hour, orb2Minute)
+orb2EndTs   = orb2StartTs + orb2Duration * 60 * 1000
+
+newDay = ta.change(dayofmonth(time, tzInput)) != 0
+
+// =========================
+// ORB 1 STORAGE
+// =========================
+var float orb1High = na
+var float orb1Low = na
+var box orb1Box = na
+var line orb1MidLine = na
+var bool orb1Done = false
+
+// =========================
+// ORB 2 STORAGE
+// =========================
+var float orb2High = na
+var float orb2Low = na
+var box orb2Box = na
+var line orb2MidLine = na
+var bool orb2Done = false
+
+// Reset each new day
+if newDay
+    orb1High := na
+    orb1Low := na
+    orb1Done := false
+    orb1Box := na
+    orb1MidLine := na
+
+    orb2High := na
+    orb2Low := na
+    orb2Done := false
+    orb2Box := na
+    orb2MidLine := na
+
+// =========================
+// ORB 1 LOGIC
+// =========================
+orb1InWindow = orb1Enabled and time >= orb1StartTs and time < orb1EndTs
+orb1AfterWindow = orb1Enabled and time >= orb1EndTs
+
+if orb1InWindow
+    orb1High := na(orb1High) ? high : math.max(orb1High, high)
+    orb1Low := na(orb1Low) ? low : math.min(orb1Low, low)
+
+    if showBoxes and not na(orb1High) and not na(orb1Low)
+        if na(orb1Box)
+            orb1Box := box.new(
+                 left=orb1StartTs,
+                 top=orb1High,
+                 right=dayEndTs,
+                 bottom=orb1Low,
+                 xloc=xloc.bar_time,
+                 bgcolor=orb1Color,
+                 border_color=color.new(color.white, 80))
+        else
+            box.set_left(orb1Box, orb1StartTs)
+            box.set_right(orb1Box, dayEndTs)
+            box.set_top(orb1Box, orb1High)
+            box.set_bottom(orb1Box, orb1Low)
+
+    if showMidpoints and not na(orb1High) and not na(orb1Low)
+        mid1 = (orb1High + orb1Low) / 2.0
+        if na(orb1MidLine)
+            orb1MidLine := line.new(
+                 x1=orb1StartTs,
+                 y1=mid1,
+                 x2=dayEndTs,
+                 y2=mid1,
+                 xloc=xloc.bar_time,
+                 color=midLineColor1,
+                 style=line.style_dotted,
+                 width=1)
+        else
+            line.set_x1(orb1MidLine, orb1StartTs)
+            line.set_x2(orb1MidLine, dayEndTs)
+            line.set_y1(orb1MidLine, mid1)
+            line.set_y2(orb1MidLine, mid1)
+
+if orb1AfterWindow and not orb1Done and not na(orb1High) and not na(orb1Low)
+    orb1Done := true
+
+// =========================
+// ORB 2 LOGIC
+// =========================
+orb2InWindow = orb2Enabled and time >= orb2StartTs and time < orb2EndTs
+orb2AfterWindow = orb2Enabled and time >= orb2EndTs
+
+if orb2InWindow
+    orb2High := na(orb2High) ? high : math.max(orb2High, high)
+    orb2Low := na(orb2Low) ? low : math.min(orb2Low, low)
+
+    if showBoxes and not na(orb2High) and not na(orb2Low)
+        if na(orb2Box)
+            orb2Box := box.new(
+                 left=orb2StartTs,
+                 top=orb2High,
+                 right=dayEndTs,
+                 bottom=orb2Low,
+                 xloc=xloc.bar_time,
+                 bgcolor=orb2Color,
+                 border_color=color.new(color.white, 85))
+        else
+            box.set_left(orb2Box, orb2StartTs)
+            box.set_right(orb2Box, dayEndTs)
+            box.set_top(orb2Box, orb2High)
+            box.set_bottom(orb2Box, orb2Low)
+
+    if showMidpoints and not na(orb2High) and not na(orb2Low)
+        mid2 = (orb2High + orb2Low) / 2.0
+        if na(orb2MidLine)
+            orb2MidLine := line.new(
+                 x1=orb2StartTs,
+                 y1=mid2,
+                 x2=dayEndTs,
+                 y2=mid2,
+                 xloc=xloc.bar_time,
+                 color=midLineColor2,
+                 style=line.style_dotted,
+                 width=1)
+        else
+            line.set_x1(orb2MidLine, orb2StartTs)
+            line.set_x2(orb2MidLine, dayEndTs)
+            line.set_y1(orb2MidLine, mid2)
+            line.set_y2(orb2MidLine, mid2)
+
+if orb2AfterWindow and not orb2Done and not na(orb2High) and not na(orb2Low)
+    orb2Done := true

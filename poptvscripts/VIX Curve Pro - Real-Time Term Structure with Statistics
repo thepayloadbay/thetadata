@@ -1,0 +1,301 @@
+//@version=6
+//By Henrique Centieiro
+indicator("VIX Curve Pro - Real-Time Term Structure with Statistics", shorttitle="VIX TS Pro", overlay=false, max_polylines_count=100)
+
+// ═══════════════════════════════════════════════════════════════
+// SETTINGS
+// ═══════════════════════════════════════════════════════════════
+
+lookback = input.int(252, "Lookback Period (Days)", minval=20, maxval=500)
+curveThickness = input.int(4, "Curve Line Width", minval=2, maxval=6)
+showGlow = input.bool(true, "Show Curve Glow Effect")
+pointSpacing = input.int(12, "Point Spacing", minval=8, maxval=20, tooltip="Horizontal spacing between curve points")
+tableFontSize = input.string("Normal", "Table Font Size", options=["Tiny", "Small", "Normal", "Large", "Huge"])
+showInfo = input.bool(false, "Show Information Guide", tooltip="Display explanations of market states and metrics")
+
+// ═══════════════════════════════════════════════════════════════
+// FETCH VIX DATA
+// ═══════════════════════════════════════════════════════════════
+
+vix9d = request.security("CBOE:VIX9D", timeframe.period, close, lookahead=barmerge.lookahead_off)
+vix = request.security("CBOE:VIX", timeframe.period, close, lookahead=barmerge.lookahead_off)
+vix3m = request.security("CBOE:VIX3M", timeframe.period, close, lookahead=barmerge.lookahead_off)
+vix6m = request.security("CBOE:VIX6M", timeframe.period, close, lookahead=barmerge.lookahead_off)
+vix1y = request.security("CBOE:VIX1Y", timeframe.period, close, lookahead=barmerge.lookahead_off)
+
+// ═══════════════════════════════════════════════════════════════
+// RATIOS & METRICS
+// ═══════════════════════════════════════════════════════════════
+
+ratio_9d_1m = vix9d / vix
+ratio_1m_3m = vix / vix3m
+ratio_1m_6m = vix / vix6m
+
+// Convert font size input to Pine Script size (all cells use same size now)
+fontSize = tableFontSize == "Tiny" ? size.tiny : tableFontSize == "Small" ? size.small : tableFontSize == "Large" ? size.large : tableFontSize == "Huge" ? size.huge : size.normal
+
+pctl_9d = ta.percentrank(vix9d, lookback)
+pctl_1m = ta.percentrank(vix, lookback)
+pctl_3m = ta.percentrank(vix3m, lookback)
+pctl_6m = ta.percentrank(vix6m, lookback)
+pctl_1y = ta.percentrank(vix1y, lookback)
+
+pctl_ratio_9d_1m = ta.percentrank(ratio_9d_1m, lookback)
+pctl_ratio_1m_3m = ta.percentrank(ratio_1m_3m, lookback)
+pctl_ratio_1m_6m = ta.percentrank(ratio_1m_6m, lookback)
+
+high_9d_1m = ta.highest(ratio_9d_1m, lookback)
+low_9d_1m = ta.lowest(ratio_9d_1m, lookback)
+avg_9d_1m = ta.sma(ratio_9d_1m, lookback)
+med_9d_1m = ta.median(ratio_9d_1m, lookback)
+
+high_1m_3m = ta.highest(ratio_1m_3m, lookback)
+low_1m_3m = ta.lowest(ratio_1m_3m, lookback)
+avg_1m_3m = ta.sma(ratio_1m_3m, lookback)
+med_1m_3m = ta.median(ratio_1m_3m, lookback)
+
+high_1m_6m = ta.highest(ratio_1m_6m, lookback)
+low_1m_6m = ta.lowest(ratio_1m_6m, lookback)
+avg_1m_6m = ta.sma(ratio_1m_6m, lookback)
+med_1m_6m = ta.median(ratio_1m_6m, lookback)
+
+// Regime
+slope1 = vix - vix9d
+slope2 = vix3m - vix
+slope3 = vix6m - vix3m
+slope4 = vix1y - vix6m
+
+positive_slopes = (slope1 > 0 ? 1 : 0) + (slope2 > 0 ? 1 : 0) + (slope3 > 0 ? 1 : 0) + (slope4 > 0 ? 1 : 0)
+is_contango = positive_slopes >= 3
+is_backwardation = positive_slopes <= 1
+regime = is_contango ? "Contango" : is_backwardation ? "Backwardation" : "Mixed"
+
+// ═══════════════════════════════════════════════════════════════
+// DRAW PREMIUM SPATIAL CURVE WITH GLOW
+// ═══════════════════════════════════════════════════════════════
+
+if barstate.islast
+    var chartPoints = array.new<chart.point>()
+    array.clear(chartPoints)
+
+    // Calculate positions with x5 (1Y) right-aligned to current bar
+    x5 = bar_index
+    x4 = bar_index - pointSpacing * 3
+    x3 = bar_index - pointSpacing * 5
+    x2 = bar_index - pointSpacing * 6
+    x1 = bar_index - pointSpacing * 8
+
+    array.push(chartPoints, chart.point.from_index(x1, vix9d))
+    array.push(chartPoints, chart.point.from_index(x2, vix))
+    array.push(chartPoints, chart.point.from_index(x3, vix3m))
+    array.push(chartPoints, chart.point.from_index(x4, vix6m))
+    array.push(chartPoints, chart.point.from_index(x5, vix1y))
+
+    curve_color = is_contango ? #00C851 : is_backwardation ? #ff4444 : #ffbb33
+
+    // Draw glow effect (thicker transparent line behind)
+    if showGlow
+        var glowPoints = array.new<chart.point>()
+        array.clear(glowPoints)
+        array.push(glowPoints, chart.point.from_index(x1, vix9d))
+        array.push(glowPoints, chart.point.from_index(x2, vix))
+        array.push(glowPoints, chart.point.from_index(x3, vix3m))
+        array.push(glowPoints, chart.point.from_index(x4, vix6m))
+        array.push(glowPoints, chart.point.from_index(x5, vix1y))
+        polyline.new(glowPoints, closed=false, line_color=color.new(curve_color, 70), line_width=curveThickness * 3)
+
+    // Draw main curve
+    polyline.new(chartPoints, closed=false, line_color=curve_color, line_width=curveThickness)
+
+    // Add premium labels with better positioning
+    chg_9d = ((vix9d - vix9d[1]) / vix9d[1]) * 100
+    chg_1m = ((vix - vix[1]) / vix[1]) * 100
+    chg_3m = ((vix3m - vix3m[1]) / vix3m[1]) * 100
+    chg_6m = ((vix6m - vix6m[1]) / vix6m[1]) * 100
+    chg_1y = ((vix1y - vix1y[1]) / vix1y[1]) * 100
+
+    // Use alternating label positions to prevent overlap
+    label.new(x1, vix9d, "9D\n" + str.tostring(vix9d, "#.##") + "\n" + str.tostring(chg_9d, "+#.#;-#.#") + "%",
+         style=label.style_label_up, color=color.new(#a78bfa, 0), textcolor=color.white, size=size.normal)
+    label.new(x2, vix, "VIX\n" + str.tostring(vix, "#.##") + "\n" + str.tostring(chg_1m, "+#.#;-#.#") + "%",
+         style=label.style_label_down, color=color.new(#ec4899, 0), textcolor=color.white, size=size.normal)
+    label.new(x3, vix3m, "3M\n" + str.tostring(vix3m, "#.##") + "\n" + str.tostring(chg_3m, "+#.#;-#.#") + "%",
+         style=label.style_label_up, color=color.new(#f59e0b, 0), textcolor=color.white, size=size.normal)
+    label.new(x4, vix6m, "6M\n" + str.tostring(vix6m, "#.##") + "\n" + str.tostring(chg_6m, "+#.#;-#.#") + "%",
+         style=label.style_label_down, color=color.new(#10b981, 0), textcolor=color.white, size=size.normal)
+    label.new(x5, vix1y, "1Y\n" + str.tostring(vix1y, "#.##") + "\n" + str.tostring(chg_1y, "+#.#;-#.#") + "%",
+         style=label.style_label_up, color=color.new(#3b82f6, 0), textcolor=color.white, size=size.normal)
+
+// Invisible plots for scaling
+plot(vix9d, display=display.none)
+plot(vix1y, display=display.none)
+
+// ═══════════════════════════════════════════════════════════════
+// LEFT TABLE: RATIO HISTORICAL STATS (PREMIUM STYLING)
+// ═══════════════════════════════════════════════════════════════
+
+if barstate.islast
+    var table lt = table.new(position.top_left, 4, 8,
+         bgcolor=color.new(#000000, 5), border_width=3, border_color=color.new(#444444, 0),
+         frame_width=2, frame_color=color.new(#666666, 0))
+
+    // Title row
+    table.cell(lt, 0, 0, "RATIO STATISTICS", text_color=#ffffff, text_size=fontSize, bgcolor=color.new(#1a1a1a, 0))
+    table.cell(lt, 1, 0, "", bgcolor=color.new(#1a1a1a, 0))
+    table.cell(lt, 2, 0, "", bgcolor=color.new(#1a1a1a, 0))
+    table.cell(lt, 3, 0, "", bgcolor=color.new(#1a1a1a, 0))
+
+    table.cell(lt, 0, 1, str.tostring(lookback) + " Days", text_color=#999999, text_size=fontSize, bgcolor=color.new(#1a1a1a, 0))
+    table.cell(lt, 1, 1, "9D/VIX", text_color=#ffffff, text_size=fontSize, bgcolor=color.new(#a78bfa, 20))
+    table.cell(lt, 2, 1, "VIX/3M", text_color=#ffffff, text_size=fontSize, bgcolor=color.new(#3b82f6, 20))
+    table.cell(lt, 3, 1, "VIX/6M", text_color=#ffffff, text_size=fontSize, bgcolor=color.new(#ec4899, 20))
+
+    table.cell(lt, 0, 2, "Current", text_color=#cccccc, text_size=fontSize)
+    table.cell(lt, 1, 2, str.tostring(ratio_9d_1m, "#.###"), text_color=#ffffff, text_size=fontSize)
+    table.cell(lt, 2, 2, str.tostring(ratio_1m_3m, "#.###"), text_color=#ffffff, text_size=fontSize)
+    table.cell(lt, 3, 2, str.tostring(ratio_1m_6m, "#.###"), text_color=#ffffff, text_size=fontSize)
+
+    table.cell(lt, 0, 3, "Highest", text_color=#cccccc, text_size=fontSize)
+    table.cell(lt, 1, 3, str.tostring(high_9d_1m, "#.###"), text_color=#ff6b6b, text_size=fontSize)
+    table.cell(lt, 2, 3, str.tostring(high_1m_3m, "#.###"), text_color=#ff6b6b, text_size=fontSize)
+    table.cell(lt, 3, 3, str.tostring(high_1m_6m, "#.###"), text_color=#ff6b6b, text_size=fontSize)
+
+    table.cell(lt, 0, 4, "Percentile", text_color=#cccccc, text_size=fontSize)
+    table.cell(lt, 1, 4, str.tostring(math.round(pctl_ratio_9d_1m), "#") + "%",
+         text_color=pctl_ratio_9d_1m > 75 ? #ff6b6b : pctl_ratio_9d_1m > 50 ? #ffbb33 : #00C851, text_size=fontSize)
+    table.cell(lt, 2, 4, str.tostring(math.round(pctl_ratio_1m_3m), "#") + "%",
+         text_color=pctl_ratio_1m_3m > 75 ? #ff6b6b : pctl_ratio_1m_3m > 50 ? #ffbb33 : #00C851, text_size=fontSize)
+    table.cell(lt, 3, 4, str.tostring(math.round(pctl_ratio_1m_6m), "#") + "%",
+         text_color=pctl_ratio_1m_6m > 75 ? #ff6b6b : pctl_ratio_1m_6m > 50 ? #ffbb33 : #00C851, text_size=fontSize)
+
+    table.cell(lt, 0, 5, "Lowest", text_color=#cccccc, text_size=fontSize)
+    table.cell(lt, 1, 5, str.tostring(low_9d_1m, "#.###"), text_color=#00C851, text_size=fontSize)
+    table.cell(lt, 2, 5, str.tostring(low_1m_3m, "#.###"), text_color=#00C851, text_size=fontSize)
+    table.cell(lt, 3, 5, str.tostring(low_1m_6m, "#.###"), text_color=#00C851, text_size=fontSize)
+
+    table.cell(lt, 0, 6, "Average", text_color=#cccccc, text_size=fontSize)
+    table.cell(lt, 1, 6, str.tostring(avg_9d_1m, "#.###"), text_color=#999999, text_size=fontSize)
+    table.cell(lt, 2, 6, str.tostring(avg_1m_3m, "#.###"), text_color=#999999, text_size=fontSize)
+    table.cell(lt, 3, 6, str.tostring(avg_1m_6m, "#.###"), text_color=#999999, text_size=fontSize)
+
+    table.cell(lt, 0, 7, "Median", text_color=#cccccc, text_size=fontSize)
+    table.cell(lt, 1, 7, str.tostring(med_9d_1m, "#.###"), text_color=#999999, text_size=fontSize)
+    table.cell(lt, 2, 7, str.tostring(med_1m_3m, "#.###"), text_color=#999999, text_size=fontSize)
+    table.cell(lt, 3, 7, str.tostring(med_1m_6m, "#.###"), text_color=#999999, text_size=fontSize)
+
+// ═══════════════════════════════════════════════════════════════
+// RIGHT TABLE: VIX TERMS (PREMIUM STYLING)
+// ═══════════════════════════════════════════════════════════════
+
+if barstate.islast
+    var table rt = table.new(position.top_right, 4, 8,
+         bgcolor=color.new(#000000, 5), border_width=3, border_color=color.new(#444444, 0),
+         frame_width=2, frame_color=color.new(#666666, 0))
+
+    // Title row
+    table.cell(rt, 0, 0, "CURRENT VIX TERMS", text_color=#ffffff, text_size=fontSize, bgcolor=color.new(#1a1a1a, 0))
+    table.cell(rt, 1, 0, "", bgcolor=color.new(#1a1a1a, 0))
+    table.cell(rt, 2, 0, "", bgcolor=color.new(#1a1a1a, 0))
+    table.cell(rt, 3, 0, "", bgcolor=color.new(#1a1a1a, 0))
+
+    table.cell(rt, 0, 1, "Term", text_color=#999999, text_size=fontSize, bgcolor=color.new(#1a1a1a, 0))
+    table.cell(rt, 1, 1, "Value", text_color=#999999, text_size=fontSize, bgcolor=color.new(#1a1a1a, 0))
+    table.cell(rt, 2, 1, "Chg%", text_color=#999999, text_size=fontSize, bgcolor=color.new(#1a1a1a, 0))
+    table.cell(rt, 3, 1, "Pctl", text_color=#999999, text_size=fontSize, bgcolor=color.new(#1a1a1a, 0))
+
+    chg_9d = ((vix9d - vix9d[1]) / vix9d[1]) * 100
+    chg_1m = ((vix - vix[1]) / vix[1]) * 100
+    chg_3m = ((vix3m - vix3m[1]) / vix3m[1]) * 100
+    chg_6m = ((vix6m - vix6m[1]) / vix6m[1]) * 100
+    chg_1y = ((vix1y - vix1y[1]) / vix1y[1]) * 100
+
+    table.cell(rt, 0, 2, "VIX9D", text_color=#a78bfa, text_size=fontSize, text_halign=text.align_left)
+    table.cell(rt, 1, 2, str.tostring(vix9d, "#.##"), text_color=#ffffff, text_size=fontSize)
+    table.cell(rt, 2, 2, str.tostring(chg_9d, "+#.#;-#.#") + "%",
+         text_color=chg_9d > 0 ? #ff4444 : chg_9d < 0 ? #00C851 : #888888, text_size=fontSize)
+    table.cell(rt, 3, 2, str.tostring(math.round(pctl_9d), "#") + "%",
+         text_color=pctl_9d > 75 ? #ff6b6b : pctl_9d > 50 ? #ffbb33 : pctl_9d > 25 ? #ffffff : #00C851, text_size=fontSize)
+
+    table.cell(rt, 0, 3, "VIX", text_color=#ec4899, text_size=fontSize, text_halign=text.align_left)
+    table.cell(rt, 1, 3, str.tostring(vix, "#.##"), text_color=#ffffff, text_size=fontSize)
+    table.cell(rt, 2, 3, str.tostring(chg_1m, "+#.#;-#.#") + "%",
+         text_color=chg_1m > 0 ? #ff4444 : chg_1m < 0 ? #00C851 : #888888, text_size=fontSize)
+    table.cell(rt, 3, 3, str.tostring(math.round(pctl_1m), "#") + "%",
+         text_color=pctl_1m > 75 ? #ff6b6b : pctl_1m > 50 ? #ffbb33 : pctl_1m > 25 ? #ffffff : #00C851, text_size=fontSize)
+
+    table.cell(rt, 0, 4, "VIX3M", text_color=#f59e0b, text_size=fontSize, text_halign=text.align_left)
+    table.cell(rt, 1, 4, str.tostring(vix3m, "#.##"), text_color=#ffffff, text_size=fontSize)
+    table.cell(rt, 2, 4, str.tostring(chg_3m, "+#.#;-#.#") + "%",
+         text_color=chg_3m > 0 ? #ff4444 : chg_3m < 0 ? #00C851 : #888888, text_size=fontSize)
+    table.cell(rt, 3, 4, str.tostring(math.round(pctl_3m), "#") + "%",
+         text_color=pctl_3m > 75 ? #ff6b6b : pctl_3m > 50 ? #ffbb33 : pctl_3m > 25 ? #ffffff : #00C851, text_size=fontSize)
+
+    table.cell(rt, 0, 5, "VIX6M", text_color=#10b981, text_size=fontSize, text_halign=text.align_left)
+    table.cell(rt, 1, 5, str.tostring(vix6m, "#.##"), text_color=#ffffff, text_size=fontSize)
+    table.cell(rt, 2, 5, str.tostring(chg_6m, "+#.#;-#.#") + "%",
+         text_color=chg_6m > 0 ? #ff4444 : chg_6m < 0 ? #00C851 : #888888, text_size=fontSize)
+    table.cell(rt, 3, 5, str.tostring(math.round(pctl_6m), "#") + "%",
+         text_color=pctl_6m > 75 ? #ff6b6b : pctl_6m > 50 ? #ffbb33 : pctl_6m > 25 ? #ffffff : #00C851, text_size=fontSize)
+
+    table.cell(rt, 0, 6, "VIX1Y", text_color=#3b82f6, text_size=fontSize, text_halign=text.align_left)
+    table.cell(rt, 1, 6, str.tostring(vix1y, "#.##"), text_color=#ffffff, text_size=fontSize)
+    table.cell(rt, 2, 6, str.tostring(chg_1y, "+#.#;-#.#") + "%",
+         text_color=chg_1y > 0 ? #ff4444 : chg_1y < 0 ? #00C851 : #888888, text_size=fontSize)
+    table.cell(rt, 3, 6, str.tostring(math.round(pctl_1y), "#") + "%",
+         text_color=pctl_1y > 75 ? #ff6b6b : pctl_1y > 50 ? #ffbb33 : pctl_1y > 25 ? #ffffff : #00C851, text_size=fontSize)
+
+    regime_bg = is_contango ? color.new(#00C851, 60) : is_backwardation ? color.new(#ff4444, 60) : color.new(#ffbb33, 60)
+    regime_text = regime + (is_contango ? " • Low fear, sell vol" : is_backwardation ? " • High fear, buy vol" : " • Neutral market")
+    table.cell(rt, 0, 7, regime_text, text_color=#ffffff, text_size=fontSize, bgcolor=regime_bg)
+    table.cell(rt, 1, 7, "", bgcolor=regime_bg)
+    table.cell(rt, 2, 7, "", bgcolor=regime_bg)
+    table.cell(rt, 3, 7, "", bgcolor=regime_bg)
+
+// ═══════════════════════════════════════════════════════════════
+// INFORMATION TABLE: MARKET STATE GUIDE (OPTIONAL)
+// ═══════════════════════════════════════════════════════════════
+
+if barstate.islast and showInfo
+    var table it = table.new(position.bottom_right, 2, 9,
+         bgcolor=color.new(#000000, 5), border_width=3, border_color=color.new(#f59e0b, 30),
+         frame_width=2, frame_color=color.new(#666666, 0))
+
+    // Title
+    table.cell(it, 0, 0, "MARKET STATE GUIDE", text_color=#ffffff, text_size=fontSize, bgcolor=color.new(#1a1a1a, 0))
+    table.cell(it, 1, 0, "", bgcolor=color.new(#1a1a1a, 0))
+
+    // Contango
+    table.cell(it, 0, 1, "Contango", text_color=#00C851, text_size=fontSize, text_halign=text.align_left, bgcolor=color.new(#00C851, 80))
+    table.cell(it, 1, 1, "Long-term vol > short-term", text_color=#ffffff, text_size=fontSize, text_halign=text.align_left, bgcolor=color.new(#00C851, 80))
+
+    table.cell(it, 0, 2, "", text_color=#cccccc, text_size=fontSize, text_halign=text.align_left)
+    table.cell(it, 1, 2, "Normal market conditions", text_color=#cccccc, text_size=fontSize, text_halign=text.align_left)
+
+    table.cell(it, 0, 3, "", text_color=#cccccc, text_size=fontSize, text_halign=text.align_left)
+    table.cell(it, 1, 3, "Favorable for vol selling", text_color=#cccccc, text_size=fontSize, text_halign=text.align_left)
+
+    // Backwardation
+    table.cell(it, 0, 4, "Backwardation", text_color=#ff4444, text_size=fontSize, text_halign=text.align_left, bgcolor=color.new(#ff4444, 80))
+    table.cell(it, 1, 4, "Short-term vol > long-term", text_color=#ffffff, text_size=fontSize, text_halign=text.align_left, bgcolor=color.new(#ff4444, 80))
+
+    table.cell(it, 0, 5, "", text_color=#cccccc, text_size=fontSize, text_halign=text.align_left)
+    table.cell(it, 1, 5, "Market stress/fear spike", text_color=#cccccc, text_size=fontSize, text_halign=text.align_left)
+
+    table.cell(it, 0, 6, "", text_color=#cccccc, text_size=fontSize, text_halign=text.align_left)
+    table.cell(it, 1, 6, "Favorable for vol buying", text_color=#cccccc, text_size=fontSize, text_halign=text.align_left)
+
+    // Key Metrics
+    table.cell(it, 0, 7, "Key Ratios", text_color=#3b82f6, text_size=fontSize, text_halign=text.align_left, bgcolor=color.new(#1a1a1a, 0))
+    table.cell(it, 1, 7, "", bgcolor=color.new(#1a1a1a, 0))
+
+    table.cell(it, 0, 8, "", text_color=#cccccc, text_size=fontSize, text_halign=text.align_left)
+    table.cell(it, 1, 8, "Ratio >1.0 = Inverted curve", text_color=#cccccc, text_size=fontSize, text_halign=text.align_left)
+
+// ═══════════════════════════════════════════════════════════════
+// ALERTS
+// ═══════════════════════════════════════════════════════════════
+
+alertcondition(ta.crossover(ratio_1m_6m, 0.95), "Risk Increasing", "VIX/VIX6M > 0.95")
+alertcondition(ta.crossunder(ratio_1m_6m, 0.75), "Complacency", "VIX/VIX6M < 0.75")
+alertcondition(is_backwardation and not is_backwardation[1], "→ Backwardation", "Entered Backwardation")
+alertcondition(is_contango and not is_contango[1], "→ Contango", "Returned to Contango")

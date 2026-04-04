@@ -1,0 +1,144 @@
+//@version=6
+indicator("VIX Option Hedge Monitor", overlay=false, max_labels_count=500)
+
+// ============================================================================
+// USER INPUTS
+// ============================================================================
+
+// Input for the option ticker symbol
+option_ticker = input.string("VIX250131C00055000", "VIX Option Symbol", 
+     tooltip="Enter the exact option ticker (e.g., VIX250131C00055000). Update this when rolling to new expiration.")
+
+// Alert thresholds
+threshold_orange = input.float(200.0, "Orange Alert Threshold (%)", minval=0, step=10,
+     tooltip="Percentage increase from day open for 'Increased Hedging' alert")
+     
+threshold_red = input.float(400.0, "Red Alert Threshold (%)", minval=0, step=10,
+     tooltip="Percentage increase from day open for 'Crash Imminent' alert")
+
+// Visual settings
+show_percentage_line = input.bool(true, "Show % Change Line")
+show_price_line = input.bool(true, "Show Price Line")
+
+// ============================================================================
+// DATA RETRIEVAL
+// ============================================================================
+
+// Get the option price data
+option_price = request.security(option_ticker, timeframe.period, close)
+
+// Get the opening price of the day for the option
+option_open = request.security(option_ticker, "D", open, lookahead=barmerge.lookahead_on)
+
+// ============================================================================
+// CALCULATIONS
+// ============================================================================
+
+// Calculate percentage change from day open
+pct_change = option_open > 0 ? ((option_price - option_open) / option_open) * 100 : 0
+
+// Determine alert status
+is_orange_alert = pct_change >= threshold_orange and pct_change < threshold_red
+is_red_alert = pct_change >= threshold_red
+
+// ============================================================================
+// PLOTTING
+// ============================================================================
+
+// Plot the option price
+plot(show_price_line ? option_price : na, "Option Price", color=color.blue, linewidth=2)
+
+// Plot percentage change
+plot(show_percentage_line ? pct_change : na, "% Change from Open", color=color.white, linewidth=1)
+
+// Plot threshold lines
+hline(threshold_orange, "Orange Threshold", color=color.orange, linestyle=hline.style_dashed)
+hline(threshold_red, "Red Threshold", color=color.red, linestyle=hline.style_dashed)
+hline(0, "Zero Line", color=color.gray, linestyle=hline.style_dotted)
+
+// ============================================================================
+// BACKGROUND COLORING & ALERTS
+// ============================================================================
+
+// Background color based on alert status
+bgcolor(is_red_alert ? color.new(color.red, 70) : 
+        is_orange_alert ? color.new(color.orange, 80) : na, 
+        title="Alert Background")
+
+// ============================================================================
+// ALERT CONDITIONS
+// ============================================================================
+
+// Alert when orange threshold is crossed
+alertcondition(is_orange_alert and not is_orange_alert[1], 
+     title="Increased Hedging Alert",
+     message="🟠 INCREASED HEDGING DETECTED - VIX Option showing 200%+ increase from day open. Check indicator for details.")
+
+// Alert when red threshold is crossed
+alertcondition(is_red_alert and not is_red_alert[1],
+     title="Crash Hedge Behavior Alert", 
+     message="🔴 FUTURE CRASH HEDGE BEHAVIOR - CRASH IMMINENT! VIX Option showing 400%+ increase from day open. Check indicator immediately!")
+
+// ============================================================================
+// INFO TABLE
+// ============================================================================
+
+// Create info table
+var table info_table = table.new(position.top_right, 2, 6, 
+     bgcolor=color.new(color.black, 10), 
+     frame_color=color.gray, 
+     frame_width=1)
+
+if barstate.islast
+    // Header
+    table.cell(info_table, 0, 0, "VIX Option Monitor", 
+         text_color=color.white, text_size=size.normal, bgcolor=color.new(color.blue, 30))
+    table.merge_cells(info_table, 0, 0, 1, 0)
+    
+    // Option ticker
+    table.cell(info_table, 0, 1, "Option:", text_color=color.gray, text_size=size.small)
+    table.cell(info_table, 1, 1, option_ticker, text_color=color.white, text_size=size.small)
+    
+    // Current price
+    table.cell(info_table, 0, 2, "Current Price:", text_color=color.gray, text_size=size.small)
+    table.cell(info_table, 1, 2, "$" + str.tostring(option_price, "#.##"), 
+         text_color=color.white, text_size=size.small)
+    
+    // Day open
+    table.cell(info_table, 0, 3, "Day Open:", text_color=color.gray, text_size=size.small)
+    table.cell(info_table, 1, 3, "$" + str.tostring(option_open, "#.##"), 
+         text_color=color.white, text_size=size.small)
+    
+    // Percentage change
+    table.cell(info_table, 0, 4, "% Change:", text_color=color.gray, text_size=size.small)
+    pct_color = is_red_alert ? color.red : is_orange_alert ? color.orange : pct_change > 0 ? color.green : color.white
+    table.cell(info_table, 1, 4, str.tostring(pct_change, "#.##") + "%", text_color=pct_color, text_size=size.small)
+    
+    // Alert status
+    table.cell(info_table, 0, 5, "Status:", text_color=color.gray, text_size=size.small)
+    status_text = is_red_alert ? "🔴 CRASH IMMINENT" : 
+                  is_orange_alert ? "🟠 INCREASED HEDGING" : 
+                  "✓ Normal"
+    status_color = is_red_alert ? color.red : is_orange_alert ? color.orange : color.green
+    table.cell(info_table, 1, 5, status_text, text_color=status_color, text_size=size.small)
+
+// ============================================================================
+// PLOTTING MARKERS ON CHART
+// ============================================================================
+
+// Plot shape markers when thresholds are hit
+plotshape(is_orange_alert and not is_orange_alert[1], 
+     title="Orange Alert Marker",
+     style=shape.triangleup, 
+     location=location.bottom, 
+     color=color.orange, 
+     size=size.small,
+     text="Increased\nHedging")
+
+plotshape(is_red_alert and not is_red_alert[1],
+     title="Red Alert Marker", 
+     style=shape.triangleup,
+     location=location.bottom,
+     color=color.red,
+     size=size.normal,
+     text="CRASH\nIMMINENT")

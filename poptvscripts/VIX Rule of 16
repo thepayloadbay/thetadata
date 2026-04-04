@@ -1,0 +1,66 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © sevencampbell
+
+//@version=5
+indicator('VIX Rule of 16', overlay=true)
+
+vixIndex = input.symbol(title='INDEX', defval='VIX')
+tlineCol = input.color(defval=color.red, title="Top Line Color", group='Lines')
+blineCol = input.color(defval=color.red, title="Bottom Line Color", group='Lines')
+tlineExt = input.int(defval=25, title='Top Line Extension (In Bars/Candles)', group='Lines')
+blineExt = input.int(defval=25, title='Bottom Line Extension (In Bars/Candles)', group='Lines')
+lWidth =  input.int(defval=2, title='Lines Width', group='Lines')
+
+vix = request.security(vixIndex, timeframe.period, open)
+
+
+InSession(sessionTimes, sessionTimeZone=syminfo.timezone) =>
+    not na(time(timeframe.period, sessionTimes, sessionTimeZone))
+
+timeZone = "GMT-5"
+sess  = "0930-1600"
+sess2 = "0930-0931"
+
+daysInput = input.string("123456", title="Trading Days", group="Session",
+     tooltip="Specifies on which day of\nthe week the session is active. " +
+     "\nThe session has to be active\non at least one day." +
+     "\n\nPossible values and days are:\n1 - Sunday\n2 - Monday" + 
+     "\n3 - Tuesday\n4 - Wednesday\n5 - Thursday\n6 - Friday\n7 - Saturday")
+
+tradingSession = sess + ":" + daysInput
+tradingSession2 = sess2 + ":" + daysInput
+
+
+IsSessionOver(sessionTime, sessionTimeZone=syminfo.timezone) =>
+    inSess = not na(time(timeframe.period, sessionTime, sessionTimeZone))
+    not inSess and inSess
+
+
+isFirstAfterSession = IsSessionOver(tradingSession2, timeZone)
+
+is_newbar(res, tradingSession) =>
+    t = time(res, tradingSession)
+    na(t[1]) or t[1] < t //and not na(t) //
+
+newbar = InSession(tradingSession2, timeZone) and is_newbar("D", tradingSession)
+
+float s1 = na
+s1 := newbar ? open : na
+float vixopen = na
+vixopen := newbar ? vix : na
+
+vixperc = vixopen / 15.87 
+
+highLevel = open + (s1 * (vixperc/100))
+lowLevel = open - (s1 * (vixperc/100))
+
+
+if highLevel
+
+    l = line.new(x1=bar_index, y1=highLevel, x2=bar_index+(tlineExt), y2=highLevel, color=tlineCol, width = lWidth, extend=extend.none)
+    l
+
+if lowLevel
+
+    l2 = line.new(x1=bar_index, y1=lowLevel, x2=bar_index+(blineExt), y2=lowLevel, color=blineCol, width = lWidth, extend=extend.none)
+    l2

@@ -1,0 +1,989 @@
+// This Pine Script® code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © KioseffTrading
+
+//@version=6
+indicator("Volume Spread Analysis IQ [TradingIQ]", overlay = false, 
+                                                   max_labels_count    = 500, 
+                                                   max_lines_count     = 500, 
+                                                   max_boxes_count     = 500, 
+                                                   max_polylines_count = 100
+                                                    )
+
+import Trading-IQ/ICTlibrary/6 as IQ
+
+var groupMain   = "Main Settings"
+var groupBars   = "Bar Interpretation"
+var groupVolSpr = "Spread / Volume"
+var groupBg     = "Background Context"
+var groupPat    = "Pattern Rules"
+var groupAdv    = "Advanced Mode"
+
+volDotCol        = input.color(#ff9ef9, title = "Effort Dot Color", group = groupMain)
+spreadDotCol     = input.color(#e9e2ff, title = "Result Dot Color", group = groupMain)
+effortOspreadCol = input.color(#5b9cf6, title = "Effort > Result", group = groupMain)
+spreadOeffortCol = input.color(#faa1a4, title = "Result > Effort", group = groupMain)
+showVol          = input.bool(defval = false, title = "Show Volume", group = groupMain, inline = "Vol")
+simpleMode       = input.bool(defval = false, title = "Show Mismatches Only", group = groupMain)
+
+volColor         = input.color(defval = #5b9cf6, title = "", inline = "Vol", active = showVol, group = groupMain)
+lineTransp       = input.int(defval = 50, minval = 0, maxval = 100, title = "Line Transp", active = showVol, group = groupMain, inline = "Vol")
+fillTransp       = input.int(defval = 75, minval = 0, maxval = 100, title = "Fill Transp", active = showVol, group = groupMain, inline = "Vol")
+noNeon           = input.bool(defval = false, title = "No Neon", group = groupMain)
+showEffortMA     = input.bool(defval = true, title = "Show Effort MA", group = groupMain, inline = "MA1")
+showResultMA     = input.bool(defval = true, title = "Show Result MA", group = groupMain, inline = "MA2")
+maLength         = input.int(defval = 14, minval = 2, maxval = 200, title = "MA Length", group = groupMain, inline = "MA3")
+maType           = input.string(defval = "SMA", title = "MA Type", options = ["SMA", "EMA", "WMA", "RMA"], group = groupMain, inline = "MA3")
+trendRule        = input.bool  (true, "Should trend influence background bias?", tooltip = "When enabled, your trend classifier helps push the background toward bullish or bearish. Turn this off if you want background based only on VSA scoring.", group = groupMain)
+bgLookbackIn     = input.string("Medium", "VSA Lookback", options = ["Small", "Medium", "High"], tooltip = "Controls how many bars are used to judge the recent VSA background. Small reacts faster. High is slower but steadier.", group = groupMain)
+
+var groupOI      = "Open Interest Delta"
+showOI           = input.bool(defval = false, title = "Show OI Delta", group = groupOI, inline = "OI1")
+oiUpCol          = input.color(defval = #55ffda, title = "OI ▲", group = groupOI, inline = "OI1")
+oiDnCol          = input.color(defval = #ff5555, title = "▼", group = groupOI, inline = "OI1")
+oiLineTransp     = input.int(defval = 50, minval = 0, maxval = 100, title = "Line Transp", group = groupOI, inline = "OI2", active = showOI)
+oiFillTransp     = input.int(defval = 75, minval = 0, maxval = 100, title = "Fill Transp", group = groupOI, inline = "OI2", active = showOI)
+oiBinanceUSDT    = input.bool(true, 'Binance USDT.P', inline = 'oisrc1', group = groupOI)
+oiBinanceUSD     = input.bool(true, 'Binance USD.P',  inline = 'oisrc1', group = groupOI)
+oiBinanceBUSD    = input.bool(true, 'Binance BUSD.P', inline = 'oisrc2', group = groupOI)
+oiBitmexUSD      = input.bool(true, 'BitMEX USD.P',   inline = 'oisrc2', group = groupOI)
+oiBitmexUSDT     = input.bool(true, 'BitMEX USDT.P',  inline = 'oisrc3', group = groupOI)
+oiKrakenUSD      = input.bool(true, 'Kraken USD.P',   inline = 'oisrc3', group = groupOI)
+
+showEVRcandle    = input.bool(defval = true, title = "Show Effort Vs. Result Per Candle", group = "Candle Labels")
+spreadColUltraN  = input.color(defval = #e9e2ff, title = "Ultra Narrow Spread Color", tooltip = "Color used for bars classified as Ultra Narrow spread.", group = "Candle Labels", active = showEVRcandle)
+spreadColUltraW  = input.color(defval = #6929f2, title = "Ultra Wide Spread Color", tooltip = "Color used for bars classified as Ultra Wide spread.", group = "Candle Labels", active = showEVRcandle)
+volColUltraN     = input.color(defval = #e9e2ff, title = "Ultra Low Volume Color", tooltip = "Color used for volume classified as Ultra Low.", group = "Candle Labels", active = showEVRcandle)
+volColUltraW     = input.color(defval = #6929f2, title = "Ultra High Volume Color", tooltip = "Color used for volume classified as Ultra High.", group = "Candle Labels", active = showEVRcandle)
+
+bodySense        = input.string("Standard", "What's a small body to you?", options = ["Loose", "Standard", "Strict"], tooltip = "Loose will classify more candles as small-body. Strict will only classify very compact bodies as small-body.", group = groupBars)
+wickSense        = input.string("Standard", "What's a long wick to you?", options = ["Loose", "Standard", "Strict"], tooltip = "Loose treats more candles as having long rejection wicks. Strict requires a more obvious wick imbalance.", group = groupBars)
+closeSense       = input.string("Standard","How close should a close be to the high or low?",options = ["Loose", "Standard", "Strict"],tooltip = "Loose accepts closes that are near the edge. Strict requires the close to be much closer to the high or low before it is classified that way.",group = groupBars)
+spreadSense      = input.string("Standard","What's a narrow spread to you?",options = ["Loose", "Standard", "Strict"],tooltip = "Loose labels more bars as narrow spread. Strict only labels clearly compressed bars as narrow.",group = groupVolSpr)
+lowVolSense      = input.string("Standard","What's low volume to you?",options = ["Loose", "Standard", "Strict"],tooltip = "Loose allows more bars to count as low volume. Strict requires volume to stand out as clearly quiet or inactive.",group = groupVolSpr)
+highVolSense     = input.string("Standard","What's high volume to you?",options = ["Loose", "Standard", "Strict"],tooltip = "Loose allows more bars to count as high volume. Strict requires volume to stand out more clearly as active or climactic.",group = groupVolSpr)
+bgSense          = input.string("Standard","How much background proof do you want?",options = ["Loose", "Standard", "Strict"],tooltip = "Loose lets background strength or weakness appear sooner. Strict requires more evidence before background bias is accepted.",group = groupBg)
+noDemandTrad     = input.bool  (false,"Use traditional No Demand rules?",tooltip = "Uses the simpler textbook-style logic: up bar, narrow spread, and volume less than the previous two bars. Turning this off uses your broader interpretation.",group = groupPat)
+noSupplyTrad     = input.bool  (false,"Use traditional No Supply rules?",tooltip = "Uses the simpler textbook-style inverse of No Demand: down bar, narrow spread, and volume less than the previous two bars. Turning this off uses your broader interpretation.",group = groupPat)
+shakeOutTrad     = input.bool  (false,"Require clear uptrend for Shakeout?",tooltip = "When enabled, Shakeouts are only allowed when your trend classifier is clearly bullish. This makes the signal more selective.",group = groupPat)
+
+
+upThrustTrad        = input.bool(false,"Require clear downtrend for Upthrust?",tooltip = "When enabled, Upthrusts are only allowed when your trend classifier is clearly bearish. This makes the signal more selective.",group = groupPat)
+showAdvanced        = input.bool(false, "Enable advanced overrides?", tooltip = "Shows the raw numeric thresholds behind the friendly settings. Most users should leave this off unless they want precise control.", group = groupAdv)
+advSmallBodyThresh  = input.float(0.10, "Small body threshold", minval = 0.01, maxval = 0.50, step = 0.01, tooltip = "Maximum body-to-range ratio for a candle to count as small-body. Lower values make the definition stricter.", group = groupAdv,  active = showAdvanced)
+advLongWickThresh   = input.float(0.45,"Long wick threshold",minval = 0.10,maxval = 0.90,step = 0.01,tooltip = "Minimum wick-to-range ratio needed for a wick to count as a meaningful rejection wick.",group = groupAdv, active = showAdvanced)
+advCloseThresh      = input.float(0.60, "Close position threshold", minval = 0.10, maxval = 0.95, step = 0.05, tooltip = "Controls how far toward the high or low the close must be before it is classified as a high close or low close.", group = groupAdv,  active = showAdvanced)
+advNarrowRankMax    = input.float(30, "Narrow spread rank max", minval = 1, maxval = 99, step = 1, tooltip = "Maximum spread percentile rank for a bar to count as narrow. Lower values make narrow spread harder to qualify.", group = groupAdv,  active = showAdvanced)
+advWideRankMin      = input.float(70, "Wide spread rank min", minval = 1, maxval = 99, step = 1, tooltip = "Minimum spread percentile rank for a bar to count as wide.", group = groupAdv, active = showAdvanced)
+advUltraWideRankMin = input.float(90, "Ultra wide spread rank min", minval = 1, maxval = 99, step = 1, tooltip = "Minimum spread percentile rank for a bar to count as ultra wide.", group = groupAdv, active = showAdvanced)
+advLowVolRankMax    = input.float(30, "Low volume rank max", minval = 1, maxval = 99, step = 1, tooltip = "Maximum volume percentile rank for a bar to count as low volume.", group = groupAdv, active = showAdvanced)
+advHighVolRankMin   = input.float(70,"High volume rank min",minval = 1,maxval = 99,step = 1,tooltip = "Minimum volume percentile rank for a bar to count as high volume.",group = groupAdv,active = showAdvanced)
+advUltraHighRankMin = input.float(90, "Ultra high volume rank min", minval = 1, maxval = 99, step = 1, tooltip = "Minimum volume percentile rank for a bar to count as ultra high volume.", group = groupAdv, active = showAdvanced)
+advBgThresh         = input.float(2.0, "Background threshold", minval = 0.0, maxval = 20.0, step = 0.25, tooltip = "How strong net VSA scoring must be before background is labeled strong or weak.", group = groupAdv, active = showAdvanced)
+advAppearThresh     = input.float(1.0, "Background appearing threshold", minval = 0.0, maxval = 20.0, step = 0.25, tooltip = "How much net score change is needed before strength or weakness is considered to be appearing.", group = groupAdv, active = showAdvanced)
+
+
+[direction, pointArr, timeArr] = IQ.IQZZsimple(3, high, low, false)
+
+// ── Open Interest Delta Data ──
+oiMex = syminfo.basecurrency == 'BTC' ? 'XBT' : string(syminfo.basecurrency)
+oiBase = string(syminfo.basecurrency)
+
+oid1 = request.security('BINANCE:' + oiBase + 'USDT.P_OI',  timeframe.period, close - close[1], ignore_invalid_symbol = true)
+oid2 = request.security('BINANCE:' + oiBase + 'USD.P_OI',   timeframe.period, close - close[1], ignore_invalid_symbol = true)
+oid3 = request.security('BINANCE:' + oiBase + 'BUSD.P_OI',  timeframe.period, close - close[1], ignore_invalid_symbol = true)
+oid4 = request.security('BITMEX:'  + oiMex  + 'USD.P_OI',   timeframe.period, close - close[1], ignore_invalid_symbol = true)
+oid5 = request.security('BITMEX:'  + oiMex  + 'USDT.P_OI',  timeframe.period, close - close[1], ignore_invalid_symbol = true)
+oid6 = request.security('KRAKEN:'  + oiBase + 'USD.P_OI',   timeframe.period, close - close[1], ignore_invalid_symbol = true)
+
+oiDelta = (oiBinanceUSDT ? nz(oid1, 0) : 0) + (oiBinanceUSD ? nz(oid2, 0) / close : 0) + (oiBinanceBUSD ? nz(oid3, 0) : 0) + (oiBitmexUSD ? nz(oid4, 0) / close : 0) + (oiBitmexUSDT ? nz(oid5, 0) / close : 0) + (oiKrakenUSD ? nz(oid6, 0) / close : 0)
+
+
+if showVol
+        
+    var volArr = array.new<float>()
+    var pointVol = array.new<chart.point>()
+    var polylines = array.new<polyline>()
+    var polyline activePoly = na
+
+    volArr.push(volume)
+
+    if not barstate.islast 
+
+        pointVol.push(chart.point.from_time(time, 0))
+        pointVol.push(chart.point.from_time(time, float(na)))
+        pointVol.push(chart.point.from_time(time("", -1), float(na)))
+        pointVol.push(chart.point.from_time(time("", -1), 0))
+
+    else 
+
+        min = volArr.min(), Range = volArr.range()
+        norm = ((volume - min) * (10 - 1)) / Range 
+
+        pointVol.push(chart.point.from_time(time, 0))
+        pointVol.push(chart.point.from_time(time, norm))
+        pointVol.push(chart.point.from_time(time("", -1), norm))
+        pointVol.push(chart.point.from_time(time("", -1), 0))
+
+        activePoly.delete()
+
+        pointVol.push(chart.point.from_time(time, 0))
+        pointVol.push(chart.point.from_time(pointVol.first().time, 0))
+
+        activePoly := polyline.new(pointVol, line_color = color.new(volColor, lineTransp), fill_color = color.new(volColor, fillTransp), xloc = xloc.bar_time)
+
+        pointVol.pop()
+        pointVol.pop()
+
+        if pointVol.size() >= 9995 
+
+            activePoly := na 
+            pointVol.clear()
+
+    if volArr.size() > 20000
+        volArr.shift()
+
+        if not barstate.islast
+
+            for i = 0 to 3
+                pointVol.shift()
+
+    if barstate.islastconfirmedhistory
+
+        min = volArr.min(), Range = volArr.range()
+
+        if pointVol.size() > 0
+
+            idx = 0
+
+            for i = 0 to pointVol.size() - 1 by 4
+
+                data = volArr.get(idx)
+
+                norm = ((data - min) * (10 - 1)) / Range
+
+                slice = pointVol.slice(i, i + 4)
+
+                getPrice1 = slice.get(1), getPrice2 = slice.get(2)
+
+                getPrice1.price := norm 
+                getPrice2.price := norm
+
+                idx += 1
+
+        pointsSize = pointVol.size()
+
+        groupCount = math.floor(pointsSize / 4)
+
+        if groupCount > 0 
+
+            polyCount = math.ceil(pointsSize / 9995)
+
+            for i = 0 to polyCount - 1
+            
+                start = 0
+                end   = math.min(start + 9995 - 1, pointVol.size())
+
+                slice = pointVol.slice(start, end)
+
+                slice.push(chart.point.from_time(slice.last() .time, 0))
+                slice.push(chart.point.from_time(slice.first().time, 0))
+
+                polylines.push(polyline.new(slice, line_color = color.new(volColor, lineTransp), fill_color = color.new(volColor, fillTransp), xloc = xloc.bar_time))
+
+                slice.clear()
+
+        polylines.clear()
+        pointVol .clear()
+
+// ── OI Delta Histogram (downward-facing bars) ──
+if showOI
+
+    var oiArr    = array.new<float>()
+    var oiColArr = array.new<int>()
+    var pointOIup = array.new<chart.point>()
+    var pointOIdn = array.new<chart.point>()
+
+    oiArr.push(math.abs(oiDelta))
+    oiColArr.push(oiDelta >= 0 ? 1 : -1)
+
+    if oiArr.size() > 10000
+        oiArr.shift()
+        oiColArr.shift()
+
+        if not barstate.islast
+
+            for _s = 0 to 3
+                pointOIup.shift()
+                pointOIdn.shift()
+
+    if not barstate.islast
+
+        pointOIup.push(chart.point.from_time(time, 0))
+        pointOIup.push(chart.point.from_time(time, float(na)))
+        pointOIup.push(chart.point.from_time(time("", -1), float(na)))
+        pointOIup.push(chart.point.from_time(time("", -1), 0))
+
+        pointOIdn.push(chart.point.from_time(time, 0))
+        pointOIdn.push(chart.point.from_time(time, float(na)))
+        pointOIdn.push(chart.point.from_time(time("", -1), float(na)))
+        pointOIdn.push(chart.point.from_time(time("", -1), 0))
+
+    else
+
+        var polyline activeOIup = na
+        var polyline activeOIdn = na
+
+        oiMin = oiArr.min()
+        oiRange = oiArr.range()
+        oiNorm = oiRange > 0 ? -((math.abs(oiDelta) - oiMin) * 10) / oiRange : 0
+
+        if oiDelta >= 0
+            pointOIup.push(chart.point.from_time(time, 0))
+            pointOIup.push(chart.point.from_time(time, oiNorm))
+            pointOIup.push(chart.point.from_time(time("", -1), oiNorm))
+            pointOIup.push(chart.point.from_time(time("", -1), 0))
+
+            pointOIdn.push(chart.point.from_time(time, 0))
+            pointOIdn.push(chart.point.from_time(time, float(na)))
+            pointOIdn.push(chart.point.from_time(time("", -1), float(na)))
+            pointOIdn.push(chart.point.from_time(time("", -1), 0))
+        else
+            pointOIdn.push(chart.point.from_time(time, 0))
+            pointOIdn.push(chart.point.from_time(time, oiNorm))
+            pointOIdn.push(chart.point.from_time(time("", -1), oiNorm))
+            pointOIdn.push(chart.point.from_time(time("", -1), 0))
+
+            pointOIup.push(chart.point.from_time(time, 0))
+            pointOIup.push(chart.point.from_time(time, float(na)))
+            pointOIup.push(chart.point.from_time(time("", -1), float(na)))
+            pointOIup.push(chart.point.from_time(time("", -1), 0))
+
+
+        activeOIup.delete() 
+        activeOIdn.delete()
+
+        pointOIup.push(chart.point.from_time(time, 0))
+        pointOIup.push(chart.point.from_time(pointOIup.first().time, 0))
+
+        pointOIdn.push(chart.point.from_time(time, 0))
+        pointOIdn.push(chart.point.from_time(pointOIdn.first().time, 0))
+
+        activeOIup := polyline.new(pointOIup, line_color = color.new(oiUpCol, oiLineTransp), fill_color = color.new(oiUpCol, oiFillTransp), xloc = xloc.bar_time)
+        activeOIdn := polyline.new(pointOIdn, line_color = color.new(oiDnCol, oiLineTransp), fill_color = color.new(oiDnCol, oiFillTransp), xloc = xloc.bar_time)
+
+        pointOIup.pop()
+        pointOIup.pop()
+        pointOIdn.pop()
+        pointOIdn.pop()
+
+        if pointOIup.size() >= 9995 
+
+            activeOIup := na 
+            activeOIdn := na
+            pointOIup.clear()
+            pointOIdn.clear()
+
+    if oiArr.size() > 20000
+        oiArr.shift()
+
+        if not barstate.islast
+
+            for i = 0 to 3
+                pointOIup.shift()
+                pointOIdn.shift()
+
+    if barstate.islastconfirmedhistory
+
+        var polylinesOIup = array.new<polyline>()
+        var polylinesOIdn = array.new<polyline>()
+
+        oiMin = oiArr.min()
+        oiRange = oiArr.range()
+
+
+        pointsSizeUp = pointOIup.size()
+        pointsSizeDn = pointOIdn.size()
+
+        if pointOIup.size() > 0 and pointOIdn.size() > 0
+
+            idx = 0
+
+            for i = 0 to pointOIup.size() - 1 by 4
+
+                data    = oiArr.get(idx)
+                colSign = oiColArr.get(idx)
+                oiNorm  = oiRange > 0 ? -((data - oiMin) * 10) / oiRange : 0
+
+                sliceUp = pointOIup.slice(i, i + 4)
+                sliceDn = pointOIdn.slice(i, i + 4)
+
+                if colSign >= 0
+                    getPU1 = sliceUp.get(1), getPU2 = sliceUp.get(2)
+                    getPU1.price := oiNorm
+                    getPU2.price := oiNorm
+                    getPD1 = sliceDn.get(1), getPD2 = sliceDn.get(2)
+                    getPD1.price := float(na)
+                    getPD2.price := float(na)
+                else
+                    getPD1 = sliceDn.get(1), getPD2 = sliceDn.get(2)
+                    getPD1.price := oiNorm
+                    getPD2.price := oiNorm
+                    getPU1 = sliceUp.get(1), getPU2 = sliceUp.get(2)
+                    getPU1.price := float(na)
+                    getPU2.price := float(na)
+
+                idx += 1
+
+        if math.floor(pointsSizeUp / 4) > 0
+            polyCountUp = math.ceil(pointsSizeUp / 9995)
+            for i = 0 to polyCountUp - 1
+                startUp = 0
+                endUp   = math.min(startUp + 9995 - 1, pointOIup.size())
+                sliceUp = pointOIup.slice(startUp, endUp)
+
+                sliceUp.push(chart.point.from_time(sliceUp.last() .time, 0))
+                sliceUp.push(chart.point.from_time(sliceUp.first().time, 0))
+
+                polylinesOIup.push(polyline.new(sliceUp, line_color = color.new(oiUpCol, oiLineTransp), fill_color = color.new(oiUpCol, oiFillTransp), xloc = xloc.bar_time))
+
+                sliceUp.clear()
+                
+        if math.floor(pointsSizeDn / 4) > 0
+            polyCountDn = math.ceil(pointsSizeDn / 9995)
+            for i = 0 to polyCountDn - 1
+                startDn = 0
+                endDn   = math.min(startDn + 9995 - 1, pointOIdn.size())
+                sliceDn = pointOIdn.slice(startDn, endDn)
+
+                sliceDn.push(chart.point.from_time(sliceDn.last() .time, 0))
+                sliceDn.push(chart.point.from_time(sliceDn.first().time, 0))
+
+                polylinesOIdn.push(polyline.new(sliceDn, line_color = color.new(oiDnCol, oiLineTransp), fill_color = color.new(oiDnCol, oiFillTransp), xloc = xloc.bar_time))
+
+                sliceDn.clear()        
+
+        polylinesOIup.clear()
+        polylinesOIdn.clear()
+        pointOIup.clear()
+        pointOIdn.clear()
+
+var bgLookback = switch bgLookbackIn
+    "Small"  => 5
+    "Medium" => 10
+    =>          20
+
+var smallBodyThresh = switch
+    showAdvanced               => advSmallBodyThresh
+    bodySense == "Loose"       => 0.15
+    bodySense == "Standard"    => 0.10
+    =>                            0.07
+
+var rejBodyMax = switch
+    showAdvanced               => math.min(0.95, advLongWickThresh)
+    wickSense == "Loose"       => 0.55
+    wickSense == "Standard"    => 0.45
+    =>                            0.35
+
+var rejWickThresh = switch
+    showAdvanced               => advLongWickThresh
+    wickSense == "Loose"       => 0.35
+    wickSense == "Standard"    => 0.45
+    =>                            0.55
+
+var closeThresh = switch
+    showAdvanced               => advCloseThresh
+    closeSense == "Loose"      => 0.45
+    closeSense == "Standard"   => 0.60
+    =>                            0.75
+
+var spreadNormalMin = switch
+    showAdvanced               => advNarrowRankMax
+    spreadSense == "Loose"     => 35
+    spreadSense == "Standard"  => 30
+    =>                            20
+
+var spreadWideMin = switch
+    showAdvanced               => advWideRankMin
+    spreadSense == "Loose"     => 65
+    spreadSense == "Standard"  => 70
+    =>                            80
+
+var spreadUltraWideMin = switch
+    showAdvanced               => advUltraWideRankMin
+    spreadSense == "Loose"     => 85
+    spreadSense == "Standard"  => 90
+    =>                            95
+
+var spreadUltraNarrowMax = switch
+    showAdvanced               => math.max(1, advNarrowRankMax * 0.33)
+    spreadSense == "Loose"     => 15
+    spreadSense == "Standard"  => 10
+    =>                            5
+
+var lowVolMax = switch
+    showAdvanced               => advLowVolRankMax
+    lowVolSense == "Loose"     => 35
+    lowVolSense == "Standard"  => 30
+    =>                            20
+
+var ultraLowVolMax = switch
+    showAdvanced               => math.max(1, advLowVolRankMax * 0.33)
+    lowVolSense == "Loose"     => 15
+    lowVolSense == "Standard"  => 10
+    =>                            5
+
+var highVolMin = switch
+    showAdvanced               => advHighVolRankMin
+    highVolSense == "Loose"    => 65
+    highVolSense == "Standard" => 70
+    =>                            80
+
+var ultraHighVolMin = switch
+    showAdvanced               => advUltraHighRankMin
+    highVolSense == "Loose"    => 85
+    highVolSense == "Standard" => 90
+    =>                            95
+
+var bgThresh = switch
+    showAdvanced               => advBgThresh
+    bgSense == "Loose"         => 1.5
+    bgSense == "Standard"      => 2.0
+    =>                            3.0
+
+var appearThresh = switch
+    showAdvanced               => advAppearThresh
+    bgSense == "Loose"         => 0.5
+    bgSense == "Standard"      => 1.0
+    =>                            1.5
+
+method pushShift(array<float> id, float value) => 
+
+    id.push(value)
+
+    if id.size() > 100
+        id.shift()
+
+    id.percentrank(id.size() - 1)
+
+strongMove() =>
+
+    log   = math.log(close / close[3])
+    mean  = ta.sma  (log, 20) 
+    stdev = ta.stdev(log, 20, true)
+    
+    (log - mean) / stdev 
+
+
+var volRankArr = array.new<float>(), var spreadRankArr = array.new<float>()
+
+barRange     = high - low
+
+volRank      = volRankArr   .pushShift(volume) 
+spreadRank   = spreadRankArr.pushShift(barRange)
+
+R            = nz(((close - low) - (high - close)) / barRange, 0)
+barDirection = math.sign(close - close[1])
+upBar        = barDirection > 0
+downBar      = barDirection < 0
+
+[volClass, effort] = switch
+
+    volRank >= ultraHighVolMin => ["Ultra High", "High Effort"]
+    volRank >= highVolMin      => ["High", "High Effort"]
+    volRank >= lowVolMax       => ["Normal", "Normal"]
+    volRank >= ultraLowVolMax  => ["Low", "Low Effort"]
+    =>                            ["Ultra Low", "Low Effort"]
+
+spreadClass = switch
+    spreadRank >= spreadUltraWideMin   => "Ultra Wide"
+    spreadRank >= spreadWideMin        => "Wide"
+    spreadRank >= spreadNormalMin      => "Normal"
+    spreadRank >= spreadUltraNarrowMax => "Narrow"
+    =>                                    "Ultra Narrow"
+
+closePos = switch
+    R >=  closeThresh => "High"
+    R <= -closeThresh => "Low"
+    =>                  "Middle"
+
+body           = math.abs(close - open)
+upperWick      = high - math.max(open, close)
+lowerWick      = math.min(open, close) - low
+
+bodyRatio      = nz(body / barRange), upperWickRatio = nz(upperWick / barRange), lowerWickRatio = nz(lowerWick / barRange)
+
+smallBody      = bodyRatio <= smallBodyThresh
+upRej          = upperWickRatio >= rejWickThresh and upperWickRatio > lowerWickRatio and bodyRatio <= rejBodyMax
+lowRej         = lowerWickRatio >= rejWickThresh and lowerWickRatio > upperWickRatio and bodyRatio <= rejBodyMax
+wideB          = bodyRatio >= 0.60
+
+shape = switch
+
+    upRej     => "Upper Rejection"
+    lowRej    => "Lower Rejection"
+    smallBody => "Small-Body"
+    wideB     => "Wide-Body"
+    =>           "Balanced"
+
+result = switch
+
+    upBar and closePos == "High" and (spreadClass == "Ultra Wide" or spreadClass == "Wide") =>
+        "Strong Upward"
+
+    upBar and closePos == "High" and spreadClass == "Normal" =>
+        "Moderate Upward"
+
+    upBar and closePos == "Middle" and (spreadClass == "Ultra Wide" or spreadClass == "Wide") =>
+        "Questionable Upward"
+
+    upBar and (closePos == "Middle" or closePos == "High") and (spreadClass == "Narrow" or spreadClass == "Ultra Narrow") =>
+        "Weak Upward"
+
+    upBar and closePos == "Low" =>
+        "Poor Upward"
+
+    downBar and closePos == "Low" and (spreadClass == "Ultra Wide" or spreadClass == "Wide") =>
+        "Strong Downward"
+
+    downBar and closePos == "Low" and spreadClass == "Normal" =>
+        "Moderate Downward"
+
+    downBar and closePos == "Middle" and (spreadClass == "Ultra Wide" or spreadClass == "Wide") =>
+        "Questionable Downward"
+
+    downBar and (closePos == "Middle" or closePos == "Low") and (spreadClass == "Narrow" or spreadClass == "Ultra Narrow") =>
+        "Weak Downward"
+
+    downBar and closePos == "High" =>
+        "Poor Downward"
+
+    barDirection == 0 and closePos == "High" and (spreadClass == "Ultra Wide" or spreadClass == "Wide") =>
+        "Upward Bias"
+
+    barDirection == 0 and closePos == "Low" and (spreadClass == "Ultra Wide" or spreadClass == "Wide") =>
+        "Downward Bias"
+
+    barDirection == 0 and closePos == "Middle" and (spreadClass == "Ultra Wide" or spreadClass == "Wide") =>
+        "Neutral Wide"
+
+    =>
+        "Neutral"
+
+upResult =
+
+     result == "Strong Upward"
+  or result == "Moderate Upward"
+  or result == "Questionable Upward"
+  or result == "Weak Upward"
+  or result == "Poor Upward"
+  or result == "Upward Bias"
+
+downResult =
+     result == "Strong Downward"
+  or result == "Moderate Downward"
+  or result == "Questionable Downward"
+  or result == "Weak Downward"
+  or result == "Poor Downward"
+  or result == "Downward Bias"
+
+effortVsResult = switch
+
+    effort == "High Effort" and result == "Strong Upward" =>
+        "Bullish Efficiency"
+
+    effort == "High Effort" and result == "Strong Downward" =>
+        "Bearish Efficiency"
+
+    effort == "High Effort" and upResult and result != "Strong Upward" =>
+        "Possible Hidden Weakness"
+
+    effort == "High Effort" and downResult and result != "Strong Downward" =>
+        "Possible Hidden Strength"
+
+    effort == "High Effort" and (result == "Neutral" or result == "Neutral Wide") =>
+        "Compression / Absorption"
+
+    effort == "Low Effort" and result == "Strong Upward" =>
+        "Easy Upward Movement"
+
+    effort == "Low Effort" and result == "Strong Downward" =>
+        "Easy Downward Movement"
+
+    effort == "Low Effort" =>
+        "Low-Effort / Low-Result"
+
+    effort == "Normal" and (result == "Strong Upward" or result == "Moderate Upward") =>
+        "Constructive Upward"
+
+    effort == "Normal" and (result == "Strong Downward" or result == "Moderate Downward") =>
+        "Constructive Downward"
+
+    effort == "Normal" =>
+        "Neutral / Mixed"
+
+    =>
+        "Unclassified"
+
+bullScore = switch
+
+    effortVsResult == "Bullish Efficiency"   => 3
+    effortVsResult == "Easy Upward Movement" => 1
+    effortVsResult == "Constructive Upward"  => 2
+
+    => 0.0
+
+bearScore = switch
+
+    effortVsResult == "Bearish Efficiency"     => 3
+    effortVsResult == "Easy Downward Movement" => 1
+    effortVsResult == "Constructive Downward"  => 2
+
+    => 0.0
+
+strengthScore = math.sum(bullScore, bgLookback)
+weaknessScore = math.sum(bearScore, bgLookback)
+
+if trendRule
+
+    switch direction == 1 
+
+        true => strengthScore += 5 
+        =>      weaknessScore += 5
+
+netScore = strengthScore - weaknessScore
+
+background = switch
+
+    netScore > bgThresh  => "Strong"
+    netScore < -bgThresh => "Weak"
+
+    => "Neutral"
+
+strongBg = background == "Strong"
+weakBg   = background == "Weak"
+
+bgConditionCol = color.from_gradient(netScore, -10, 10, color.rgb(255, 116, 116), #55ffda)
+
+volLessP2         = volume < volume[1] and volume < volume[2]
+lowVolVsa         = effort == "Low Effort" or volLessP2
+
+narrowSpread = spreadClass == "Narrow" or spreadClass == "Ultra Narrow" 
+
+noDemand = switch noDemandTrad
+    
+    false => upBar
+             and (lowVolVsa or (volLessP2))
+             and narrowSpread
+             and closePos == "Middle"
+
+    => upBar and volLessP2 and narrowSpread
+
+noSupply = switch noSupplyTrad
+
+    false => downBar
+             and (lowVolVsa or (volLessP2))
+             and narrowSpread
+             and closePos == "Middle"
+
+    => downBar and volLessP2 and narrowSpread
+
+noDemandConfirmed = noDemand[1] and close < close[1]
+noSupplyConfirmed = noSupply[1] and close > close[1]
+
+upthrust =
+     shape        == "Upper Rejection"
+ and closePos     == "Middle"
+ and (spreadClass == "Normal" or spreadClass == "Wide" or spreadClass == "Ultra Wide")
+ and weakBg
+ and (upThrustTrad ? direction == -1 : true)
+
+shakeout =
+     shape        == "Lower Rejection"
+ and (closePos    == "Middle" or closePos    == "High")
+ and (spreadClass == "Normal" or spreadClass == "Wide" or spreadClass == "Ultra Wide")
+ and strongBg
+ and (shakeOutTrad ? direction == 1 : true)
+
+
+var stopVolActive = false 
+
+z = strongMove()
+
+if z <= -2 
+
+    stopVolActive := true 
+
+if ta.barssince(stopVolActive) == 5
+    stopVolActive := false 
+
+stoppingVolume =
+     downBar
+ and effort == "High Effort"
+ and (narrowSpread or spreadClass == "Normal")
+ and closePos == "Middle" and stopVolActive
+
+
+plotcandle(open, high, low, close, 
+         color         = color.new(bgConditionCol, 0), 
+         wickcolor     = color.new(bgConditionCol, 25), 
+         bordercolor   = #00000000, 
+         display       = display.pane, 
+         force_overlay = true
+         )
+
+spreadRankEasy = switch 
+
+    spreadRank == 100 => 10 
+    spreadRank > 90 => 9 
+    spreadRank > 80 => 8 
+    spreadRank > 70 => 7 
+    spreadRank > 60 => 6 
+    spreadRank > 50 => 5 
+    spreadRank > 40 => 4 
+    spreadRank > 30 => 3
+    spreadRank > 20 => 2
+    => 1
+
+effortRankEasy = switch 
+
+    volRank == 100 => 10 
+    volRank > 90 => 9 
+    volRank > 80 => 8 
+    volRank > 70 => 7 
+    volRank > 60 => 6 
+    volRank > 50 => 5 
+    volRank > 40 => 4 
+    volRank > 30 => 3
+    volRank > 20 => 2
+    => 1
+
+colCandle       = color.from_gradient(spreadRank, 0, 100, spreadColUltraN, spreadColUltraW)
+colCandleEffort = color.from_gradient(volRank, 0, 100, volColUltraN, volColUltraW)
+
+if last_bar_index - bar_index <= 500 
+
+    if showEVRcandle 
+
+        tip = "Effort: " + volClass + "\n" + "Result: " + result + "\nState: " + effortVsResult
+
+        label.new(bar_index, high,color = #00000000, 
+                                 text          = "R: " + str.tostring(spreadRankEasy), 
+                                 textcolor     = colCandle, 
+                                 force_overlay = true, 
+                                 size          = size.auto, 
+                                 tooltip       = tip
+                                 )
+
+        label.new(bar_index, low, color = #00000000, 
+                                 text = "E: " + str.tostring(effortRankEasy), 
+                                 textcolor     = colCandleEffort, 
+                                 force_overlay = true, 
+                                 style         = label.style_label_up, 
+                                 size          = size.auto, 
+                                 tooltip       = tip
+                                 )
+
+plot(not simpleMode ? 1 : na,  style = plot.style_circles, color = color.new(color.gray, 50), display = display.pane, linewidth = 2)
+plot(not simpleMode ? 2 : na,  style = plot.style_circles, color = color.new(color.gray, 50), display = display.pane, linewidth = 2)
+plot(not simpleMode ? 3 : na,  style = plot.style_circles, color = color.new(color.gray, 50), display = display.pane, linewidth = 2)
+plot(not simpleMode ? 4 : na,  style = plot.style_circles, color = color.new(color.gray, 50), display = display.pane, linewidth = 2)
+plot(not simpleMode ? 5 : na,  style = plot.style_circles, color = color.new(color.gray, 50), display = display.pane, linewidth = 2)
+plot(not simpleMode ? 6 : na,  style = plot.style_circles, color = color.new(color.gray, 50), display = display.pane, linewidth = 2)
+plot(not simpleMode ? 7 : na,  style = plot.style_circles, color = color.new(color.gray, 50), display = display.pane, linewidth = 2)
+plot(not simpleMode ? 8 : na,  style = plot.style_circles, color = color.new(color.gray, 50), display = display.pane, linewidth = 2)
+plot(not simpleMode ? 9 : na,  style = plot.style_circles, color = color.new(color.gray, 50), display = display.pane, linewidth = 2)
+plot(not simpleMode ? 10 : na, style = plot.style_circles, color = color.new(color.gray, 50), display = display.pane, linewidth = 2)
+
+plot(not simpleMode ? effortRankEasy : na, style = plot.style_circles , color = volDotCol, display = display.all, linewidth = 2, title = "Effort")
+plot(not simpleMode ? effortRankEasy : na, style = plot.style_circles , color = color.new(volDotCol, noNeon ? 100 : 85), display = display.pane, linewidth = 4)
+plot(not simpleMode ? effortRankEasy : na, style = plot.style_circles , color = color.new(volDotCol, noNeon ? 100 : 90), display = display.pane, linewidth = 6)
+plot(not simpleMode ? effortRankEasy : na, style = plot.style_circles , color = color.new(volDotCol, noNeon ? 100 : 95), display = display.pane, linewidth = 8)
+plot(not simpleMode ? effortRankEasy : na, style = plot.style_circles , color = color.new(volDotCol, noNeon ? 100 : 98), display = display.pane, linewidth = 11)
+calcMA(float src, int len, simple string typ) =>
+    switch typ
+        "EMA" => ta.ema(src, len)
+        "WMA" => ta.wma(src, len)
+        "RMA" => ta.rma(src, len)
+        =>       ta.sma(src, len)
+
+effortMA = calcMA(effortRankEasy, maLength, maType)
+resultMA = calcMA(spreadRankEasy, maLength, maType)
+plot(not simpleMode and showEffortMA ? effortMA : na, style = plot.style_line, color = volDotCol, display = display.pane, linewidth = 2, title = "Effort MA")
+plot(not simpleMode ? spreadRankEasy : na, style = plot.style_circles , color = spreadDotCol, display = display.all, linewidth = 2, title = "Result")
+plot(not simpleMode ? spreadRankEasy : na, style = plot.style_circles , color = color.new(spreadDotCol, noNeon ? 100 : 85), display = display.pane, linewidth = 4)
+plot(not simpleMode ? spreadRankEasy : na, style = plot.style_circles , color = color.new(spreadDotCol, noNeon ? 100 : 90), display = display.pane, linewidth = 6)
+plot(not simpleMode ? spreadRankEasy : na, style = plot.style_circles , color = color.new(spreadDotCol, noNeon ? 100 : 95), display = display.pane, linewidth = 8)
+plot(not simpleMode ? spreadRankEasy : na, style = plot.style_circles , color = color.new(spreadDotCol, noNeon ? 100 : 98), display = display.pane, linewidth = 11)
+plot(not simpleMode and showResultMA ? resultMA : na, style = plot.style_line, color = spreadDotCol, display = display.pane, linewidth = 2, title = "Result MA")
+
+diff = math.abs(spreadRankEasy - effortRankEasy)
+
+diffCol = switch diff >= 3
+
+    true => spreadRankEasy > effortRankEasy ? spreadOeffortCol : effortOspreadCol
+    =>      color(na)
+
+plot(diff >= 3 ? 0 : na, style = plot.style_circles , color = diffCol , display = display.pane, linewidth = 2)
+plot(diff >= 3 ? 0 : na, style = plot.style_circles , color = color.new(diffCol, noNeon ? 100 : 85 ), display = display.pane, linewidth = 4)
+plot(diff >= 3 ? 0 : na, style = plot.style_circles , color = color.new(diffCol, noNeon ? 100 : 90 ), display = display.pane, linewidth = 6)
+plot(diff >= 3 ? 0 : na, style = plot.style_circles , color = color.new(diffCol, noNeon ? 100 : 95 ), display = display.pane, linewidth = 8)
+plot(diff >= 3 ? 0 : na, style = plot.style_circles , color = color.new(diffCol, noNeon ? 100 : 98 ), display = display.pane, linewidth = 11)
+
+upTrend = direction == 1, downTrend = direction == -1, upA = "▴", dnA = "▾"
+
+plotshape(noDemandConfirmed and upTrend, offset = -1, text = "ND" + upA, 
+                                     style         = shape.triangledown, 
+                                     color         = #00000000, 
+                                     textcolor     = color.new(color.rgb(255, 116, 116), 25),
+                                     force_overlay = true, 
+                                     display       = display.pane
+                                     )
+
+plotshape(noDemandConfirmed and downTrend, offset = -1, text = "ND" + dnA, 
+                                     style         = shape.triangledown, 
+                                     color         = #00000000, 
+                                     textcolor     = color.new(color.rgb(255, 116, 116), 25),
+                                     force_overlay = true, 
+                                     display       = display.pane
+                                     )
+
+plotshape(noSupplyConfirmed and upTrend, offset = -1, text = "NS" + upA, 
+                                     style         = shape.triangledown, 
+                                     color         = #00000000, 
+                                     textcolor     = color.new(#55ffda, 25),
+                                     location      = location.belowbar, 
+                                     force_overlay = true, 
+                                     display       = display.pane)
+
+plotshape(noSupplyConfirmed and downTrend, offset = -1, text = "NS" + dnA, 
+                                     style         = shape.triangledown, 
+                                     color         = #00000000, 
+                                     textcolor     = color.new(#55ffda, 25),
+                                     location      = location.belowbar, 
+                                     force_overlay = true, 
+                                     display       = display.pane
+                                     )
+
+plotshape(upthrust[1] and downBar and close < close[1], text = "UT", offset = -1, 
+                                     style         = shape.triangledown, 
+                                     color         = #00000000, 
+                                     textcolor     = color.new(color.rgb(255, 116, 116), 25),
+                                     force_overlay = true, 
+                                     display       = display.pane
+                                     )
+plotshape(shakeout[1] and upBar   and close > close[1], text = "SO", offset = -1, 
+                                     style         = shape.triangledown, 
+                                     color         = #00000000, 
+                                     textcolor     = color.new(#55ffda, 25),
+                                     location      = location.belowbar,
+                                     force_overlay = true, 
+                                     display       = display.pane
+                                     )
+plotshape(stoppingVolume, text = "STV", 
+                                     style         = shape.triangledown, 
+                                     color         = #00000000, 
+                                     textcolor     = color.new(strongBg ? #55ffda : color.rgb(255, 116, 116), 25), 
+                                     location      = location.belowbar,
+                                     force_overlay = true, 
+                                     display       = display.pane
+                                     )
+
+if barstate.islast 
+
+    var expCol = #181b27
+    var tab    = table.new(position.top_right, 99, 99, 
+                                    bgcolor       = #20222C, 
+                                    border_color  = #363843, 
+                                    frame_color   = #363843, 
+                                    border_width  = 1, 
+                                    frame_width   = 1                                  
+                                    )
+
+    effortText = "", spreadText = ""
+
+    for i = 1 to effortRankEasy
+
+        effortText += "█"
+
+    if effortRankEasy != 10
+        for i = effortRankEasy to 9
+            
+            effortText += "░"
+
+
+    for i = 1 to spreadRankEasy
+
+        spreadText += "█"
+
+    if spreadRankEasy != 10
+        for i = spreadRankEasy to 9
+            
+            spreadText += "░"
+
+    tab.cell(0, 0, text = "Effort Vs. Result", 
+                         text_color = color.white, 
+                         text_size  = size.small, 
+                         bgcolor   = expCol
+                         )
+
+    tab.cell(0, 2, text = "Effort", 
+                         text_color = color.white, 
+                         text_size  = size.small, 
+                         bgcolor    = expCol
+                         )
+
+    tab.cell(1, 2, text = effortText, 
+                         text_color = colCandleEffort, 
+                         text_size  = size.small, 
+                         bgcolor    = expCol
+                         )
+
+    tab.cell(2, 2, text = str.tostring(effortRankEasy), 
+                         text_color = color.white, 
+                         text_size  = size.small, 
+                         bgcolor    = expCol
+                         )
+
+    tab.cell(0, 3, text = "Result", 
+                         text_color = color.white, 
+                         text_size  = size.small, 
+                         bgcolor    = expCol
+                         )
+
+    tab.cell(1, 3, text = spreadText, 
+                         text_color = colCandle, 
+                         text_size  = size.small, 
+                         bgcolor    = expCol
+                         )
+
+    tab.cell(2, 3, text = str.tostring(spreadRankEasy), 
+                         text_color = color.white, 
+                         text_size  = size.small, 
+                         bgcolor    = expCol
+                         )
+
+    tab.cell(0, 4, text = effortVsResult, 
+                         text_color = color.white, 
+                         text_size  = size.small, 
+                         bgcolor    = expCol)
+
+    tab.merge_cells(0, 0, 2, 0), tab.merge_cells(0, 4, 2, 4)
+
+    var lab = array.new<label>(10) 
+
+    for labs in lab 
+        labs.delete()
+
+    if not simpleMode
+
+        for i = 0 to 9
+
+            loc = i + 1
+            txt = str.tostring(loc)
+
+            lab.set(i, label.new(bar_index, loc, text = txt, size = size.small, 
+                                                        textcolor = chart.fg_color, 
+                                                        style     = label.style_label_left, 
+                                                        color     = #00000000
+                                                        ))
+

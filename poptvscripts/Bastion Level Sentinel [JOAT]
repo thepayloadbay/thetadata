@@ -1,0 +1,269 @@
+// This Pine Script® code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © officialjackofalltrades
+//@version=6
+indicator("Bastion Level Sentinel [JOAT]", shorttitle="BLS [JOAT]", overlay=true, max_lines_count=50, max_labels_count=50)
+
+// ──────────────────── INPUTS ────────────────────────────────────────────────
+string GRP_CORE = "Fortress Grid"
+int    emaLen    = input.int(21,     "Lattice Anchor",         minval=5,    maxval=100,  group=GRP_CORE, tooltip="EMA period used to derive price grid")
+float  roundVal  = input.float(500,  "Grid Increment",         minval=10,   maxval=5000, step=50, group=GRP_CORE, tooltip="Price is rounded to this increment to find major levels")
+float  tolFactor = input.float(0.15, "Proximity Radius",       minval=0.05, maxval=0.5,  step=0.05, group=GRP_CORE, tooltip="Fraction of level gap used as proximity zone")
+bool   showSub   = input.bool(true,  "Tertiary Gridlines",     group=GRP_CORE, tooltip="Display 25% and 75% sub-levels between support and resistance")
+
+string GRP_STR  = "Conviction Engine"
+int    maxTouch  = input.int(5, "Conviction Saturation",      minval=2, maxval=20, group=GRP_STR, tooltip="Number of touches to reach 100% conviction")
+bool   useVolConf = input.bool(true, "Flux Validation",        group=GRP_STR, tooltip="Require above-average volume near level for touch to count as validated")
+float  volConfMul = input.float(1.2, "Flux Threshold",         minval=1.0, maxval=3.0, step=0.1, group=GRP_STR, tooltip="Volume ratio above SMA required for validated touch")
+
+string GRP_VIS  = "Optics Layer"
+bool   showLvls  = input.bool(true, "Primary Rails",           group=GRP_VIS)
+bool   showZones = input.bool(true, "Proximity Halos",         group=GRP_VIS)
+bool   showMid   = input.bool(true, "Equator Line",            group=GRP_VIS)
+bool   showDash  = input.bool(true, "Command Panel",           group=GRP_VIS)
+bool   showAura  = input.bool(true, "Proximity Aura",          group=GRP_VIS, tooltip="Background tint when price enters rail proximity zone")
+bool   showFlash = input.bool(true, "Breach Flash",            group=GRP_VIS, tooltip="Bar color flash on level breach")
+bool   showPulse = input.bool(true, "Conviction Pulse",        group=GRP_VIS, tooltip="Labels on rails showing conviction strength")
+bool   showApproach = input.bool(true, "Approach Beacon",      group=GRP_VIS, tooltip="Warning labels when price enters proximity zone")
+bool   showBarTint = input.bool(true, "Grid Tint Candles",     group=GRP_VIS, tooltip="Color-code candles based on position within the grid")
+
+string GRP_COL  = "Chromatic Scheme"
+color  colResist = input.color(#ff2e63, "Ceiling Rail",         group=GRP_COL)
+color  colSupp   = input.color(#0affab, "Floor Rail",           group=GRP_COL)
+color  colNeut   = input.color(#6c5ce7, "Neutral Tone",         group=GRP_COL)
+color  colSub    = input.color(#2d3436, "Tertiary Tone",        group=GRP_COL)
+color  colValid  = input.color(#fdcb6e, "Validated Accent",     group=GRP_COL)
+color  colFlash  = input.color(#e17055, "Breach Flash",         group=GRP_COL)
+color  colAura   = input.color(#00cec9, "Proximity Aura",       group=GRP_COL)
+
+// ──────────────────── LEVEL CALCULATION ─────────────────────────────────────
+float emaVal   = ta.ema(close, emaLen)
+float topLvl   = roundVal * math.ceil(emaVal / roundVal)
+float botLvl   = roundVal * math.floor(emaVal / roundVal)
+float levelGap = topLvl - botLvl
+float tolerance = levelGap * tolFactor
+
+// Stability check — level unchanged from previous bar
+isStable(float x) => not na(x[1]) and x == x[1]
+within(float price, float lvl) => price >= lvl - tolerance and price <= lvl + tolerance
+
+bool topStable = isStable(topLvl)
+bool botStable = isStable(botLvl)
+
+// Sub-levels
+float midLvl  = (topLvl + botLvl) / 2
+float q25Lvl  = botLvl + levelGap * 0.25
+float q75Lvl  = botLvl + levelGap * 0.75
+
+// ──────────────────── CONVICTION ENGINE (TOUCH COUNTING & STRENGTH) ─────────
+var int topTouches = 0
+var int botTouches = 0
+var int topValidated = 0
+var int botValidated = 0
+var float prevTopLvl = na
+var float prevBotLvl = na
+var int topAgeBars = 0
+var int botAgeBars = 0
+
+// Volume confirmation ratio
+float volNow = ta.sma(volume, 3)
+float volAvg = ta.sma(volume, 14)
+float volConf = volAvg != 0 ? volNow / volAvg : 1.0
+bool  volHot  = volConf >= volConfMul
+
+// Reset counters when levels shift; track lifecycle age
+if topLvl != prevTopLvl
+    topTouches   := 0
+    topValidated := 0
+    topAgeBars   := 0
+    prevTopLvl   := topLvl
+else
+    topAgeBars += 1
+
+if botLvl != prevBotLvl
+    botTouches   := 0
+    botValidated := 0
+    botAgeBars   := 0
+    prevBotLvl   := botLvl
+else
+    botAgeBars += 1
+
+// Edge-triggered touch detection
+bool topTouch     = within(high, topLvl) and topStable
+bool botTouch     = within(low,  botLvl) and botStable
+bool topTouchEdge = topTouch and not topTouch[1]
+bool botTouchEdge = botTouch and not botTouch[1]
+
+if topTouchEdge
+    topTouches += 1
+    if useVolConf and volHot
+        topValidated += 1
+    if not useVolConf
+        topValidated += 1
+
+if botTouchEdge
+    botTouches += 1
+    if useVolConf and volHot
+        botValidated += 1
+    if not useVolConf
+        botValidated += 1
+
+// Conviction score (0-100, capped) — weighted toward validated touches
+float topStr = math.min(100, (topValidated * 0.7 + topTouches * 0.3) * (100.0 / maxTouch))
+float botStr = math.min(100, (botValidated * 0.7 + botTouches * 0.3) * (100.0 / maxTouch))
+
+// Level maturity classification
+string topMaturity = topAgeBars > 200 ? "ANCIENT" : topAgeBars > 50 ? "SEASONED" : "NASCENT"
+string botMaturity = botAgeBars > 200 ? "ANCIENT" : botAgeBars > 50 ? "SEASONED" : "NASCENT"
+
+// Price position mapping (0 = at support, 1 = at resistance)
+float priceMap = levelGap != 0 ? (close - botLvl) / levelGap : 0.5
+string posLabel = priceMap > 0.8 ? "CEILING ZONE" : priceMap > 0.6 ? "UPPER GRID" : priceMap > 0.4 ? "EQUATOR" : priceMap > 0.2 ? "LOWER GRID" : "FLOOR ZONE"
+
+// ──────────────────── BREACH DETECTION ─────────────────────────────────────
+bool topBreak = ta.crossover(close,  topLvl) and barstate.isconfirmed
+bool botBreak = ta.crossunder(close, botLvl) and barstate.isconfirmed
+
+// ──────────────────── LEVEL COLOURING (conviction-driven gradient) ──────────
+color topCol = close < topLvl ? color.from_gradient(topStr, 0, 100, colNeut, colResist) : color.new(colNeut, 40)
+color botCol = close > botLvl ? color.from_gradient(botStr, 0, 100, colNeut, colSupp)   : color.new(colNeut, 40)
+
+// ──────────────────── PLOTS ─────────────────────────────────────────────────
+// Primary rails
+p_top = plot(showLvls ? topLvl : na, "Ceiling Rail",  color=topCol, linewidth=2, style=plot.style_linebr)
+p_bot = plot(showLvls ? botLvl : na, "Floor Rail",    color=botCol, linewidth=2, style=plot.style_linebr)
+
+// Proximity halo boundaries
+p_topH = plot(showZones ? topLvl + tolerance : na, "Ceiling Halo Hi", color=color.new(colSub, 65), linewidth=1, style=plot.style_linebr)
+p_topL = plot(showZones ? topLvl - tolerance : na, "Ceiling Halo Lo", color=color.new(colSub, 65), linewidth=1, style=plot.style_linebr)
+p_botH = plot(showZones ? botLvl + tolerance : na, "Floor Halo Hi",   color=color.new(colSub, 65), linewidth=1, style=plot.style_linebr)
+p_botL = plot(showZones ? botLvl - tolerance : na, "Floor Halo Lo",   color=color.new(colSub, 65), linewidth=1, style=plot.style_linebr)
+
+// Halo fills — intensity scales with conviction
+color topZoneFill = color.new(colResist, math.round(96 - topStr * 0.12))
+color botZoneFill = color.new(colSupp,   math.round(96 - botStr * 0.12))
+fill(p_topH, p_topL, color=showZones ? topZoneFill : na, title="Ceiling Halo")
+fill(p_botH, p_botL, color=showZones ? botZoneFill : na, title="Floor Halo")
+
+// Equator & tertiary gridlines
+plot(showMid ? midLvl : na, "Equator",      color=color.new(colNeut, 50), linewidth=1, style=plot.style_cross)
+plot(showSub ? q25Lvl : na, "Tertiary 25",  color=color.new(colSub, 60),  linewidth=1, style=plot.style_cross)
+plot(showSub ? q75Lvl : na, "Tertiary 75",  color=color.new(colSub, 60),  linewidth=1, style=plot.style_cross)
+
+// ──────────────────── INTERACTION SIGNALS (LABEL-BASED) ──────────────────────
+bool topValTouch = topTouchEdge and barstate.isconfirmed and (not useVolConf or volHot)
+bool botValTouch = botTouchEdge and barstate.isconfirmed and (not useVolConf or volHot)
+bool topRawTouch = topTouchEdge and barstate.isconfirmed and useVolConf and not volHot
+bool botRawTouch = botTouchEdge and barstate.isconfirmed and useVolConf and not volHot
+
+// Validated touch — clean text label with conviction info
+if topValTouch
+    label.new(bar_index, topLvl + tolerance * 1.5, "RAIL LOCK " + str.tostring(topTouches), style=label.style_label_down, color=color.new(colValid, 15), textcolor=color.rgb(20, 20, 35), size=size.tiny, tooltip="Validated ceiling interaction | Conviction: " + str.tostring(topStr, "#") + "%")
+if botValTouch
+    label.new(bar_index, botLvl - tolerance * 1.5, "RAIL LOCK " + str.tostring(botTouches), style=label.style_label_up, color=color.new(colValid, 15), textcolor=color.rgb(20, 20, 35), size=size.tiny, tooltip="Validated floor interaction | Conviction: " + str.tostring(botStr, "#") + "%")
+
+// Unconfirmed touch — dimmer label
+if topRawTouch
+    label.new(bar_index, topLvl + tolerance * 1.5, "ECHO", style=label.style_label_down, color=color.new(colResist, 55), textcolor=color.rgb(180, 180, 195), size=size.tiny, tooltip="Unconfirmed ceiling touch — low volume")
+if botRawTouch
+    label.new(bar_index, botLvl - tolerance * 1.5, "ECHO", style=label.style_label_up, color=color.new(colSupp, 55), textcolor=color.rgb(180, 180, 195), size=size.tiny, tooltip="Unconfirmed floor touch — low volume")
+
+// Breach signal — distinct label
+if topBreak
+    label.new(bar_index, high + tolerance * 0.8, "BREACH", style=label.style_label_down, color=color.new(colFlash, 10), textcolor=color.rgb(255, 255, 255), size=size.tiny, tooltip="Ceiling rail breached — potential breakout")
+if botBreak
+    label.new(bar_index, low - tolerance * 0.8, "BREACH", style=label.style_label_up, color=color.new(colFlash, 10), textcolor=color.rgb(255, 255, 255), size=size.tiny, tooltip="Floor rail breached — potential breakdown")
+
+// ──────────────────── PROXIMITY AURA (background tint near rails) ────────────
+bool inTopZone = within(close, topLvl)
+bool inBotZone = within(close, botLvl)
+color auraCol = inTopZone ? color.new(colResist, 92) : inBotZone ? color.new(colSupp, 92) : na
+bgcolor(showAura ? auraCol : na, title="Proximity Aura")
+
+// ──────────────────── GRID TINT & BREACH FLASH (bar coloring) ───────────────
+// Grid tint: candles colored by position within the grid
+color gridTint = priceMap > 0.8 ? color.new(colResist, 40) : priceMap > 0.6 ? color.new(colResist, 65) : priceMap > 0.4 ? color.new(colNeut, 55) : priceMap > 0.2 ? color.new(colSupp, 65) : color.new(colSupp, 40)
+// Breach flash overrides grid tint
+color barTintCol = showFlash and topBreak ? color.new(colFlash, 10) : showFlash and botBreak ? color.new(colFlash, 10) : showBarTint ? gridTint : na
+barcolor(barTintCol, title="Grid Tint & Breach Flash")
+
+// ──────────────────── APPROACH BEACON (warning when entering zone) ────────────
+bool topApproach = inTopZone and not inTopZone[1] and barstate.isconfirmed
+bool botApproach = inBotZone and not inBotZone[1] and barstate.isconfirmed
+
+if showApproach and topApproach
+    label.new(bar_index, topLvl - tolerance * 2.0, "APPROACH", style=label.style_label_up, color=color.new(colResist, 35), textcolor=color.rgb(220, 220, 235), size=size.tiny, tooltip="Price entering ceiling proximity zone")
+if showApproach and botApproach
+    label.new(bar_index, botLvl + tolerance * 2.0, "APPROACH", style=label.style_label_down, color=color.new(colSupp, 35), textcolor=color.rgb(220, 220, 235), size=size.tiny, tooltip="Price entering floor proximity zone")
+
+// ──────────────────── CONVICTION PULSE (periodic rail strength labels) ────────
+// Show conviction % on the rail every 20 bars when level is stable
+bool pulseBar = bar_index % 20 == 0 and barstate.isconfirmed
+if showPulse and pulseBar and topStable and topStr > 0
+    label.new(bar_index, topLvl, str.tostring(topStr, "#") + "%", style=label.style_none, textcolor=color.new(topCol, 20), size=size.tiny, tooltip="Ceiling conviction: " + str.tostring(topValidated) + " validated / " + str.tostring(topTouches) + " total")
+if showPulse and pulseBar and botStable and botStr > 0
+    label.new(bar_index, botLvl, str.tostring(botStr, "#") + "%", style=label.style_none, textcolor=color.new(botCol, 20), size=size.tiny, tooltip="Floor conviction: " + str.tostring(botValidated) + " validated / " + str.tostring(botTouches) + " total")
+
+// ──────────────────── PROXIMITY ALERT SYSTEM ────────────────────────────────
+float distToTop = math.abs(close - topLvl)
+float distToBot = math.abs(close - botLvl)
+float distPctTop = close != 0 ? distToTop / close * 100 : 0
+float distPctBot = close != 0 ? distToBot / close * 100 : 0
+string nearestLvl = distToTop < distToBot ? "RESIST" : "SUPPORT"
+float  nearestDist = math.min(distPctTop, distPctBot)
+
+// ──────────────────── COMMAND PANEL (DASHBOARD) ─────────────────────────────
+color dashBg   = color.rgb(8, 8, 22, 5)
+color dashBord = color.rgb(40, 40, 65)
+color dashLbl  = color.rgb(120, 125, 155)
+color dashDim  = color.rgb(75, 78, 100)
+
+var table blsDash = table.new(position.top_right, 2, 11, bgcolor=dashBg, border_color=dashBord, border_width=1, frame_width=1, frame_color=dashBord)
+
+if showDash and barstate.islast
+    // Row 0 — Title
+    table.cell(blsDash, 0, 0, "BLS [JOAT]",    text_color=colNeut,  text_size=size.small, text_font_family=font.family_monospace)
+    table.cell(blsDash, 1, 0, "SENTINEL",      text_color=colNeut,  text_size=size.small, text_font_family=font.family_monospace)
+    // Row 1 — Ceiling Rail
+    table.cell(blsDash, 0, 1, "CEILING",       text_color=dashLbl, text_size=size.small, text_font_family=font.family_monospace)
+    table.cell(blsDash, 1, 1, str.tostring(topLvl, "#.#"), text_color=topCol, text_size=size.small, text_font_family=font.family_monospace)
+    // Row 2 — Ceiling conviction
+    table.cell(blsDash, 0, 2, "C CONV",        text_color=dashLbl, text_size=size.small, text_font_family=font.family_monospace)
+    table.cell(blsDash, 1, 2, str.tostring(topValidated) + "v/" + str.tostring(topTouches) + "t (" + str.tostring(topStr, "#") + "%)", text_color=topCol, text_size=size.small, text_font_family=font.family_monospace)
+    // Row 3 — Floor Rail
+    table.cell(blsDash, 0, 3, "FLOOR",         text_color=dashLbl, text_size=size.small, text_font_family=font.family_monospace)
+    table.cell(blsDash, 1, 3, str.tostring(botLvl, "#.#"), text_color=botCol, text_size=size.small, text_font_family=font.family_monospace)
+    // Row 4 — Floor conviction
+    table.cell(blsDash, 0, 4, "F CONV",        text_color=dashLbl, text_size=size.small, text_font_family=font.family_monospace)
+    table.cell(blsDash, 1, 4, str.tostring(botValidated) + "v/" + str.tostring(botTouches) + "t (" + str.tostring(botStr, "#") + "%)", text_color=botCol, text_size=size.small, text_font_family=font.family_monospace)
+    // Row 5 — Equator
+    table.cell(blsDash, 0, 5, "EQUATOR",       text_color=dashLbl, text_size=size.small, text_font_family=font.family_monospace)
+    table.cell(blsDash, 1, 5, str.tostring(midLvl, "#.#"), text_color=colNeut, text_size=size.small, text_font_family=font.family_monospace)
+    // Row 6 — Nearest level + distance
+    table.cell(blsDash, 0, 6, "NEAREST",       text_color=dashLbl, text_size=size.small, text_font_family=font.family_monospace)
+    color nearCol = nearestLvl == "RESIST" ? topCol : botCol
+    table.cell(blsDash, 1, 6, nearestLvl + " " + str.tostring(nearestDist, "#.##") + "%", text_color=nearCol, text_size=size.small, text_font_family=font.family_monospace)
+    // Row 7 — Grid Position
+    table.cell(blsDash, 0, 7, "GRID POS",      text_color=dashLbl, text_size=size.small, text_font_family=font.family_monospace)
+    table.cell(blsDash, 1, 7, posLabel, text_color=color.from_gradient(priceMap, 0, 1, colSupp, colResist), text_size=size.small, text_font_family=font.family_monospace)
+    // Row 8 — Rail Maturity
+    table.cell(blsDash, 0, 8, "MATURITY",      text_color=dashLbl, text_size=size.small, text_font_family=font.family_monospace)
+    table.cell(blsDash, 1, 8, "C:" + topMaturity + " F:" + botMaturity, text_color=dashDim, text_size=size.small, text_font_family=font.family_monospace)
+    // Row 9 — Stability
+    table.cell(blsDash, 0, 9, "LOCKED",        text_color=dashLbl, text_size=size.small, text_font_family=font.family_monospace)
+    string stabText = (topStable ? "C" : "-") + " / " + (botStable ? "F" : "-")
+    table.cell(blsDash, 1, 9, stabText, text_color=dashDim, text_size=size.small, text_font_family=font.family_monospace)
+    // Row 10 — Volume Confirmation
+    table.cell(blsDash, 0, 10, "FLUX",         text_color=dashLbl, text_size=size.small, text_font_family=font.family_monospace)
+    table.cell(blsDash, 1, 10, str.tostring(volConf, "#.##") + "x", text_color=volHot ? colValid : dashDim, text_size=size.small, text_font_family=font.family_monospace)
+
+// ──────────────────── ALERTS ────────────────────────────────────────────────
+alertcondition(topTouchEdge,          title="Ceiling Interaction",     message="BLS: Price touched ceiling rail")
+alertcondition(botTouchEdge,          title="Floor Interaction",       message="BLS: Price touched floor rail")
+alertcondition(topValTouch,           title="Ceiling Validated",       message="BLS: Volume-confirmed ceiling touch")
+alertcondition(botValTouch,           title="Floor Validated",         message="BLS: Volume-confirmed floor touch")
+alertcondition(topBreak,              title="Ceiling Breach",          message="BLS: Price breached above ceiling rail")
+alertcondition(botBreak,              title="Floor Breach",            message="BLS: Price breached below floor rail")
+alertcondition(nearestDist < 0.1,     title="Rail Proximity",          message="BLS: Price within 0.1% of nearest rail")
+alertcondition(topStr >= 100 and topStr[1] < 100, title="Ceiling Saturated", message="BLS: Ceiling conviction reached maximum")
+alertcondition(botStr >= 100 and botStr[1] < 100, title="Floor Saturated",   message="BLS: Floor conviction reached maximum")
+// ══════════════════════════════════════════════════════════════════════════════

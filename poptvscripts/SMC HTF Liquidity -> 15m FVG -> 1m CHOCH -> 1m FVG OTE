@@ -1,0 +1,230 @@
+//@version=6
+indicator("SMC HTF Liquidity -> 15m FVG -> 1m CHOCH -> 1m FVG OTE", overlay=true, max_labels_count=500, max_boxes_count=300, max_lines_count=300)
+
+//====================================================
+// INPUTS
+//====================================================
+grpHTF = "Higher Timeframe Liquidity"
+htfTf         = input.timeframe("60", "HTF Liquidity Timeframe", group=grpHTF)
+htfPivotLen   = input.int(5, "HTF Pivot Length", minval=2, group=grpHTF)
+
+grp15 = "15m FVG"
+fvgTf         = input.timeframe("15", "FVG HTF", group=grp15)
+extendBars15  = input.int(80, "15m FVG Extend Bars", minval=5, group=grp15)
+
+grp1m = "1m Confirmation"
+microLookback = input.int(5, "1m CHOCH Lookback", minval=2, maxval=20, group=grp1m)
+extendBars1m  = input.int(35, "1m FVG Extend Bars", minval=5, group=grp1m)
+
+grpOTE = "OTE"
+oteLow        = input.float(0.62, "OTE Low", step=0.01, group=grpOTE)
+oteHigh       = input.float(0.79, "OTE High", step=0.01, group=grpOTE)
+
+grpFlow = "Imbalance"
+atrLen        = input.int(14, "ATR Length", minval=1, group=grpFlow)
+volLen        = input.int(20, "Volume Average Length", minval=2, group=grpFlow)
+volMult       = input.float(1.3, "Strong Volume Multiplier", step=0.1, group=grpFlow)
+dispAtr       = input.float(0.6, "Minimum Displacement ATR", step=0.1, group=grpFlow)
+
+grpDisplay = "Display"
+showHTFLiq    = input.bool(true, "Show HTF Liquidity", group=grpDisplay)
+show15mFVG    = input.bool(true, "Show 15m FVG", group=grpDisplay)
+show1mFVG     = input.bool(true, "Show 1m FVG", group=grpDisplay)
+showSetupText = input.bool(true, "Show Setup Labels", group=grpDisplay)
+paintBars     = input.bool(true, "Paint Signal Bars", group=grpDisplay)
+flashBg       = input.bool(true, "Flash Background", group=grpDisplay)
+
+//====================================================
+// CORE
+//====================================================
+atrVal = ta.atr(atrLen)
+volAvg = ta.sma(volume, volLen)
+body   = math.abs(close - open)
+
+strongBullImb = close > open and body >= atrVal * dispAtr and volume > volAvg * volMult
+strongBearImb = close < open and body >= atrVal * dispAtr and volume > volAvg * volMult
+
+//====================================================
+// HTF DRAW ON LIQUIDITY
+//====================================================
+htfHighLiq = request.security(syminfo.tickerid, htfTf, ta.valuewhen(not na(ta.pivothigh(high, htfPivotLen, htfPivotLen)), ta.pivothigh(high, htfPivotLen, htfPivotLen), 0))
+htfLowLiq  = request.security(syminfo.tickerid, htfTf, ta.valuewhen(not na(ta.pivotlow(low, htfPivotLen, htfPivotLen)), ta.pivotlow(low, htfPivotLen, htfPivotLen), 0))
+
+plot(showHTFLiq ? htfHighLiq : na, "HTF High Liquidity", color=color.new(color.red, 30), style=plot.style_linebr, linewidth=2)
+plot(showHTFLiq ? htfLowLiq  : na, "HTF Low Liquidity",  color=color.new(color.green, 30), style=plot.style_linebr, linewidth=2)
+
+// Bias of attraction:
+// if price is below HTF high liquidity, upside draw
+// if price is above HTF low liquidity, downside draw
+wantBuys  = not na(htfHighLiq) and close < htfHighLiq
+wantSells = not na(htfLowLiq) and close > htfLowLiq
+
+//====================================================
+// 15m FVG DETECTION
+// bullish FVG: low[2] > high
+// bearish FVG: high[2] < low
+//====================================================
+fvg15BullTop = request.security(syminfo.tickerid, fvgTf, ta.valuewhen(low[2] > high, low[2], 0))
+fvg15BullBot = request.security(syminfo.tickerid, fvgTf, ta.valuewhen(low[2] > high, high, 0))
+
+fvg15BearTop = request.security(syminfo.tickerid, fvgTf, ta.valuewhen(high[2] < low, low, 0))
+fvg15BearBot = request.security(syminfo.tickerid, fvgTf, ta.valuewhen(high[2] < low, high[2], 0))
+
+var box bull15Box = na
+var box bear15Box = na
+
+if barstate.islast and show15mFVG
+    if not na(bull15Box)
+        box.delete(bull15Box)
+    if not na(fvg15BullTop) and not na(fvg15BullBot)
+        bull15Box := box.new(bar_index - 5, fvg15BullTop, bar_index + extendBars15, fvg15BullBot,
+             bgcolor=color.new(color.green, 88), border_color=color.green)
+
+    if not na(bear15Box)
+        box.delete(bear15Box)
+    if not na(fvg15BearTop) and not na(fvg15BearBot)
+        bear15Box := box.new(bar_index - 5, fvg15BearTop, bar_index + extendBars15, fvg15BearBot,
+             bgcolor=color.new(color.red, 88), border_color=color.red)
+
+// 15m tap
+tap15Bull = wantBuys and not na(fvg15BullTop) and not na(fvg15BullBot) and high >= fvg15BullBot and low <= fvg15BullTop
+tap15Bear = wantSells and not na(fvg15BearTop) and not na(fvg15BearBot) and high >= fvg15BearBot and low <= fvg15BearTop
+
+//====================================================
+// STATE MACHINE
+// 0 idle
+// 1 after 15m bullish FVG tap, waiting for bullish CHOCH
+// 2 after 15m bearish FVG tap, waiting for bearish CHOCH
+// 3 bullish CHOCH done, waiting for 1m bullish FVG tap in OTE
+// 4 bearish CHOCH done, waiting for 1m bearish FVG tap in OTE
+//====================================================
+var int state = 0
+
+if tap15Bull
+    state := 1
+if tap15Bear
+    state := 2
+
+//====================================================
+// 1m CHOCH
+//====================================================
+microLow  = ta.lowest(low[1], microLookback)
+microHigh = ta.highest(high[1], microLookback)
+
+bullChoch = close > microHigh
+bearChoch = close < microLow
+
+//====================================================
+// SWING RANGE FOR OTE
+// use recent local range
+//====================================================
+swingHigh = ta.highest(high, 20)
+swingLow  = ta.lowest(low, 20)
+rangeSize = math.max(swingHigh - swingLow, syminfo.mintick)
+
+// OTE zones
+sellOteLow  = swingLow + rangeSize * oteLow
+sellOteHigh = swingLow + rangeSize * oteHigh
+
+buyOteLow   = swingHigh - rangeSize * oteHigh
+buyOteHigh  = swingHigh - rangeSize * oteLow
+
+inSellOTE = close >= sellOteLow and close <= sellOteHigh
+inBuyOTE  = close >= buyOteLow and close <= buyOteHigh
+
+//====================================================
+// 1m FVG DETECTION
+//====================================================
+newBull1mFVG = bar_index >= 2 and low[2] > high and strongBullImb
+newBear1mFVG = bar_index >= 2 and high[2] < low and strongBearImb
+
+var float bull1mTop = na
+var float bull1mBot = na
+var int   bull1mBar = na
+var box   bull1mBox = na
+
+var float bear1mTop = na
+var float bear1mBot = na
+var int   bear1mBar = na
+var box   bear1mBox = na
+
+if newBull1mFVG
+    bull1mTop := low[2]
+    bull1mBot := high
+    bull1mBar := bar_index
+    if not na(bull1mBox)
+        box.delete(bull1mBox)
+    bull1mBox := box.new(bar_index, bull1mTop, bar_index + extendBars1m, bull1mBot,
+         bgcolor=show1mFVG ? color.new(color.white, 82) : na, border_color=color.white)
+
+if newBear1mFVG
+    bear1mTop := low
+    bear1mBot := high[2]
+    bear1mBar := bar_index
+    if not na(bear1mBox)
+        box.delete(bear1mBox)
+    bear1mBox := box.new(bar_index, bear1mTop, bar_index + extendBars1m, bear1mBot,
+         bgcolor=show1mFVG ? color.new(color.black, 82) : na, border_color=color.black)
+
+//====================================================
+// MOVE STATE FORWARD
+//====================================================
+if state == 1 and bullChoch
+    state := 3
+
+if state == 2 and bearChoch
+    state := 4
+
+//====================================================
+// FINAL TRIGGER
+// Price taps 1m FVG in OTE after CHOCH
+//====================================================
+tapBull1mFVG = state == 3 and not na(bull1mTop) and not na(bull1mBot) and high >= bull1mBot and low <= bull1mTop and inBuyOTE
+tapBear1mFVG = state == 4 and not na(bear1mTop) and not na(bear1mBot) and high >= bear1mBot and low <= bear1mTop and inSellOTE
+
+buyNowRaw  = tapBull1mFVG
+sellNowRaw = tapBear1mFVG
+
+buyNow  = buyNowRaw and not buyNowRaw[1]
+sellNow = sellNowRaw and not sellNowRaw[1]
+
+// consume state after signal
+if buyNow
+    state := 0
+if sellNow
+    state := 0
+
+//====================================================
+// VISUALS
+// BUY = WHITE
+// SELL = BLACK
+//====================================================
+plotshape(buyNow, title="BUY NOW", style=shape.labelup, location=location.belowbar, color=color.white, textcolor=color.black, size=size.large, text="BUY NOW")
+plotshape(sellNow, title="SELL NOW", style=shape.labeldown, location=location.abovebar, color=color.black, textcolor=color.white, size=size.large, text="SELL NOW")
+
+barcolor(paintBars ? (buyNow ? color.white : sellNow ? color.black : na) : na)
+bgcolor(flashBg ? (buyNow ? color.new(color.white, 84) : sellNow ? color.new(color.black, 84) : na) : na)
+
+if showSetupText and tap15Bull
+    label.new(bar_index, low, "15m bullish FVG tapped", style=label.style_label_up, color=color.new(color.green, 10), textcolor=color.white)
+
+if showSetupText and tap15Bear
+    label.new(bar_index, high, "15m bearish FVG tapped", style=label.style_label_down, color=color.new(color.red, 10), textcolor=color.white)
+
+if showSetupText and bullChoch and state == 3
+    label.new(bar_index, low, "1m bullish CHOCH formed", style=label.style_label_up, color=color.new(color.white, 10), textcolor=color.black)
+
+if showSetupText and bearChoch and state == 4
+    label.new(bar_index, high, "1m bearish CHOCH formed", style=label.style_label_down, color=color.new(color.black, 10), textcolor=color.white)
+
+if buyNow
+    label.new(bar_index, low, "BUY NOW\n15m FVG -> 1m CHOCH -> 1m Bullish FVG in OTE", style=label.style_label_up, color=color.white, textcolor=color.black)
+
+if sellNow
+    label.new(bar_index, high, "SELL NOW\n15m FVG -> 1m CHOCH -> 1m Bearish FVG in OTE", style=label.style_label_down, color=color.black, textcolor=color.white)
+
+//====================================================
+// ALERTS
+//====================================================
+alertcondition(buyNow, "BUY NOW", "BUY NOW on {{ticker}}")
+alertcondition(sellNow, "SELL NOW", "SELL NOW on {{ticker}}")

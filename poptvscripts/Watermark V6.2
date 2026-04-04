@@ -1,0 +1,34 @@
+//@version=6
+indicator("Watermark V6.2", overlay = true)
+
+// ── Positions & visibility ──
+show_sym = input.bool(true, "Show Symbol Info")
+
+sym_pos = input.string("top_center", "Symbol Position",
+     options = ["top_left","top_center","top_right",
+                "middle_left","middle_center","middle_right",
+                "bottom_left","bottom_center","bottom_right"])
+
+// ── Styling ──
+bg    = input.color(color.new(color.white, 100), "Background")
+c_sub = input.color(color.new(color.white, 30), "Text Color")
+
+s_sub = input.string("normal", "Text Size",
+     options = ["tiny","small","normal","large","huge"])
+
+a_sub = input.string("center", "Text Align",
+     options = ["left","center","right"])
+
+// ── Symbol text ──
+sym_str = syminfo.ticker + " | " + timeframe.period
+
+// ── Correct current date (no formatting issues) ──
+date_str = str.tostring(month(timenow)) + "/" + str.tostring(dayofmonth(timenow)) + "/" + str.tostring(year(timenow))
+
+// ── Create table once ──
+var table symTable = table.new(position = sym_pos, columns = 1, rows = 2, bgcolor = bg, border_width = 0)
+
+// ── Update on last bar ──
+if show_sym and barstate.islast
+    table.cell(symTable, 0, 0, date_str, text_color = c_sub, text_size = s_sub, text_halign = a_sub)
+    table.cell(symTable, 0, 1, sym_str, text_color = c_sub, text_size = s_sub, text_halign = a_sub)

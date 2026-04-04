@@ -1,0 +1,103 @@
+// @isthattyler
+
+//@version=5
+indicator("Denial [MMT]", overlay=true, max_labels_count=500, max_lines_count=500)
+
+// ─────────────────────────────────────────────
+// INPUTS
+// ─────────────────────────────────────────────
+grp_pattern = "PATTERN SETTINGS"
+equalTolPct    = input.float(0.10,  "Equal High/Low Tolerance (%)", minval=0.01, step=0.01, group=grp_pattern)
+minBodyPct     = input.float(55.0,  "Min Body-to-Range (%)", minval=0, maxval=100, step=1, group=grp_pattern)
+maxStarBodyPct = input.float(35.0,  "Max Star Body (%)", minval=0, maxval=100, step=1, group=grp_pattern, tooltip="Limits the body size of the middle candle.")
+signalAllStars = input.bool(true,   "Signal ALL Morning/Evening Stars", group=grp_pattern)
+requireSweep   = input.bool(true,   "Require Star to Sweep Impulse Extreme", group=grp_pattern, tooltip="Keeping this turned on ensures the star candle creates a new local high/low before reversing, which heavily increases the quality of the signal.")
+
+grp_session = "SESSION SETTINGS"
+useTimeFilter  = input.bool(false,  "Enable Session Filter", group=grp_session, tooltip="If disabled, signals will trigger across all market hours.")
+nySession      = input.session("0930-1600", "Session Time", group=grp_session)
+
+grp_display = "DISPLAY SETTINGS"
+showSL         = input.bool(true,   "Show Stop Loss Levels", group=grp_display, tooltip="Draws a short line at the high/low of the signal bar.")
+
+// ─────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────
+bodyRangePct(o, h, l, c) =>
+    rng = math.max(h - l, syminfo.mintick)
+    math.abs(c - o) / rng * 100.0
+
+nearEqual(a, b) =>
+    avg = math.max((math.abs(a) + math.abs(b)) / 2.0, syminfo.mintick)
+    math.abs(a - b) / avg * 100.0 <= equalTolPct
+
+// ─────────────────────────────────────────────
+// SESSION FILTER
+// ─────────────────────────────────────────────
+inSessionWindow = not na(time(timeframe.period, nySession, "America/New_York"))
+inNY = not useTimeFilter or inSessionWindow
+
+// ─────────────────────────────────────────────
+// CANDLE CLASSIFICATION
+//   bar[0] = 3rd candle (confirmation)
+//   bar[1] = 2nd candle (star)
+//   bar[2] = 1st candle (impulse)
+// ─────────────────────────────────────────────
+body_0 = bodyRangePct(open,    high,    low,    close)
+body_1 = bodyRangePct(open[1], high[1], low[1], close[1])
+body_2 = bodyRangePct(open[2], high[2], low[2], close[2])
+
+// 1. First candle must be a strong impulse
+isBull_2 = close[2] > open[2] and body_2 >= minBodyPct
+isBear_2 = close[2] < open[2] and body_2 >= minBodyPct
+
+// 2. Middle candle must be a "star" (small body)
+isStar_1 = body_1 <= maxStarBodyPct
+
+// 3. Third candle must be strong AND close past the first candle's midpoint
+isBear_0 = close < open and body_0 >= minBodyPct
+isBull_0 = close > open and body_0 >= minBodyPct
+
+midpoint_2     = (open[2] + close[2]) / 2.0
+eveningConfirm = isBear_0 and close <= midpoint_2
+morningConfirm = isBull_0 and close >= midpoint_2
+
+// 4. Structural Extreme (Optional Sweep check)
+starSweepsHigh = not requireSweep or (high[1] >= high[2])
+starSweepsLow  = not requireSweep or (low[1]  <= low[2])
+
+// ─────────────────────────────────────────────
+// RAW 3-CANDLE STAR PATTERNS
+// ─────────────────────────────────────────────
+rawEveningStar = isBull_2 and isStar_1 and eveningConfirm and starSweepsHigh
+rawMorningStar = isBear_2 and isStar_1 and morningConfirm and starSweepsLow
+
+// ─────────────────────────────────────────────
+// EQUAL HIGH / EQUAL LOW
+// ─────────────────────────────────────────────
+eqHighs = nearEqual(high[1], high[2]) or nearEqual(high[0], high[1])
+eqLows  = nearEqual(low[1],  low[2])  or nearEqual(low[0],  low[1])
+
+// ─────────────────────────────────────────────
+// FINAL SIGNALS
+// ─────────────────────────────────────────────
+sellSignal = rawEveningStar and (signalAllStars or eqHighs) and inNY
+buySignal  = rawMorningStar and (signalAllStars or eqLows)  and inNY
+
+// ─────────────────────────────────────────────
+// PLOTS & STOP LOSS LINES
+// ─────────────────────────────────────────────
+plotshape(sellSignal, title="SELL", text="SELL", style=shape.labeldown, location=location.abovebar, color=color.red, textcolor=color.white, size=size.tiny)
+plotshape(buySignal,  title="BUY",  text="BUY",  style=shape.labelup,   location=location.belowbar, color=color.teal, textcolor=color.white, size=size.tiny)
+
+if showSL and sellSignal
+    line.new(bar_index - 1, high, bar_index + 3, high, color=color.new(color.red, 30), width=2, style=line.style_solid)
+
+if showSL and buySignal
+    line.new(bar_index - 1, low, bar_index + 3, low, color=color.new(color.teal, 30), width=2, style=line.style_solid)
+
+// ─────────────────────────────────────────────
+// ALERTS
+// ─────────────────────────────────────────────
+alertcondition(sellSignal, title="Evening Star Trigger", message="SELL — Evening Star")
+alertcondition(buySignal,  title="Morning Star Trigger", message="BUY  — Morning Star")
