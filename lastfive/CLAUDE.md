@@ -79,17 +79,18 @@ Backtest and optimize a **LastFive** strategy that sells SPX short call + put cr
 
 | Metric | Value |
 |---|---|
-| **Total P&L** | $357,778 |
-| **CAGR** | 64.4% |
-| **Max Drawdown** | -$2,739 (-0.8%) |
-| **Sharpe Ratio** | 10.77 |
-| **Calmar Ratio** | 11.76 |
-| **Win Rate** | 73.9% |
-| **Profit Factor** | 3.03 |
-| **Total Trades** | 1,659 (call + put) |
+| **Total P&L** | $369,763 |
+| **CAGR** | 65.5% |
+| **Max Drawdown** | -$2,739 (-0.7%) |
+| **Sharpe Ratio** | 10.90 |
+| **Calmar Ratio** | 11.96 |
+| **Win Rate** | 72.7% |
+| **Profit Factor** | 2.98 |
+| **Total Trades** | ~1,675 (call + put) |
 | **Worst Day** | -$1,188 |
 | **Entry** | 15:52, bar OPEN (99.8% match with OA) |
 | **Touch Exits** | OA-style, bar CLOSE, Call $0 / Put -$1 |
+| **Range Budget** | Tighten $2 on quiet days (<50% VIX-range consumed) |
 
 ---
 
@@ -130,6 +131,12 @@ Backtest and optimize a **LastFive** strategy that sells SPX short call + put cr
 | **Min distance $1-2 at low VIX** | Better Sharpe/DD but -$24k to -$57k P&L | Model says ATM needs $1.6-2.3 for 50% safe. But touch handles the breach; removing ATM trades costs too much credit |
 | **Asymmetric put distance** | -$7k to -$16k P&L, no DD improvement | Down-tail is fatter (σ 1.31x at VIX 22-26) but touch already handles it |
 | **Pre-entry range filter** | -$18k to -$48k P&L | Max range 15:45-15:54 is best predictor (ρ=0.294) but removes too many profitable high-vol days |
+| **VIX range budget filter (skip)** | Sharpe +0.07 max, -$11k P&L | Range consumed has ρ=0.201 but skipping costs too much P&L. Tightening on quiet days adopted instead. |
+| **Exit at 15:59** | -$115k P&L, DD doubles | Misses final minute of mean-reversion |
+| **Pin risk / round numbers** | No edge | SPX doesn't pin meaningfully in last 8 min |
+| **Day-after-large-move** | Marginal, -$3.6k | Costs P&L, not enough signal |
+| **Day-of-week filter** | No actionable signal | Best (Wed) vs worst (Mon) gap too small |
+| **Vol-scaled sizing** | Neutral | Current tiered sizing already near-optimal |
 | **Asymmetric risk by momentum** | DD +46% worse, Sharpe -0.43 | When "safe" side loses, 2x allocation doubles damage. Mom30 is noise for last 5 min |
 | **One-side-only on directional days** | -$49k to -$100k P&L, DD unchanged | Skipped "threatened" trades are overwhelmingly profitable. Momentum doesn't predict last 5 min |
 | **Widen threatened side distance** | DD -60%, Sharpe +2.41 | Only tested on subset. Needs full verification. Graduated +3/+5 by |mom30| |

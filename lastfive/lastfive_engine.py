@@ -683,6 +683,17 @@ def run_backtest(indicators: dict) -> list:
         # VIX-adaptive strike distance
         dist = _get_adaptive_distance(vix_1550, spot=spot)
 
+        # Range budget tightening: on quiet days (<50% of VIX-implied range consumed),
+        # tighten distance by $2 to collect more credit.
+        if _cfg.ENABLE_RANGE_BUDGET_TIGHTEN and vix_1550 and vix_1550 > 0 and spot > 0:
+            expected_range = spot * vix_1550 / 100 / math.sqrt(252) * 1.6
+            pre_entry = spx_df[spx_df["hhmm"] <= "15:50"]
+            if len(pre_entry) >= 5 and expected_range > 0:
+                actual_range = float(pre_entry["high"].max()) - float(pre_entry["low"].min())
+                range_consumed = actual_range / expected_range
+                if range_consumed < _cfg.RANGE_BUDGET_QUIET_THRESHOLD:
+                    dist = max(0, dist - _cfg.RANGE_BUDGET_TIGHTEN_AMOUNT)
+
         available_strikes = set(quotes_df["strike"].unique())
         day_traded = False
 

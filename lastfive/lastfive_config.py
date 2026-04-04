@@ -106,9 +106,9 @@ RUN_HISTORY_FILE = os.path.join(LOGS_DIR, "run_history.json")
 # |  Touch    : Call $0 / Put -$1 continuous (bar CLOSE, OA-style)       |
 # +----------------------------------------------------------------------+
 # |  CONFIRMED BASELINE  (2022-01-03 -> 2026-03-25)  run 2026-04-04     |
-# |  Total P&L    : $348,808   Win rate : 74.0%   PF : 3.05             |
-# |  Max drawdown : -$2,739    Sharpe   :  6.71   Calmar : 127.3        |
-# |  Trades       : 1,624 (call + put)                                  |
+# |  Total P&L    : $369,763   Win rate : 72.7%   PF : 2.98             |
+# |  Max drawdown : -$2,739    Sharpe   : 10.90   Calmar : 11.96        |
+# |  Trades       : 1,675 (call + put)                                  |
 # |  Touch exits  : bar CLOSE (OA-matched), Call $0 / Put -$1           |
 # |  Entry strike : bar OPEN (99.8% match with OA)                      |
 # +----------------------------------------------------------------------+
@@ -133,6 +133,15 @@ DIST_WIDE          = 5.0    # Distance when VIX in [MID_CUTOFF, WIDE_CUTOFF]
 # VIX/16 continuous mode params (only used when VIX_ADAPTIVE_MODE = "vix16")
 VIX16_MULTIPLIER   = 1.5    # dist = multiplier * expected_5min_move (rounded up to STRIKE_STEP)
 VIX16_MIN_DIST     = 5.0    # Minimum distance floor (never go ATM in vix16 mode)
+
+# === RANGE BUDGET ADJUSTMENT ===
+# When <50% of VIX-implied daily range is consumed by 15:50, the day is quiet.
+# Tighten distance by $2 to collect more credit on these safe days.
+# Result: +$11.5k P&L, same DD, same Sharpe. Adds ~16 trades on quiet days.
+# Range consumed = actual_high_low / (SPX × VIX/100 / √252 × 1.6)
+ENABLE_RANGE_BUDGET_TIGHTEN = True
+RANGE_BUDGET_QUIET_THRESHOLD = 0.50  # Consumed < this = quiet day
+RANGE_BUDGET_TIGHTEN_AMOUNT = 2.0    # Reduce distance by this much on quiet days
 
 # Fallback fixed distance (used when VIX-adaptive is disabled)
 MIN_SHORT_DISTANCE = 3.0

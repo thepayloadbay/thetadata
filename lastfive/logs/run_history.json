@@ -1192,5 +1192,20 @@
       "min_credit": 0.1,
       "put_filter": true
     }
+  },
+  {
+    "run_number": 76,
+    "timestamp": "2026-04-04T15:18:17.665375",
+    "trades": 1675,
+    "total_pnl": 369763.0,
+    "win_rate": 72.7,
+    "config": {
+      "vix_adaptive": true,
+      "vix_atm_cutoff": 18.0,
+      "tiered_sizing": true,
+      "spread_width": 5.0,
+      "min_credit": 0.1,
+      "put_filter": true
+    }
   }
 ]
