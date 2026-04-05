@@ -109,6 +109,9 @@ if __name__ == "__main__":
     parser.add_argument("--range-budget-min", type=float, help="Enable range budget filter (skip if budget_used < this, e.g. 0.7)")
     parser.add_argument("--park-ratio-max", type=float, help="Enable Parkinson ratio filter (skip if close_vol/full_vol > this)")
     parser.add_argument("--vix16-min", type=float, help="Min distance floor for VIX/16 mode")
+    parser.add_argument("--zone-filter", action="store_true", help="Enable premium/discount zone side filter (H2-SMC-4)")
+    parser.add_argument("--fractal-max", type=float, help="Enable fractal efficiency filter (skip if FE > this, e.g. 0.65)")
+    parser.add_argument("--calm-streak", action="store_true", help="Enable calm streak VIX distance adjustment (H2-VXC-2)")
     args = parser.parse_args()
 
     if args.start:
@@ -153,5 +156,12 @@ if __name__ == "__main__":
         _cfg.PARKINSON_RATIO_MAX = args.park_ratio_max
     if args.vix16_min:
         _cfg.VIX16_MIN_DIST = args.vix16_min
+    if args.zone_filter:
+        _cfg.ENABLE_ZONE_SIDE_FILTER = True
+    if args.fractal_max is not None:
+        _cfg.ENABLE_FRACTAL_FILTER = True
+        _cfg.FRACTAL_MAX = args.fractal_max
+    if args.calm_streak:
+        _cfg.ENABLE_CALM_STREAK_ADJUST = True
 
     run()

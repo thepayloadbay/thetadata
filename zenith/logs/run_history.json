@@ -931,5 +931,49 @@
     "win_rate": 89.5,
     "pf": 5.88,
     "score_thresh": 68.0
+  },
+  {
+    "timestamp": "2026-04-04T17:02:44.722265",
+    "mode": "dynamic",
+    "trades": 185,
+    "pnl": 21163.21,
+    "max_dd": 496.7,
+    "sharpe": 12.33,
+    "win_rate": 82.7,
+    "pf": 6.25,
+    "score_thresh": 68.0
+  },
+  {
+    "timestamp": "2026-04-04T17:02:45.362921",
+    "mode": "dynamic",
+    "trades": 117,
+    "pnl": 11548.98,
+    "max_dd": 496.7,
+    "sharpe": 9.9,
+    "win_rate": 76.9,
+    "pf": 4.37,
+    "score_thresh": 68.0
+  },
+  {
+    "timestamp": "2026-04-04T17:02:45.476868",
+    "mode": "dynamic",
+    "trades": 335,
+    "pnl": 35851.0,
+    "max_dd": 496.7,
+    "sharpe": 11.54,
+    "win_rate": 81.2,
+    "pf": 5.59,
+    "score_thresh": 68.0
+  },
+  {
+    "timestamp": "2026-04-04T17:02:45.993188",
+    "mode": "dynamic",
+    "trades": 66,
+    "pnl": 6871.9,
+    "max_dd": 496.7,
+    "sharpe": 10.27,
+    "win_rate": 77.3,
+    "pf": 4.5,
+    "score_thresh": 68.0
   }
 ]

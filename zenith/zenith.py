@@ -108,6 +108,7 @@ if __name__ == "__main__":
     _parser.add_argument("--orb-max-width",    default=None, type=float, help="Enable ORB width filter (max width in pts)")
     _parser.add_argument("--orb-containment",  action="store_true",      help="Enable ORB containment filter (range-bound days only)")
     _parser.add_argument("--wpr-filter",       action="store_true",      help="Enable dual Williams %%R exhaustion filter (H2-WPR-1)")
+    _parser.add_argument("--vix-term-max",     default=None, type=float, help="Enable VIX/VIX9D term structure filter (max ratio, e.g. 1.05)")
     _args = _parser.parse_args()
 
     # Apply CLI overrides
@@ -134,6 +135,9 @@ if __name__ == "__main__":
         _cfg.USE_ORB_CONTAINMENT_FILTER = True
     if _args.wpr_filter:
         _cfg.USE_WPR_FILTER = True
+    if _args.vix_term_max is not None:
+        _cfg.USE_VIX_TERM_FILTER = True
+        _cfg.VIX_TERM_MAX_RATIO = _args.vix_term_max
 
     # Dispatch
     if _args.marathon or not any([

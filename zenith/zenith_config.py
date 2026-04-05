@@ -352,6 +352,12 @@ WPR_SLOW_PERIOD    = 112    # Slow Williams %R lookback
 WPR_OB_LEVEL       = -20.0  # Overbought threshold (above this = overbought)
 WPR_OS_LEVEL       = -80.0  # Oversold threshold (below this = oversold)
 
+# -- H2-VCP-2: VIX9D/VIX Term Structure Filter --
+# VIX9D/VIX > 1 means near-term vol elevated vs 9-day → contango breaking down.
+# Skip trades when ratio exceeds threshold (near-term stress).
+USE_VIX_TERM_FILTER   = False
+VIX_TERM_MAX_RATIO    = 1.05   # Skip when vix_close / vix9d_close > this
+
 # -- H5: Opening Range Breakout Filter --
 # Tight ORB (<8pt) = 93% WR. Very wide (25+pt) = 60% WR.
 # Skip trades when opening range is too wide (trending market, not range-bound).

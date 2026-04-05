@@ -1287,6 +1287,16 @@ def _run_backtest_inner(
                     total_skips += 1
                     continue
 
+        # H2-VCP-2: VIX9D/VIX term structure filter (uses T-1 data via signal_ind)
+        if _cfg.USE_VIX_TERM_FILTER:
+            vix_val = signal_ind.get("vix_close")
+            vix9d_val = signal_ind.get("vix9d_close")
+            if vix_val and vix9d_val and vix9d_val > 0:
+                vix_term_ratio = vix_val / vix9d_val
+                if vix_term_ratio > _cfg.VIX_TERM_MAX_RATIO:
+                    total_skips += 1
+                    continue
+
         # Determine exit date
         if _cfg.HOLD_DAYS == 1:
             exit_ind = today_ind

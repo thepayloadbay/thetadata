@@ -255,6 +255,31 @@ ENABLE_WVF_FILTER  = False
 WVF_MODE           = "bb"       # "bb" = above Bollinger Band, "percentile" = rank
 WVF_PERCENTILE_MAX = 85         # For percentile mode: skip if WVF rank > this
 
+# === PREMIUM/DISCOUNT ZONE SIDE FILTER (H2-SMC-4) ===
+# At entry, compute zone = (SPX - day_low) / (day_high - day_low) using bars up to 15:54.
+# zone > 0.7 = premium zone = skip CALL side (overextended up, risk of reversion)
+# zone < 0.3 = discount zone = skip PUT side (overextended down, risk of reversion)
+# This is SIDE SELECTION, not day skipping.
+ENABLE_ZONE_SIDE_FILTER     = False
+ZONE_PREMIUM_THRESHOLD      = 0.7    # Skip calls when zone > this
+ZONE_DISCOUNT_THRESHOLD     = 0.3    # Skip puts when zone < this
+
+# === FRACTAL EFFICIENCY FILTER (H2-FVA-1) ===
+# FE = log(abs(close[-1] - close[-n]) / sum_of_bar_ranges) / log(n)
+# Computed on 1-min bars 15:20-15:50 (30 bars before entry).
+# FE near 1 = trending (dangerous). FE near 0.5 = random walk. FE < 0.5 = mean-reverting.
+# Skip day if FE > threshold (strongly trending into close).
+ENABLE_FRACTAL_FILTER       = False
+FRACTAL_MAX                 = 0.65   # Skip if FE > this
+
+# === CALM STREAK VIX ADJUSTMENT (H2-VXC-2) ===
+# Count consecutive days where VIX close < SMA(VIX, 5).
+# When calm streak > threshold, tighten VIX/16 multiplier (market has been calm for a while).
+# This is a DISTANCE MODIFIER, not a filter.
+ENABLE_CALM_STREAK_ADJUST      = False
+CALM_STREAK_THRESHOLD          = 10    # Tighten after this many consecutive calm days
+CALM_STREAK_MULT_REDUCTION     = 0.2   # Reduce distance multiplier by 20%
+
 # === CALENDAR FILTERS ===
 ENABLE_FOMC_SKIP = False  # Walk-forward showed FOMC skip is overfit — hurts OOS
 ENABLE_TW_SKIP   = False  # TW days are profitable — do NOT skip

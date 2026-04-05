@@ -21,3 +21,11 @@ CURRENT+BOTH,2026-04-04,LastFive,PARK_WIDEN+FILTERS,budget+park_filt,on_current,
 H2-LOR-1,2026-04-04,SimSearch,LORENTZIAN,method,lorentzian,808,103,na,na,48.5,45.6,-1.25,-2.10,na,na,0,100%,WORSE,Lorentzian worse than cosine (45.6% vs 48.5%). SimSearch direction prediction is random regardless of metric.
 H2-APEX-SR,2026-04-04,Apex,SAFETY_RATIO,min,1.5,67,42,12465,6840,100,100,11.61,13.38,0,0,53,63%,INSURANCE,100% WR maintained. Sharpe improves but 37% fewer trades. Pure insurance — not backtest-optimizable.
 H2-APEX-VC,2026-04-04,Apex,VOL_CONSUMED,max,1.0,67,36,12465,5295,100,100,11.61,13.42,0,0,65,54%,INSURANCE,Same pattern. 46% fewer trades. Both are risk philosophy choices.
+H2-VCP-2a,2026-04-04,Zenith,VIX_TERM,max,1.05,335,117,35851,11549,81.2,76.9,11.54,9.90,-497,-497,218,35%,WORSE,VIX term removes good trades. WR drops from 81.2% to 76.9%. Not useful for Zenith.
+H2-VCP-2b,2026-04-04,Zenith,ORB20+TERM1.05,combo,20+1.05,335,66,35851,6872,81.2,77.3,11.54,10.27,-497,-497,269,20%,TOO FEW,Only 66 trades. Combo destroys P&L.
+H2-LIQ-1,2026-04-04,LastFive,POST_SWEEP,analysis,na,874,874,na,na,77.0,78.9,na,na,na,na,0,100%,NO EFFECT,Post-sweep WR 78.9% vs non 77.0%. Delta is noise. Not a useful filter.
+H2-MC-1,2026-04-04,LastFive,MONTE_CARLO,bootstrap,10000,1675,1675,369454,369454,77.7,77.7,11.16,11.16,-2105,-2105,0,100%,VALIDATED,90% CI: P&L $341k-$399k DD -$3.1k to -$1.6k Sharpe 10.3-12.1. P(loss)=0%. Extremely robust.
+H2-SMC-4,2026-04-04,LastFive,ZONE_SIDE_FILTER,zone,0.7/0.3,1640,1105,330209,263244,75.5,78.8,10.64,9.91,-1819,-1470,0,67%,TOO AGGRESSIVE,WR +3.3% DD -19% but -$67k P&L and Sharpe drops. Removes 33% trades.
+H2-FVA-1a,2026-04-04,LastFive,FRACTAL_EFF,max,0.65,1640,1631,330209,326871,75.5,75.5,10.64,10.61,-1819,-1819,5,99%,NO EFFECT,Only 5 days skipped. Fractal efficiency doesnt predict last 5 min.
+H2-FVA-1b,2026-04-04,LastFive,FRACTAL_EFF,max,0.50,1640,1566,330209,308998,75.5,75.3,10.64,10.42,-1819,-1819,40,96%,NO EFFECT,DD unchanged. More trades removed but no improvement.
+H2-VXC-2,2026-04-04,LastFive,CALM_STREAK,adjust,10d/20%,1640,1642,330209,333122,75.5,75.5,10.64,10.72,-1819,-1819,0,100%,MARGINAL,+$2.9k +0.08 Sharpe. Too small to adopt.

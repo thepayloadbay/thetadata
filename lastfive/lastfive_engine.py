@@ -171,6 +171,24 @@ def build_daily_indicators() -> dict:
     else:
         d["vvix_close"] = np.nan
 
+    # Calm streak: consecutive days where VIX close < SMA(VIX, 5)
+    if "vix_close" in d.columns:
+        d["vix_sma5"] = d["vix_close"].rolling(5).mean()
+        d["vix_below_sma5"] = (d["vix_close"] < d["vix_sma5"]).astype(int)
+        # Compute streak: consecutive 1s ending at each row
+        calm_streaks = []
+        streak = 0
+        for val in d["vix_below_sma5"].values:
+            if val == 1:
+                streak += 1
+            else:
+                streak = 0
+            calm_streaks.append(streak)
+        d["calm_streak"] = calm_streaks
+    else:
+        d["vix_sma5"] = np.nan
+        d["calm_streak"] = 0
+
     # Build indicator dict
     indicators = {}
     for _, row in d.iterrows():
@@ -189,6 +207,8 @@ def build_daily_indicators() -> dict:
             "wvf":             row.get("wvf") if pd.notna(row.get("wvf")) else None,
             "wvf_upper_bb":    row.get("wvf_upper_bb") if pd.notna(row.get("wvf_upper_bb")) else None,
             "wvf_pctrank":     row.get("wvf_pctrank") if pd.notna(row.get("wvf_pctrank")) else None,
+            "vix_sma5":        row.get("vix_sma5") if pd.notna(row.get("vix_sma5")) else None,
+            "calm_streak":     int(row.get("calm_streak", 0)),
         }
 
     _DAILY_INDICATORS = indicators
@@ -404,6 +424,65 @@ def _compute_spread_compression(spx_df: pd.DataFrame) -> dict | None:
     }
 
 
+def _compute_zone(spx_df: pd.DataFrame) -> float | None:
+    """Compute premium/discount zone: (SPX - day_low) / (day_high - day_low) using bars up to 15:54.
+
+    zone > 0.7 = premium (near day high), zone < 0.3 = discount (near day low).
+    """
+    if spx_df is None or spx_df.empty:
+        return None
+
+    spx_df = spx_df.copy()
+    if "hhmm" not in spx_df.columns:
+        spx_df["hhmm"] = pd.to_datetime(spx_df["timestamp"]).dt.strftime("%H:%M")
+
+    bars = spx_df[spx_df["hhmm"] <= "15:54"]
+    if len(bars) < 10:
+        return None
+
+    day_high = float(bars["high"].max())
+    day_low = float(bars["low"].min())
+    if day_high <= day_low:
+        return None
+
+    # Use last close as current SPX
+    current = float(bars["close"].iloc[-1])
+    return (current - day_low) / (day_high - day_low)
+
+
+def _compute_fractal_efficiency(spx_df: pd.DataFrame, n: int = 30) -> float | None:
+    """Compute Fractal Efficiency on 1-min bars 15:20-15:50.
+
+    FE = abs(close[-1] - close[0]) / sum_of_bar_to_bar_changes
+    FE near 1 = trending (price moved efficiently in one direction).
+    FE near 0 = choppy/mean-reverting (price wandered).
+    Computed on last `n` bars of the 15:20-15:50 window.
+    """
+    if spx_df is None or spx_df.empty:
+        return None
+
+    spx_df = spx_df.copy()
+    if "hhmm" not in spx_df.columns:
+        spx_df["hhmm"] = pd.to_datetime(spx_df["timestamp"]).dt.strftime("%H:%M")
+
+    bars = spx_df[(spx_df["hhmm"] >= "15:20") & (spx_df["hhmm"] <= "15:50")]
+    if len(bars) < n:
+        return None
+
+    bars = bars.tail(n)
+    closes = bars["close"].values.astype(float)
+
+    # Net displacement
+    net_move = abs(closes[-1] - closes[0])
+
+    # Sum of absolute bar-to-bar changes (path length)
+    path_length = sum(abs(closes[i] - closes[i - 1]) for i in range(1, len(closes)))
+    if path_length <= 0:
+        return 0.0
+
+    return net_move / path_length
+
+
 def _compute_mom30(spx_df: pd.DataFrame) -> float | None:
     """Compute SPX 30-min momentum (15:25 to 15:54) — available before 15:55 entry."""
     bars = spx_df[(spx_df["hhmm"] >= "15:25") & (spx_df["time_str"] < "15:55:00")]
@@ -416,21 +495,31 @@ def _compute_mom30(spx_df: pd.DataFrame) -> float | None:
     return (end_price - start_price) / start_price * 100
 
 
-def _get_adaptive_distance(vix_1550: float | None, spot: float | None = None) -> float:
+def _get_adaptive_distance(vix_1550: float | None, spot: float | None = None, calm_streak: int = 0) -> float:
     """Return strike distance based on VIX level.
 
     Two modes:
     - "buckets" (default): discrete VIX buckets (Rule C3)
     - "vix16": continuous formula: dist = mult * SPX * (VIX/15.87/100) * sqrt(5/390)
+
+    If calm_streak adjustment is enabled and streak > threshold, reduce
+    the VIX/16-based multiplier by CALM_STREAK_MULT_REDUCTION (20%).
     """
     if not _cfg.ENABLE_VIX_ADAPTIVE or vix_1550 is None:
         return _cfg.MIN_SHORT_DISTANCE
+
+    # Calm streak: tighten multiplier when VIX has been calm for many consecutive days
+    calm_mult_factor = 1.0
+    if (_cfg.ENABLE_CALM_STREAK_ADJUST
+            and calm_streak > _cfg.CALM_STREAK_THRESHOLD):
+        calm_mult_factor = 1.0 - _cfg.CALM_STREAK_MULT_REDUCTION
 
     # VIX/16 continuous mode
     if _cfg.VIX_ADAPTIVE_MODE == "vix16" and spot is not None and spot > 0:
         import math as _math
         expected_move = spot * (vix_1550 / 100.0) / 15.87 * _math.sqrt(5.0 / 390.0)
-        dist = _math.ceil(_cfg.VIX16_MULTIPLIER * expected_move / _cfg.STRIKE_STEP) * _cfg.STRIKE_STEP
+        eff_mult = _cfg.VIX16_MULTIPLIER * calm_mult_factor
+        dist = _math.ceil(eff_mult * expected_move / _cfg.STRIKE_STEP) * _cfg.STRIKE_STEP
         dist = max(dist, _cfg.VIX16_MIN_DIST)
         return float(dist)
 
@@ -438,7 +527,8 @@ def _get_adaptive_distance(vix_1550: float | None, spot: float | None = None) ->
     if _cfg.VIX_ADAPTIVE_MODE == "hybrid" and spot is not None and spot > 0:
         import math as _math
         expected_move = spot * (vix_1550 / 100.0) / 15.87 * _math.sqrt(5.0 / 390.0)
-        vix16_floor = _math.ceil(_cfg.VIX16_MULTIPLIER * expected_move / _cfg.STRIKE_STEP) * _cfg.STRIKE_STEP
+        eff_mult = _cfg.VIX16_MULTIPLIER * calm_mult_factor
+        vix16_floor = _math.ceil(eff_mult * expected_move / _cfg.STRIKE_STEP) * _cfg.STRIKE_STEP
         vix16_floor = max(vix16_floor, _cfg.VIX16_MIN_DIST)
         # Use bucket distance but never go below VIX/16 floor
         if vix_1550 < _cfg.VIX_ATM_CUTOFF:
@@ -450,6 +540,16 @@ def _get_adaptive_distance(vix_1550: float | None, spot: float | None = None) ->
         return float(max(bucket_dist, vix16_floor))
 
     # Default: discrete buckets (Rule C3)
+    # Calm streak also tightens bucket distances by one step when applicable
+    if _cfg.ENABLE_CALM_STREAK_ADJUST and calm_streak > _cfg.CALM_STREAK_THRESHOLD:
+        # In bucket mode, tighten distance: reduce by one bucket step
+        if vix_1550 < _cfg.VIX_ATM_CUTOFF:
+            return max(0, _cfg.DIST_ATM - _cfg.RANGE_BUDGET_TIGHTEN_AMOUNT)
+        elif vix_1550 < _cfg.VIX_MID_CUTOFF:
+            return max(0, _cfg.DIST_MID - _cfg.RANGE_BUDGET_TIGHTEN_AMOUNT)
+        else:
+            return max(0, _cfg.DIST_WIDE - _cfg.RANGE_BUDGET_TIGHTEN_AMOUNT)
+
     if vix_1550 < _cfg.VIX_ATM_CUTOFF:
         return _cfg.DIST_ATM
     elif vix_1550 < _cfg.VIX_MID_CUTOFF:
@@ -531,7 +631,8 @@ def run_backtest(indicators: dict) -> list:
                     "er_filter": 0, "parkinson_filter": 0, "parkinson_ratio": 0, "range_budget": 0, "spread_compression": 0,
                     "fomc_skip": 0, "tw_skip": 0,
                     "vix_intraday": 0, "afternoon_filter": 0,
-                    "put_momentum": 0}
+                    "put_momentum": 0, "fractal_filter": 0,
+                    "zone_skip_call": 0, "zone_skip_put": 0}
 
     for date_str in trade_dates:
         # Skip holidays
@@ -664,6 +765,13 @@ def run_backtest(indicators: dict) -> list:
                     skip_reasons["spread_compression"] += 1
                     continue
 
+        # Fractal efficiency filter (H2-FVA-1: strongly trending into close = dangerous)
+        if _cfg.ENABLE_FRACTAL_FILTER:
+            fe_val = _compute_fractal_efficiency(spx_df)
+            if fe_val is not None and fe_val > _cfg.FRACTAL_MAX:
+                skip_reasons["fractal_filter"] += 1
+                continue
+
         # Compute 30-min momentum for put filter
         mom30 = _compute_mom30(spx_df)
 
@@ -690,8 +798,9 @@ def run_backtest(indicators: dict) -> list:
         if spx_exit is None:
             spx_exit = float(spx_df["close"].iloc[-1])
 
-        # VIX-adaptive strike distance
-        dist = _get_adaptive_distance(vix_1550, spot=spot)
+        # VIX-adaptive strike distance (with calm streak adjustment)
+        calm_streak = ind.get("calm_streak", 0)
+        dist = _get_adaptive_distance(vix_1550, spot=spot, calm_streak=calm_streak)
 
         # Range budget tightening: on quiet days (<50% of VIX-implied range consumed),
         # tighten distance by $2 to collect more credit.
@@ -729,8 +838,19 @@ def run_backtest(indicators: dict) -> list:
         # Collect open positions for protective buy-back check
         open_positions = []  # list of {side, short_strike, long_strike, qty, credit, right}
 
+        # Compute zone for side selection (H2-SMC-4)
+        zone_val = None
+        if _cfg.ENABLE_ZONE_SIDE_FILTER:
+            zone_val = _compute_zone(spx_df)
+
         # --- CALL SIDE ENTRY ---
-        if _cfg.ENABLE_CALL_SIDE:
+        skip_call_zone = False
+        if _cfg.ENABLE_ZONE_SIDE_FILTER and zone_val is not None:
+            if zone_val > _cfg.ZONE_PREMIUM_THRESHOLD:
+                skip_call_zone = True
+                skip_reasons["zone_skip_call"] += 1
+
+        if _cfg.ENABLE_CALL_SIDE and not skip_call_zone:
             call_short = int(math.ceil((spot + dist) / _cfg.STRIKE_STEP) * _cfg.STRIKE_STEP)
             call_long = call_short + int(_cfg.SPREAD_WIDTH)
 
@@ -758,7 +878,13 @@ def run_backtest(indicators: dict) -> list:
                         })
 
         # --- PUT SIDE ENTRY ---
-        if _cfg.ENABLE_PUT_SIDE:
+        skip_put_zone = False
+        if _cfg.ENABLE_ZONE_SIDE_FILTER and zone_val is not None:
+            if zone_val < _cfg.ZONE_DISCOUNT_THRESHOLD:
+                skip_put_zone = True
+                skip_reasons["zone_skip_put"] += 1
+
+        if _cfg.ENABLE_PUT_SIDE and not skip_put_zone:
             skip_put = False
             if _cfg.ENABLE_PUT_MOMENTUM_FILTER:
                 if (afternoon_ret is not None and afternoon_ret < _cfg.PUT_AFTERNOON_MIN
