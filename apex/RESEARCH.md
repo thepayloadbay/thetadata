@@ -1032,6 +1032,48 @@ Scored V8 against NASA's 8 credibility factors (0-5 scale):
 - Phase 3 (30 days): Add 15:57 if fills are good
 - Phase 4: Scale to q=15
 
+### [92] VIX/16 Deep Analysis (2026-04-04, Session 16)
+
+VIX/16 = expected daily SPX move. Expected 5-min = VIX/16 × SPX × √(5/390).
+- Market overprices 5-min move by 1.7x (actual = 59% of expected)
+- Our d=12 = 1.8× expected move on average (97th percentile of market's distribution)
+- VIX1D/16 is best predictor (corr 0.240), followed by VIX@15:50/16 (corr 0.236)
+
+**Key discoveries:**
+- **Vol consumed < 0.5x by 15:00 → 0.0% breach rate** (113 days, perfect safety)
+- **Vol surprise > 2.0x → 14.8% breach rate** (extreme range days)
+- **VIX1D/VIX > 1.1 (backwardation) → 7.3% breach rate** (near-term vol elevated)
+- **Safety ratio < 1.0 (d < expected move) → still 0% breach** (VIX overprices even on these days)
+
+4 new filters integrated into engine: vol_consumed, vol_surprise, vix1d_ratio, safety_ratio.
+
+### [93] Look-Ahead Bias Audit + Fix (2026-04-04, Session 17)
+
+Comprehensive audit of all 15 data points used in the strategy. Found and FIXED one bug:
+- **vol_surprise filter** was using full daily range (includes 15:55-16:00 bars = look-ahead)
+- Fixed to use range by 15:00 only
+
+All other filters confirmed bias-free. Best-side-only selection confirmed bias-free (both sides settle at $0 on all 29 dual-qualifying days).
+
+### [94] Tick Noise Sensitivity (2026-04-04, Session 17)
+
+Random noise added to spot price at entry:
+- ±1pt noise: 100% WR (5-pt grid provides natural buffer)
+- ±2pt: 99% WR (one trade shifts to wrong strike)
+- ±5pt: 95% WR, -$8.3k DD
+
+Strategy is robust to normal price execution variation (< 1pt).
+
+### [95] Structural Shift Detection (2026-04-04, Session 17)
+
+Quarterly analysis of 5-min move at 15:55: **trend = -0.019 pts/quarter (STABLE).**
+The edge is NOT being arbitraged away over 4.25 years.
+
+Bid availability fluctuates with VIX regime:
+- Low VIX (2023): 18-26% of days have bid > $0 at d=12
+- High VIX (2022, 2025): 82-97% of days qualify
+- Strategy self-regulates: more trades in volatile periods, fewer in calm
+
 ### [88] Pre-2022 Data Gap (2026-04-04, Session 14)
 
 No SPX 1-min OHLC before 2022. Cannot verify pre-0DTE edge.

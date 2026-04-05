@@ -87,11 +87,11 @@ RUN_HISTORY_FILE = os.path.join(LOGS_DIR, "run_history.json")
 # |  Exit     : Next day close (4:00 PM) or intraday SL                 |
 # +----------------------------------------------------------------------+
 # |  HONEST BASELINE  (2022-01-03 -> 2026-04-01)  run 2026-04-04         |
-# |  Total P&L    : $39,964    Win rate : 78.3%   Sharpe : 10.61        |
-# |  Max drawdown : -$652      Calmar: 16.43   PF: 4.79                 |
-# |  Trades       : 387        Entry: 9:45 AM bar                       |
-# |  H17: put score 50, H16: SL -0.20, H4: skip big up days,           |
-# |  H8: noon profit-taking. All plateau-validated or structural.        |
+# |  Total P&L    : $35,851    Win rate : 81.2%   Sharpe : 11.54        |
+# |  Max drawdown : -$497      Calmar: 16.3x   PF: 5.59                 |
+# |  Trades       : 335        Entry: 9:45 AM bar                       |
+# |  H5: ORB skip (25pt), H4: skip big up days, H8: noon profit-take,  |
+# |  H17: put score 50, H16: SL -0.20. Forward sim: $8.5k/yr median.   |
 # +----------------------------------------------------------------------+
 
 # === SIGNAL LOGIC MODE ===
@@ -351,6 +351,17 @@ WPR_FAST_PERIOD    = 21     # Fast Williams %R lookback
 WPR_SLOW_PERIOD    = 112    # Slow Williams %R lookback
 WPR_OB_LEVEL       = -20.0  # Overbought threshold (above this = overbought)
 WPR_OS_LEVEL       = -80.0  # Oversold threshold (below this = oversold)
+
+# -- H5: Opening Range Breakout Filter --
+# Tight ORB (<8pt) = 93% WR. Very wide (25+pt) = 60% WR.
+# Skip trades when opening range is too wide (trending market, not range-bound).
+ENABLE_ORB_SKIP          = True
+ORB_MAX_WIDTH            = 25.0    # Skip if 15-min opening range > this (pts)
+
+# -- H21: Full VIX Term Structure Contango --
+# When VIX1D < VIX9D < VIX (full contango), WR = 82%, Sharpe 12.29.
+# Not full contango: WR 71%, Sharpe 8.31. Only trade in full contango.
+ENABLE_FULL_CONTANGO     = False  # H21: Sharpe 13 but loses $3.6k/yr P&L. Efficiency drops. REVERTED.
 
 # -- H4: Skip call trades after big up days (+1%) —
 # After a +1% up day, call spread WR drops to 61% (vs 82% after down days).

@@ -702,18 +702,20 @@ def _run_backtest_inner(indicators: dict) -> list:
                             skip_reasons["vol_consumed"] += 1
                             continue
 
-        # Vol surprise filter: actual daily range / VIX prediction
+        # Vol surprise filter: range by 15:00 / VIX prediction (no look-ahead)
         if _cfg.ENABLE_VOL_SURPRISE_FILTER and vix is not None:
             open_930_vs = _get_spx_at_time(spx_df, "09:30:00")
-            if open_930_vs and open_930_vs > 0:
-                actual_range = float(spx_df["high"].max()) - float(spx_df["low"].min())
-                vix16_daily = open_930_vs * (vix / 16) / 100
-                if vix16_daily > 0:
-                    vol_surprise = actual_range / vix16_daily
-                    if vol_surprise > _cfg.VOL_SURPRISE_MAX:
-                        skip_reasons.setdefault("vol_surprise", 0)
-                        skip_reasons["vol_surprise"] += 1
-                        continue
+            if open_930_vs and open_930_vs > 0 and "time_str" in spx_df.columns:
+                bars_to_1500 = spx_df[spx_df["time_str"] <= "15:00:00"]
+                if not bars_to_1500.empty:
+                    range_to_1500 = float(bars_to_1500["high"].max()) - float(bars_to_1500["low"].min())
+                    vix16_daily = open_930_vs * (vix / 16) / 100
+                    if vix16_daily > 0:
+                        vol_surprise = range_to_1500 / vix16_daily
+                        if vol_surprise > _cfg.VOL_SURPRISE_MAX:
+                            skip_reasons.setdefault("vol_surprise", 0)
+                            skip_reasons["vol_surprise"] += 1
+                            continue
 
         # VIX1D/VIX ratio filter (backwardation = risky)
         if _cfg.ENABLE_VIX1D_RATIO_FILTER:

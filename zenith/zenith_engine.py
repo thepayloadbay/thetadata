@@ -145,6 +145,19 @@ def build_daily_indicators() -> dict:
         v1d_df = pd.DataFrame(vix1d_rows).drop_duplicates(subset="date", keep="last")
         d = d.merge(v1d_df[["date", "vix1d_close"]], on="date", how="left")
 
+    # -- Merge VIX9D closes for full contango filter --
+    vix9d_rows = []
+    for fpath in sorted(glob.glob(os.path.join(DATA_DIR, "*", "vix9d", "*.parquet"))):
+        try:
+            vdf = pd.read_parquet(fpath)
+            if not vdf.empty and "vix9d_close" in vdf.columns:
+                vix9d_rows.append({"date": str(vdf["date"].iloc[0]), "vix9d_close": float(vdf["vix9d_close"].iloc[0])})
+        except Exception:
+            pass
+    if vix9d_rows:
+        v9d_df = pd.DataFrame(vix9d_rows).drop_duplicates(subset="date", keep="last")
+        d = d.merge(v9d_df[["date", "vix9d_close"]], on="date", how="left")
+
     # -- Derived daily bars --
     hl = (d["high"] - d["low"]).clip(lower=0.01)
 
@@ -262,6 +275,8 @@ def build_daily_indicators() -> dict:
         cols_to_keep.extend(["vix_close", "vix_sma20"])
     if "vix1d_close" in d.columns:
         cols_to_keep.append("vix1d_close")
+    if "vix9d_close" in d.columns:
+        cols_to_keep.append("vix9d_close")
     if "orb_width" in d.columns:
         cols_to_keep.extend(["orb_high", "orb_low", "orb_width", "orb_contained"])
 
@@ -1165,6 +1180,7 @@ def _run_backtest_inner(
             continue
 
         # Term structure filter (uses prior day's VIX1D, no look-ahead)
+        signal_ind_check = None
         if _cfg.ENABLE_TERM_STRUCTURE_FILTER:
             signal_ind_check = prior_day_ind(d_str, indicators)
             if signal_ind_check:
@@ -1176,6 +1192,32 @@ def _run_backtest_inner(
                         total_skips += 1
                         _streak_count = 0
                         continue
+
+        # H21: Full contango filter (VIX1D < VIX9D < VIX)
+        if _cfg.ENABLE_FULL_CONTANGO:
+            if not signal_ind_check:
+                signal_ind_check = prior_day_ind(d_str, indicators)
+            if signal_ind_check:
+                vix_val = signal_ind_check.get("vix_close")
+                vix1d_val = signal_ind_check.get("vix1d_close")
+                vix9d_val = signal_ind_check.get("vix9d_close")
+                if vix_val and vix1d_val and vix9d_val:
+                    if not (vix1d_val < vix9d_val < vix_val):
+                        total_skips += 1
+                        _streak_count = 0
+                        continue
+
+        # H5: Opening range breakout filter (skip wide ORB days)
+        if _cfg.ENABLE_ORB_SKIP:
+            bars_check = _load_intraday_bars(d_str)
+            if bars_check and len(bars_check) >= 15:
+                orb_high = max(b[0] for b in bars_check[:15])
+                orb_low = min(b[1] for b in bars_check[:15])
+                orb_width = orb_high - orb_low
+                if orb_width > _cfg.ORB_MAX_WIDTH:
+                    total_skips += 1
+                    _streak_count = 0
+                    continue
 
         # Signal uses PRIOR day's indicators (T-1)
         signal_ind = prior_day_ind(d_str, indicators)
