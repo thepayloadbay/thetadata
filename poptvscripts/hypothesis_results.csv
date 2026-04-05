@@ -29,3 +29,5 @@ H2-SMC-4,2026-04-04,LastFive,ZONE_SIDE_FILTER,zone,0.7/0.3,1640,1105,330209,2632
 H2-FVA-1a,2026-04-04,LastFive,FRACTAL_EFF,max,0.65,1640,1631,330209,326871,75.5,75.5,10.64,10.61,-1819,-1819,5,99%,NO EFFECT,Only 5 days skipped. Fractal efficiency doesnt predict last 5 min.
 H2-FVA-1b,2026-04-04,LastFive,FRACTAL_EFF,max,0.50,1640,1566,330209,308998,75.5,75.3,10.64,10.42,-1819,-1819,40,96%,NO EFFECT,DD unchanged. More trades removed but no improvement.
 H2-VXC-2,2026-04-04,LastFive,CALM_STREAK,adjust,10d/20%,1640,1642,330209,333122,75.5,75.5,10.64,10.72,-1819,-1819,0,100%,MARGINAL,+$2.9k +0.08 Sharpe. Too small to adopt.
+H2-KER-1,2026-04-04,MEIC,ER_DIRECTION,er+trend,0.5,1310,1221,63928,54679,65.8,65.4,2.29,2.06,na,na,34,93%,REJECTED,ER direction hurts. Skipped 34 days cost $9.2k. Afternoon puts are structural — morning trend doesnt matter.
+H2-ORB-2,2026-04-04,MEIC,ORB_BREAKOUT_TIME,breakout_hr,11,1310,28,63928,1804,65.8,71.4,2.29,2.30,na,na,899,2%,REJECTED,SPX breaks 30min ORB before 11AM on 90% of days. Filter kills all activity. ORB too narrow for SPX.

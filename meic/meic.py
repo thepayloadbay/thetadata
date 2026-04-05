@@ -169,6 +169,8 @@ if __name__ == "__main__":
     _parser.add_argument("--skip-tw", action="store_true", help="Skip triple witching days")
     _parser.add_argument("--orb-filter", action="store_true", help="ORB containment: skip entry if SPX broke 9:30-10:00 range")
     _parser.add_argument("--prior-day-bullish", action="store_true", help="Only enter when prior day was bullish (close > open)")
+    _parser.add_argument("--er-direction", action="store_true", help="H2-KER-1: Kaufman ER direction signal at 14:00")
+    _parser.add_argument("--orb-breakout-time", action="store_true", help="H2-ORB-2: Skip day if ORB breakout before 11:00")
     _args = _parser.parse_args()
 
     if _args.start:
@@ -252,6 +254,10 @@ if __name__ == "__main__":
         _cfg.ENABLE_ORB_FILTER = True
     if _args.prior_day_bullish:
         _cfg.ENABLE_PRIOR_DAY_DIRECTION_FILTER = True
+    if _args.er_direction:
+        _cfg.ENABLE_ER_DIRECTION = True
+    if _args.orb_breakout_time:
+        _cfg.ENABLE_ORB_BREAKOUT_TIME_FILTER = True
 
     # Build calendar event date sets
     _cal = _build_calendar_event_dates()

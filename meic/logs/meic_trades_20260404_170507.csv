@@ -1,0 +1,2 @@
+entry_date,entry_time,option_type,short_strike,long_strike,width,credit_received,entry_short_bid,entry_short_ask,entry_short_mid,entry_long_bid,entry_long_ask,entry_long_mid,qty,vix_level,strike_distance,opening_put_credit,opening_call_credit,pc_skew_ratio,ema13,ema48,outcome,pnl_earned,peak_pnl,close_date,close_time,win,loss
+20220627,14:15:00,PUT,3875,3815,60.0,1.5999999999999999,1.7,1.75,1.725,0.05,0.1,0.075,1,27.09,28,,,,3899.84,3899.91,EXPIRATION,152.99999999999997,154.99999999999997,20220627,15:59:00,1,0

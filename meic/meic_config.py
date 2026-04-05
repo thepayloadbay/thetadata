@@ -257,6 +257,20 @@ LATE_CREDIT_MIN           = 1.80          # higher min credit for late entries
 # ORB = max(high) / min(low) of 1-min bars from 09:30-10:00. No look-ahead bias.
 ENABLE_ORB_FILTER        = False
 
+# -- H2-KER-1: Kaufman Efficiency Ratio Direction Signal --
+# Compute ER = abs(close - close[n]) / sum(abs(changes)) on 5-min SPX bars 12:00-14:00
+# ER > 0.5 = strong trend. If trending DOWN, skip (puts unsafe). If UP or choppy, trade.
+ENABLE_ER_DIRECTION      = False
+ER_LOOKBACK              = 24   # 24 five-min bars = 2 hours (12:00-14:00)
+ER_TREND_THRESHOLD       = 0.5  # ER above this = strong trend
+
+# -- H2-ORB-2: ORB Breakout Time Filter --
+# Track when SPX first breaks above ORB high or below ORB low.
+# Early breakout (before 11:00) = trending day = skip MEIC.
+# Late breakout (after 14:00) or never = range-bound = trade MEIC.
+ENABLE_ORB_BREAKOUT_TIME_FILTER = False
+ORB_LATE_BREAKOUT_HOUR   = 11   # breakout before this hour = skip day (early = trending)
+
 # -- Prior-Day Candle Direction Filter --
 # Only enter PUT credit spreads when prior day was bullish (close > open).
 # Bearish prior days → skip. Uses T-1 daily OHLC, no look-ahead bias.

@@ -101,6 +101,10 @@ def print_settings_summary():
         logger.info(f"  ORB_FILTER=ON (skip if SPX breaks 9:30-10:00 range)")
     if _cfg.ENABLE_PRIOR_DAY_DIRECTION_FILTER:
         logger.info(f"  PRIOR_DAY_DIRECTION_FILTER=ON (skip bearish prior days)")
+    if _cfg.ENABLE_ER_DIRECTION:
+        logger.info(f"  ER_DIRECTION=ON (Kaufman ER>{_cfg.ER_TREND_THRESHOLD} + downtrend = skip)")
+    if _cfg.ENABLE_ORB_BREAKOUT_TIME_FILTER:
+        logger.info(f"  ORB_BREAKOUT_TIME_FILTER=ON (breakout before {_cfg.ORB_LATE_BREAKOUT_HOUR}:00 = skip)")
     logger.info("---------------------")
 
 
@@ -423,6 +427,79 @@ async def _fetch_day_data(session, date_str: str, seed_bars: int | None = None) 
             if morning_range_pct > _cfg.MORNING_RANGE_MAX_PCT:
                 logger.info(f"Morning range gate: {morning_range_pct:.2f}% > {_cfg.MORNING_RANGE_MAX_PCT}% -- skipping day")
                 return None
+
+    # -- H2-KER-1: Kaufman Efficiency Ratio direction signal --
+    if _cfg.ENABLE_ER_DIRECTION:
+        # Build 5-min bars from 12:00-14:00 using 1-min close data
+        five_min_closes = []
+        bucket_closes = []
+        for ci in range(len(df_today)):
+            t = datetime.fromisoformat(str(df_today["timestamp"].iloc[ci])[:19].replace('Z', '')).time()
+            if time(12, 0) <= t < time(14, 0):
+                bucket_closes.append(float(df_today["close"].iloc[ci]))
+                # Every 5 bars = one 5-min bar (use last close in bucket)
+                if len(bucket_closes) == 5:
+                    five_min_closes.append(bucket_closes[-1])
+                    bucket_closes = []
+        # Flush remaining partial bucket
+        if bucket_closes:
+            five_min_closes.append(bucket_closes[-1])
+
+        n_bars = len(five_min_closes)
+        if n_bars >= 2:
+            lookback = min(_cfg.ER_LOOKBACK, n_bars)
+            window = five_min_closes[-lookback:]
+            net_change = abs(window[-1] - window[0])
+            sum_abs_changes = sum(abs(window[j] - window[j-1]) for j in range(1, len(window)))
+            er = net_change / sum_abs_changes if sum_abs_changes > 0 else 0.0
+            trending_down = window[-1] < window[0]
+            logger.info(f"Kaufman ER: {er:.3f} (n={len(window)} 5-min bars) | direction={'DOWN' if trending_down else 'UP'}")
+            if er > _cfg.ER_TREND_THRESHOLD and trending_down:
+                logger.info(f"ER direction filter: ER={er:.3f} > {_cfg.ER_TREND_THRESHOLD} AND trending DOWN -- skipping day")
+                return None
+        else:
+            logger.warning(f"ER direction: not enough 5-min bars ({n_bars}) -- skipping filter")
+
+    # -- H2-ORB-2: ORB breakout TIME filter --
+    if _cfg.ENABLE_ORB_BREAKOUT_TIME_FILTER:
+        # We need ORB high/low (9:30-10:00). Compute if not already done.
+        _orb_h = orb_high
+        _orb_l = orb_low
+        if _orb_h is None or _orb_l is None:
+            _orb_highs = []
+            _orb_lows = []
+            for ci in range(len(df_today)):
+                t = datetime.fromisoformat(str(df_today["timestamp"].iloc[ci])[:19].replace('Z', '')).time()
+                if time(9, 30) <= t < time(10, 0):
+                    _orb_highs.append(float(df_today["high"].iloc[ci]))
+                    _orb_lows.append(float(df_today["low"].iloc[ci]))
+            if _orb_highs:
+                _orb_h = max(_orb_highs)
+                _orb_l = min(_orb_lows)
+
+        if _orb_h is not None and _orb_l is not None:
+            # Scan 1-min bars from 10:00 onward to find first breakout time
+            breakout_time = None
+            for ci in range(len(df_today)):
+                t = datetime.fromisoformat(str(df_today["timestamp"].iloc[ci])[:19].replace('Z', '')).time()
+                if t < time(10, 0):
+                    continue
+                bar_high = float(df_today["high"].iloc[ci])
+                bar_low = float(df_today["low"].iloc[ci])
+                if bar_high > _orb_h or bar_low < _orb_l:
+                    breakout_time = t
+                    break
+
+            if breakout_time is not None:
+                logger.info(f"ORB breakout time: {breakout_time.strftime('%H:%M')} (ORB=[{_orb_l:.2f}, {_orb_h:.2f}])")
+                cutoff = time(_cfg.ORB_LATE_BREAKOUT_HOUR, 0)
+                if breakout_time < cutoff:
+                    logger.info(f"ORB breakout time filter: breakout at {breakout_time.strftime('%H:%M')} < {cutoff.strftime('%H:%M')} -- skipping day (trending)")
+                    return None
+            else:
+                logger.info(f"ORB breakout time: NEVER (range-bound day, safe for MEIC)")
+        else:
+            logger.warning(f"ORB breakout time filter: no ORB data available -- skipping filter")
 
     return {
         "date_str": date_str,
